@@ -1,7 +1,5 @@
 package spamizer;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 
 public class Application  {
@@ -19,7 +17,17 @@ public class Application  {
 
         try {
             Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:spamizer_db", "SA", "");
-            System.out.println(c.toString());
+            Statement statement = c.createStatement();
+
+            String sqlCreateTable = "CREATE TABLE HISTOGRAMA(word VARCHAR(255) not NULL, times INTEGER, is_ham BOOLEAN, PRIMARY KEY (word))";
+            statement.executeUpdate(sqlCreateTable);
+
+            statement.executeUpdate("INSERT INTO HISTOGRAMA(word, times, is_ham) values('hola',1,1)");
+            ResultSet res = statement.executeQuery("SELECT * FROM HISTOGRAMA");
+            while(res.next()){
+                System.out.println(res.getString("word") + " " + res.getInt("times") + " " + res.getBoolean("is_ham"));
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
