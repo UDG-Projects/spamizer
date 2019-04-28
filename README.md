@@ -1,10 +1,14 @@
 # Spamizer
 
+## Configuració projecte a idea
+
+Per poder donar-li al play només has d'afegir una configuració nova (botó esquerra del play), prèmer el signe + i afegir una Application. Un cop fet aquest pas només s'ha de dir quina és la classe que conté el main i deixar que intellijidea faci màgia.
+
 ## Base de dades
 
 S'utilitza una base de dades en memòria anomenada [HyperSQL](http://hsqldb.org/).
 
-## Instal·lació del JDBC Driver per HSQLDB.
+### Instal·lació del JDBC Driver per HSQLDB.
 
 És necessari utilitzar jetbrains intellijidea per realitzar aquest tutorial.  
 
