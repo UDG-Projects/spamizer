@@ -1,34 +1,43 @@
 package spamizer;
+import spamizer.entity.Database;
+
 import java.sql.*;
+import java.util.ArrayList;
 
 
 public class Application  {
 
     public static void main(String [] args)
     {
-        System.out.println("Hello world");
-
         try {
-            Class.forName("org.hsqldb.jdbc.JDBCDriver" );
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Instal·la el driver per HSQLDB des del mateix idea.");
-        }
 
-        try {
-            Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:spamizer_db", "SA", "");
-            Statement statement = c.createStatement();
+            Database database = Database.getInstance();
 
-            String sqlCreateTable = "CREATE TABLE HISTOGRAMA(word VARCHAR(255) not NULL, times INTEGER, is_ham BOOLEAN, PRIMARY KEY (word))";
-            statement.executeUpdate(sqlCreateTable);
+            /*ArrayList<String> words = new ArrayList<>();
+            words.add("un");
+            words.add("un");
+            words.add("un");
+            words.add("un");
+            words.add("un");
+            words.add("dos");
+            words.add("dos");
+            words.add("tres");
+            database.insert(Database.Table.HAM, words, 1);*/
 
-            statement.executeUpdate("INSERT INTO HISTOGRAMA(word, times, is_ham) values('hola',1,1)");
-            ResultSet res = statement.executeQuery("SELECT * FROM HISTOGRAMA");
-            while(res.next()){
-                System.out.println(res.getString("word") + " " + res.getInt("times") + " " + res.getBoolean("is_ham"));
-            }
+            database.insert(Database.Table.HAM,"tres", 1);
+            database.insert(Database.Table.HAM,"un", 4);
+            database.insert(Database.Table.SPAM,"tres", 1);
+            database.insert(Database.Table.HAM,"un", 1);
+            database.insert(Database.Table.HAM,"un", 1);
+            database.insert(Database.Table.SPAM,"dos", 1);
+            System.out.println(database.select(Database.Table.HAM));
 
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("Falta el driver i possiblement afegir el jar com a llibreria del projecte.");
+            System.out.println("Consulta el README.md i segueix els passos descrits.");
+            System.out.println("Happy coding!");
             e.printStackTrace();
         }
     }
