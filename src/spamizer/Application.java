@@ -2,7 +2,6 @@ package spamizer;
 import spamizer.entity.Database;
 
 import java.sql.*;
-import java.util.ArrayList;
 
 
 public class Application  {
@@ -24,12 +23,12 @@ public class Application  {
             words.add("tres");
             database.insert(Database.Table.HAM, words, 1);*/
 
-            database.insert(Database.Table.HAM,"tres", 1);
-            database.insert(Database.Table.HAM,"un", 4);
-            database.insert(Database.Table.SPAM,"tres", 1);
-            database.insert(Database.Table.HAM,"un", 1);
-            database.insert(Database.Table.HAM,"un", 1);
-            database.insert(Database.Table.SPAM,"dos", 1);
+            //database.insert(Database.Table.HAM,"tres", 1);
+            database.insertOrUpdate(Database.Table.HAM,"un", 1);
+            //database.insert(Database.Table.SPAM,"tres", 1);
+            database.insertOrUpdate(Database.Table.HAM,"un", 5);
+            database.insertOrUpdate(Database.Table.HAM,"un", 1);
+            //database.insert(Database.Table.SPAM,"dos", 1);
             System.out.println(database.select(Database.Table.HAM));
 
         } catch (SQLException e) {

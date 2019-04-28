@@ -68,24 +68,17 @@ public class Database {
         statement.close();
     }
 
-    public void insert(Table table, String word, int times) throws SQLException {
+    public void insertOrUpdate(Table table, String word, int times) throws SQLException {
         Statement statement = connection.createStatement();
-        String insert = "INSERT INTO " + table + "(word, times) " +
-                                     "VALUES('"+ word + "'," + times + ") " +
-                                     "ON DUPLICATE KEY UPDATE times = times + " + times;
+
+        // En la següent query es fa un insert or update
+        String insert = "MERGE INTO " + table + " AS t USING (VALUES('"+ word + "'," + times + ")) AS " +
+                        "vals(word, times) ON t.WORD=VALS.word " +
+                        "WHEN MATCHED THEN UPDATE SET t.times=t.times+vals.times " +
+                        "WHEN NOT MATCHED THEN INSERT VALUES vals.word, vals.times";
+
         statement.executeUpdate(insert);
         statement.close();
-
-
-        /*
-        String query = "INSERT INTO " + table + "(word, times) VALUES ";
-        for(String values : words){
-            query +="('"+ values + "'," + times + "),";
-        }
-        // Li trec la última coma.
-        query = query.substring(0, query.length() -1) + " ";
-        query += "ON DUPLICATE KEY UPDATE times = times + 1";
-         */
     }
 
     public String select(Table table) throws SQLException {
