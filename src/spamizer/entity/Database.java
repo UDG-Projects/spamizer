@@ -1,9 +1,14 @@
 package spamizer.entity;
 
+import javafx.util.Pair;
+
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class Database {
+
 
     public enum Table {
         SPAM("SPAM"),
@@ -68,16 +73,23 @@ public class Database {
         statement.close();
     }
 
-    public void insertOrUpdate(Table table, String word, int times) throws SQLException {
-        Statement statement = connection.createStatement();
+    private void insertOrUpdate(Statement statement, Table table, String word, int times) throws SQLException {
 
         // En la següent query es fa un insert or update
-        String insert = "MERGE INTO " + table + " AS t USING (VALUES('"+ word + "'," + times + ")) AS " +
-                        "vals(word, times) ON t.WORD=VALS.word " +
+        String insert = "MERGE INTO " + table + " AS t USING (" +
+                            "VALUES('"+ word + "'," + times + ")" +
+                        ") AS vals(word, times) ON t.WORD=VALS.word " +
                         "WHEN MATCHED THEN UPDATE SET t.times=t.times+vals.times " +
                         "WHEN NOT MATCHED THEN INSERT VALUES vals.word, vals.times";
-
         statement.executeUpdate(insert);
+
+    }
+
+    public void insertOrUpdate(Table table, List<Pair<String, Integer>> appearances) throws SQLException {
+        Statement statement = connection.createStatement();
+        for(Pair<String, Integer> element : appearances){
+            insertOrUpdate(statement, table, element.getKey(), element.getValue());
+        }
         statement.close();
     }
 
@@ -90,7 +102,6 @@ public class Database {
             result += res.getString("word") + " " + res.getInt("times") + "\n";
         }
         return result;
-
     }
 }
 

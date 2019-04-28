@@ -14,4 +14,13 @@ Un cop descarregats els drivers ja tenim el que necessitem, podem tencar la fine
 
 Play i a gaudir!! Happy Coding!!
 
+## Estudi sobre les dades 
+
+Les dades que ens entren son correus que poden considerar-se o no spam. Un pas previ al desenvolupament ha de ser el d'evaluar com son majoritàirament aquests correus en longitud. Estudiar la longitud ens ajudarà a veure les dimensions de les dades a processar. També tal i com posa a l'enunciat de la pràctica (com a millora) s'hauria de purgar els correus de mots que no tenen semàntica, tals com proposicions, adverbis o connectors gramaticals. 
+
+Per tant caldrà : 
+
+- **POSAR LA LLARGADA MITJANA DELS EMAILS** 
+- **EXCLOURE ELS MOTS QUE NO TENEN SEMÀNTICA I EXPLICAR COM ES FA EL PROCÉS**
+
  
