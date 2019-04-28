@@ -3,9 +3,7 @@ package spamizer.entity;
 import javafx.util.Pair;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class Database {
 
@@ -76,19 +74,34 @@ public class Database {
     private void insertOrUpdate(Statement statement, Table table, String word, int times) throws SQLException {
 
         // En la següent query es fa un insert or update
-        String insert = "MERGE INTO " + table + " AS t USING (" +
+/*        String insert = "MERGE INTO " + table + " AS t USING (" +
                             "VALUES('"+ word + "'," + times + ")" +
                         ") AS vals(word, times) ON t.WORD=VALS.word " +
                         "WHEN MATCHED THEN UPDATE SET t.times=t.times+vals.times " +
-                        "WHEN NOT MATCHED THEN INSERT VALUES vals.word, vals.times";
+                        "WHEN NOT MATCHED THEN INSERT VALUES vals.word, vals.times";*/
+
+        String insert = "INSERT INTO " + table + "(word, times) " +
+                "VALUES ('" + word + "'," + times + ") as times" +
+                "ON DUPLICATE KEY UPDATE times = times + " + times;
+
         statement.executeUpdate(insert);
 
     }
 
-    public void insertOrUpdate(Table table, List<Pair<String, Integer>> appearances) throws SQLException {
+    public void insertOrUpdate(Table table, HashMap<String, Integer> appearances) throws SQLException {
         Statement statement = connection.createStatement();
-        for(Pair<String, Integer> element : appearances){
-            insertOrUpdate(statement, table, element.getKey(), element.getValue());
+        if(appearances.size() > 0) {
+            String insert = "MERGE INTO " + table + " using (values";
+
+            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
+                insert += "('" + element.getKey() + "'," + element.getValue() + "),";
+            }
+            insert = insert.substring(0, insert.length() - 1);
+            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
+                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
+                    "when not matched then insert values vals.x, vals.y";
+
+            statement.executeUpdate(insert);
         }
         statement.close();
     }
@@ -96,12 +109,36 @@ public class Database {
     public String select(Table table) throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet res = statement.executeQuery("SELECT * FROM " + table);
-        statement.close();
         String result = "";
         while(res.next()) {
             result += res.getString("word") + " " + res.getInt("times") + "\n";
         }
+        statement.close();
         return result;
+    }
+
+    public int count(Table table) throws SQLException{
+        Statement statement = connection.createStatement();
+        ResultSet res = statement.executeQuery("SELECT COUNT(*) AS COUNT FROM " + table);
+        return returnInteger(res, "COUNT");
+    }
+
+    public int sum(Table table) throws SQLException{
+        Statement statement = connection.createStatement();
+        ResultSet res = statement.executeQuery("SELECT SUM(times) AS addition FROM " + table);
+        return  returnInteger(res, "addition");
+    }
+
+    private int returnInteger(ResultSet res, String label){
+        try{
+            if(res.next())
+                return res.getInt(label);
+            else
+                return -1;
+        }
+        catch (Exception e){
+            return -1;
+        }
     }
 }
 

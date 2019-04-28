@@ -22,6 +22,20 @@ public class Application  {
 
         try {
             Database database = Database.getInstance();
+
+            /*List<Pair<String, Integer>> values = new ArrayList<>();
+            values.add(new Pair<>("hola", 1));
+            values.add(new Pair<>("adeu", 2));
+
+            database.insertOrUpdate(Database.Table.HAM, values);
+            System.out.println(database.select(Database.Table.HAM));
+
+            values.add(new Pair<>("hola", 1));
+            values.add(new Pair<>("adeu", 2));
+
+            database.insertOrUpdate(Database.Table.HAM, values);
+            System.out.println(database.select(Database.Table.HAM));*/
+
             // Genero 1000 paraules diferents, simulem que és l'alfabet
 
             Instant start = Instant.now();
@@ -36,12 +50,17 @@ public class Application  {
             start = Instant.now();
             System.out.println("Started insertion");
             // Generem 10000 correus que tindran una mitjana aleatòria de fins a 300 paraules cada correu i fem les insercions
-            for(int i = 0; i < 10000; i++){
-                List<Pair<String, Integer>> email = new ArrayList<>();
+            for(int i = 0; i < 1000000; i++){
+                HashMap<String, Integer> email = new HashMap();
                 int wordsForEmail = Math.abs(random.nextInt()) % 300;
                 for(int j = 0; j < wordsForEmail; j++) {
                     int randomPosition = Math.abs(random.nextInt()) % 1000;
-                    email.add(new Pair<>(words[randomPosition], generateRandomInteger()));
+                    String word = words[randomPosition];
+                    if(email.containsKey(words[randomPosition])){
+                        email.replace(word, email.get(word) + 1);
+                    }
+                    else
+                        email.put(word, 1);
                 }
                 database.insertOrUpdate(Database.Table.HAM, email);
             }
@@ -50,7 +69,7 @@ public class Application  {
 
             start = Instant.now();
             System.out.println("Started selection");
-            database.select(Database.Table.HAM);
+            System.out.println(database.sum(Database.Table.HAM));
             end = Instant.now();
             System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
 
