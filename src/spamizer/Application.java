@@ -1,8 +1,11 @@
 package spamizer;
 import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.entity.Database;
+import spamizer.entity.LocalDB;
 
 import java.sql.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +19,8 @@ public class Application  {
         random = new Random();
 
         try {
+            LocalDB localDB = LocalDB.getInstance();
+            localDB.insertResult(2,3,1,0,1,0);
             Database database = Database.getInstance();
 
             /*List<Pair<String, Integer>> values = new ArrayList<>();
@@ -33,11 +38,11 @@ public class Application  {
 
             // Genero 1000 paraules diferents, simulem que és l'alfabet
 
-            /*Instant start = Instant.now();
+            Instant start = Instant.now();
             System.out.println("Started word generation. ");
-            String[] words = new String[1000];
+            String[] wordsValues = new String[1000];
             for(int i = 0; i < 1000; i++){
-                words[i] = generateRandomString();
+                wordsValues[i] = generateRandomString();
             }
             Instant end = Instant.now();
             System.out.println("Finished generation done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
@@ -45,13 +50,13 @@ public class Application  {
             start = Instant.now();
             System.out.println("Started insertion");
             // Generem 10000 correus que tindran una mitjana aleatòria de fins a 300 paraules cada correu i fem les insercions
-            for(int i = 0; i < 1000000; i++){
+            for(int i = 0; i < 1000; i++){
                 HashMap<String, Integer> email = new HashMap();
                 int wordsForEmail = Math.abs(random.nextInt()) % 300;
                 for(int j = 0; j < wordsForEmail; j++) {
                     int randomPosition = Math.abs(random.nextInt()) % 1000;
-                    String word = words[randomPosition];
-                    if(email.containsKey(words[randomPosition])){
+                    String word = wordsValues[randomPosition];
+                    if(email.containsKey(wordsValues[randomPosition])){
                         email.replace(word, email.get(word) + 1);
                     }
                     else
@@ -66,10 +71,10 @@ public class Application  {
             System.out.println("Started selection");
             System.out.println(database.sum(Database.Table.HAM));
             end = Instant.now();
-            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));*/
+            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
 
 
-            String s = "dear vince ,\n" +
+            /*String s = "dear vince ,\n" +
                     "thank you very much for updating me on the status of my job application . ? i\n" +
                     "got another good news last week . ? i am happy to inform you i passed the 2000\n" +
                     "cfa level i examination . the pass rate for level i examination this year is\n" +
@@ -110,7 +115,10 @@ public class Application  {
 
             for(Map.Entry<String, Integer> word : words.entrySet()){
                 System.out.println(word.getKey() + " -> " + word.getValue());
-            }
+            }*/
+            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
+            System.out.println(database.select(Database.Table.HAM));
+
 
         } catch (SQLException e) {
             e.printStackTrace();
