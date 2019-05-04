@@ -5,7 +5,7 @@
       <driver-ref>hsqldb.local</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.hsqldb.jdbc.JDBCDriver</jdbc-driver>
-      <jdbc-url>jdbc:hsqldb:file:$PROJECT_DIR$/src/spamizer/entity/db/result_db</jdbc-url>
+      <jdbc-url>jdbc:hsqldb:file:$PROJECT_DIR$/db/result_db</jdbc-url>
     </data-source>
   </component>
 </project>

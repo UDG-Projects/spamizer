@@ -37,7 +37,7 @@ public class LocalDB {
     private static void init() throws ClassNotFoundException, SQLException {
         database = new LocalDB();
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        database.connection = DriverManager.getConnection("jdbc:hsqldb:file:src/spamizer/entity/db/result_db","spamizer", "spamizer");
+        database.connection = DriverManager.getConnection("jdbc:hsqldb:file:db/result_db","spamizer", "spamizer");
 
         /**
          * Configurem la base de dades per que s'utilitzi la sintaxis mysql.
