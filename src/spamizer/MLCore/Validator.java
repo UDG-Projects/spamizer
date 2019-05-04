@@ -4,7 +4,10 @@ import java.sql.SQLException;
 
 public class Validator extends Trainer {
 
-    public Validator() throws SQLException, ClassNotFoundException {
+    private Method classifcationMethod;
+
+    public Validator(Method classifcationMethod) throws SQLException, ClassNotFoundException {
         super("","");
+        this.classifcationMethod = classifcationMethod;
     }
 }

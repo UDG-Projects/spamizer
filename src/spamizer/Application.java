@@ -53,7 +53,7 @@ public class Application  {
             start = Instant.now();
             System.out.println("Started insertion");
             // Generem 10000 correus que tindran una mitjana aleatòria de fins a 300 paraules cada correu i fem les insercions
-            for(int i = 0; i < 1000000; i++){
+            for(int i = 0; i < 1000; i++){
                 HashMap<String, Integer> email = new HashMap();
                 int wordsForEmail = Math.abs(random.nextInt()) % 300;
                 for(int j = 0; j < wordsForEmail; j++) {
@@ -75,6 +75,8 @@ public class Application  {
             System.out.println(database.sum(Database.Table.HAM));
             end = Instant.now();
             System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
+            System.out.println(database.select(Database.Table.HAM));
+
 
         } catch (SQLException e) {
             e.printStackTrace();
