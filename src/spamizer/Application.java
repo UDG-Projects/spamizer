@@ -1,14 +1,9 @@
 package spamizer;
-import javafx.util.Pair;
+import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.entity.Database;
 
 import java.sql.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 
@@ -38,7 +33,7 @@ public class Application  {
 
             // Genero 1000 paraules diferents, simulem que és l'alfabet
 
-            Instant start = Instant.now();
+            /*Instant start = Instant.now();
             System.out.println("Started word generation. ");
             String[] words = new String[1000];
             for(int i = 0; i < 1000; i++){
@@ -71,7 +66,51 @@ public class Application  {
             System.out.println("Started selection");
             System.out.println(database.sum(Database.Table.HAM));
             end = Instant.now();
-            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
+            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));*/
+
+
+            String s = "dear vince ,\n" +
+                    "thank you very much for updating me on the status of my job application . ? i\n" +
+                    "got another good news last week . ? i am happy to inform you i passed the 2000\n" +
+                    "cfa level i examination . the pass rate for level i examination this year is\n" +
+                    "52 % . i look forward to hearing from you .\n" +
+                    "sincerely ,\n" +
+                    "rabi de\n" +
+                    "?\n" +
+                    "?\n" +
+                    "? vince . j . kaminski @ enron . com wrote :\n" +
+                    "rabi ,\n" +
+                    "thanks for your MESSAGE .\n" +
+                    "everybody who interviewed you was greatly impressed with your technical\n" +
+                    "skills and professional attitude .\n" +
+                    "we shall extend an offer to you within a day or two .\n" +
+                    "vince\n" +
+                    "rabi deon 08 / 22 / 2000 02 : 57 : 37 pm\n" +
+                    "to : vince kaminsky\n" +
+                    "cc :\n" +
+                    "subject : Follow - up interview on 8 / 21 / 00\n" +
+                    "dear dr . kaminsky :\n" +
+                    "thank you very much for arranging the follow - up interview with your\n" +
+                    "internal clients . i visited mr . ted murphy and his staff at rac and mr .\n" +
+                    "dennis benevides at ees yesterday . i was impressed with level of risk\n" +
+                    "technology employed by enron to achieve its business objectives . i want to\n" +
+                    "reiterate my strong interest in joining your group , which is held in very\n" +
+                    "high esteem both inside and outside of enron . ? i look forward to h ! earing\n" +
+                    "from you .\n" +
+                    "sincerely ,\n" +
+                    "rabi s . de\n" +
+                    "do you yahoo ! ?\n" +
+                    "yahoo ! mail - free email you can access from anywhere !\n" +
+                    "do you yahoo ! ?\n" +
+                    "yahoo ! mail - free email you can access from anywhere !";
+
+            StanfordCoreNLPFilter filter = new StanfordCoreNLPFilter();
+
+            HashMap<String, Integer> words = filter.filterText(s);
+
+            for(Map.Entry<String, Integer> word : words.entrySet()){
+                System.out.println(word.getKey() + " -> " + word.getValue());
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
