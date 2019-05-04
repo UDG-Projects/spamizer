@@ -69,4 +69,5 @@ fabric.properties
 #DATABASE FILES
 db/result_db.lck
 db/result_db.log
+db/result_db.script
 
