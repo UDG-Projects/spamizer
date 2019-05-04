@@ -1,6 +1,6 @@
 package spamizer;
 
-import spamizer.MLCore.MailReader;
+import spamizer.MLCore.DirectoryMailReader;
 
 import java.util.Random;
 
@@ -12,7 +12,7 @@ public class Application  {
     public static void main(String [] args) {
         random = new Random();
 
-        MailReader mr = new MailReader();
+        DirectoryMailReader mr = new DirectoryMailReader();
         mr.read(FOLDERPATH);
 
 
