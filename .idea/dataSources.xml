@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="HSQLDB (Local) -" uuid="f8d6d0c7-58d9-4ecc-9e29-2685b5027eec">
+    <data-source source="LOCAL" name="db" uuid="c21fa347-ae7d-41d2-9699-c41352dfa455">
       <driver-ref>hsqldb.local</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.hsqldb.jdbc.JDBCDriver</jdbc-driver>
+      <jdbc-url>jdbc:hsqldb:file:$PROJECT_DIR$/src/spamizer/entity/db/result_db</jdbc-url>
     </data-source>
   </component>
 </project>

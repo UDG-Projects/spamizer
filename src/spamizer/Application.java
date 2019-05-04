@@ -1,6 +1,7 @@
 package spamizer;
 import javafx.util.Pair;
 import spamizer.entity.Database;
+import spamizer.entity.LocalDB;
 
 import java.sql.*;
 import java.time.Duration;
@@ -21,6 +22,8 @@ public class Application  {
         random = new Random();
 
         try {
+            LocalDB localDB = LocalDB.getInstance();
+            localDB.insertResult(2,3,1,0,1,0);
             Database database = Database.getInstance();
 
             /*List<Pair<String, Integer>> values = new ArrayList<>();
