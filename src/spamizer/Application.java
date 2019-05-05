@@ -1,20 +1,10 @@
 package spamizer;
-import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.entity.Database;
 import spamizer.entity.LocalDB;
 
 import java.sql.*;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import javafx.util.Pair;
-import spamizer.entity.Database;
-import spamizer.entity.LocalDB;
-
-
-import spamizer.MLCore.DirectoryMailReader;
 
 import java.util.Random;
 

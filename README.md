@@ -18,6 +18,12 @@ Un cop descarregats els drivers ja tenim el que necessitem, podem tencar la fine
 
 Play i a gaudir!! Happy Coding!!
 
+### Instal·lació de la llibreria Stanford Core NLP 
+
+- Descarregar [aixó](https://stanfordnlp.github.io/CoreNLP/download.html). 
+- Descomprimir-ho.
+- Anar a File -> Project Structure i afegir el directori descomprimit com a Library.
+
 ## Estudi sobre les dades 
 
 Les dades que ens entren son correus que poden considerar-se o no spam. Un pas previ al desenvolupament ha de ser el d'evaluar com son majoritàirament aquests correus en longitud. Estudiar la longitud ens ajudarà a veure les dimensions de les dades a processar. També tal i com posa a l'enunciat de la pràctica (com a millora) s'hauria de purgar els correus de mots que no tenen semàntica, tals com proposicions, adverbis o connectors gramaticals. 
