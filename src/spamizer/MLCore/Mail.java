@@ -2,21 +2,20 @@ package spamizer.MLCore;
 
 import java.util.HashMap;
 
+/**
+ * El filtre per defecte que assignem a la classe Mail, és l'StandfordCoreNLPFilter
+ */
 public class Mail {
 
     private String subject;
     private String body;
     private Filter filter;
 
-    public Mail(){
-
-    }
-    public Mail(String subject, String body,Filter filter){
+    public Mail(String subject,String body){
         this.subject = subject;
         this.body = body;
-        this.filter = filter;
+        this.filter = new StanfordCoreNLPFilter();
     }
-
     /**
      * Returns set of Pair<String,Integer> represents body's words and their appear frecuency
      * @return
@@ -46,5 +45,9 @@ public class Mail {
      */
     public String getSubject(){
         return subject;
+    }
+
+    public void setFilter(Filter filter){
+        this.filter = filter;
     }
 }

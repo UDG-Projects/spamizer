@@ -4,6 +4,7 @@ import spamizer.entity.Database;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class Trainer {
 
@@ -18,12 +19,28 @@ public class Trainer {
         memoryDataBase = Database.getInstance();
         this.hamDirectoryPath = hamDirectoryPath;
         this.spamDirectoryPath = spamDirectoryPath;
+
     }
 
-    public void trainning (){
-        Collection<Mail> mailsSpam = reader.read(this.spamDirectoryPath);
-        Collection<Mail> mailsHam = reader.read(this.hamDirectoryPath);
+    public void trainning () throws SQLException {
+        trainningSpam(Database.Table.SPAM,spamDirectoryPath);
+    }
+    private void trainningSpam(Database.Table table,String pathDirectory) throws SQLException {
+        Collection<Mail> mailsFiltrats = reader.read(pathDirectory);
+        HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
+        for (Mail m : mailsFiltrats)
+        {
+            m.setFilter(new StanfordCoreNLPFilter());
+            if(!mapinsertMailFiltered.isEmpty()){
+                m.getBodyMail().forEach(
+                        (key, value) -> mapinsertMailFiltered.merge( key, value, (v1, v2) -> v1+v2));
+            }else{
+                mapinsertMailFiltered.putAll(m.getBodyMail());
+            }
 
+        }
+        System.out.println(mapinsertMailFiltered);
+        memoryDataBase.insertOrUpdate(table,mapinsertMailFiltered);
     }
 
 }

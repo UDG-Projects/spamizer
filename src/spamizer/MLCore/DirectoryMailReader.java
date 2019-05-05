@@ -44,7 +44,7 @@ public class DirectoryMailReader implements Reader{
                         lowerData=lowerData.replace("subject:","");
                     }
                     String body = lowerData.replace(subject,"");
-                    Mail m = new Mail(subject, body);
+                    Mail m = new Mail(subject,body);
                     mails.add(m);
                 }
                 catch(Exception e){
