@@ -1,21 +1,154 @@
 package spamizer;
-import spamizer.entity.Database;
-import spamizer.entity.LocalDB;
+import com.github.jankroken.commandline.CommandLineParser;
+import com.github.jankroken.commandline.OptionStyle;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.ParseException;
+import spamizer.configurations.ApplicationOptions;
+import spamizer.exceptions.BadArgumentsException;
 
-import java.sql.*;
 import java.util.concurrent.TimeUnit;
 
 
 import java.util.Random;
 
-
+/**
+ * Application Spamizer
+ */
 public class Application  {
 
     public static Random random;
-    static String   FOLDERPATH = "C:/Users/Gil/Desktop/mails";
+
+    /**
+     * Procés de creació i validació en funció dels arguments de la instrucció que es reb per paràmetre.
+     *
+     * Comencem actualitzant i carregant les dades en memòria
+     * 1- Carreguem bd si s'afegeix la opció.
+     * 2- Carreguem mails si s'afegeix la opció.
+     * 3- Validem si s'afegeix la opció.
+     * 4- Persistim la bd en memòria a un fitxer local si s'afegeix la opció.
+     */
+    public static void start(CommandLine options) throws BadArgumentsException {
+
+        if(!options.hasOption(ApplicationOptions.OPTION_VALIDATION) && !options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_DATABASE))
+            throw new BadArgumentsException("No option selected. ");
+
+        if (options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))
+            throw new BadArgumentsException("To train database from Directory files must include arguments ham or spam [-h | -s].");
+
+        if(options.hasOption(ApplicationOptions.OPTION_TRAINING) && options.hasOption(ApplicationOptions.OPTION_HAM) && options.hasOption(ApplicationOptions.OPTION_SPAM))
+            throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
+
+        if(options.hasOption(ApplicationOptions.OPTION_DATABASE))
+            // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
+            System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
+
+        if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
+
+            if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
+                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és ham");
+            }
+            else{
+                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és spam");
+            }
+
+        }
+
+        if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
+            System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
+        }
+
+        // Persistim els canvis a la base de dades local sí o sí
+        if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
+            System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+        }
+
+    }
+
+
     public static void main(String [] args) {
         random = new Random();
+        ApplicationOptions applicationOptions = new ApplicationOptions();
+        try {
 
+            DefaultParser parser = new DefaultParser();
+            CommandLine options = parser.parse(applicationOptions.getOptions(), args);
+            start(options);
+
+        } catch (BadArgumentsException e) {
+            System.err.println(e.getCustomMessage());
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            System.err.println("------------------------------------------------------------------------------");
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("ant", applicationOptions.getOptions());
+        } catch (ParseException e) {
+            System.err.println("Something went wrong parsing arguments.");
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            System.err.println("------------------------------------------------------------------------------");
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("ant", applicationOptions.getOptions());
+        }
+    }
+
+
+
+
+    /**
+     * DEBUG METHOD
+     * @return
+     */
+    public static String generateRandomString(){
+        int length = Math.abs(random.nextInt()) % 10 + 1;
+
+        char[] array = new char[length]; // length is bounded by 7
+        for(int i = 0; i< length; i++){
+            array[i] = (char) (Math.abs(random.nextInt()) % 26 + 97);
+        }
+        return new String(array);
+    }
+
+
+    /**
+     * DEBUG METHOD
+     * @return
+     */
+    public static Integer generateRandomInteger(){
+        return Math.abs(random.nextInt() % 5 + 1);
+    }
+
+
+    /**
+     * TIMING METHOD
+     * @return
+     */
+    public static String millisToString(long millis){
+        return String.format("%d sec, %d millis",
+                TimeUnit.MILLISECONDS.toSeconds(millis),
+                TimeUnit.MILLISECONDS.toMillis(millis) -
+                        TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis))
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 
         try {
             LocalDB localDB = LocalDB.getInstance();
@@ -36,7 +169,7 @@ public class Application  {
             database.insertOrUpdate(Database.Table.HAM, values);
             System.out.println(database.select(Database.Table.HAM));*/
 
-        // Genero 1000 paraules diferents, simulem que és l'alfabet
+    // Genero 1000 paraules diferents, simulem que és l'alfabet
 
             /*Instant start = Instant.now();
             System.out.println("Started word generation. ");
@@ -117,8 +250,8 @@ public class Application  {
                 System.out.println(word.getKey() + " -> " + word.getValue());
             }*/
 
-            //System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-            System.out.println(database.select(Database.Table.HAM));
+    //System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
+            /*System.out.println(database.select(Database.Table.HAM));
 
 
         } catch (SQLException e) {
@@ -128,28 +261,33 @@ public class Application  {
             System.out.println("Consulta el README.md i segueix els passos descrits.");
             System.out.println("Happy coding!");
             e.printStackTrace();
-        }
-    }
+        }*/
 
-    public static String generateRandomString(){
-        int length = Math.abs(random.nextInt()) % 10 + 1;
 
-        char[] array = new char[length]; // length is bounded by 7
-        for(int i = 0; i< length; i++){
-            array[i] = (char) (Math.abs(random.nextInt()) % 26 + 97);
-        }
-        return new String(array);
-    }
 
-    public static Integer generateRandomInteger(){
-        return Math.abs(random.nextInt() % 5 + 1);
-    }
 
-    public static String millisToString(long millis){
-        return String.format("%d sec, %d millis",
-                TimeUnit.MILLISECONDS.toSeconds(millis),
-                TimeUnit.MILLISECONDS.toMillis(millis) -
-                        TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis))
-        );
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
