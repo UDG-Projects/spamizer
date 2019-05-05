@@ -47,20 +47,13 @@ public class Application  {
         if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
             // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
             System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
-
-
-
-            /*hamReader = new DirectoryMailReader(hamDirectoryPath);
-            spamReader = new DirectoryMailReader(spamDirectoryPath);
-            this.hamDirectoryPath = hamDirectoryPath;
-            this.spamDirectoryPath = spamDirectoryPath;*/
         }
 
 
         if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
             Trainer trainer = new Trainer();
             if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
-                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és ham");
+                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
 
                 trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
@@ -69,7 +62,7 @@ public class Application  {
             }
             else{
 
-                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és spam");
+                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
 
                 trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
