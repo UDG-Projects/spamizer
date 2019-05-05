@@ -2,8 +2,8 @@ package spamizer.MLCore;
 
 import spamizer.entity.Database;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
+import java.util.Collection;
 
 public class Trainer {
 
@@ -13,13 +13,19 @@ public class Trainer {
     protected Database memoryDataBase;
 
     public Trainer(String hamDirectoryPath, String spamDirectoryPath) throws SQLException, ClassNotFoundException {
-        //TODO: Instanciar el reader
-
+        reader = new DirectoryMailReader();
         //si el constructor no pot inicialitzar la DB fa un Throw cap a fora.
         memoryDataBase = Database.getInstance();
-
         this.hamDirectoryPath = hamDirectoryPath;
         this.spamDirectoryPath = spamDirectoryPath;
+    }
+
+    public void trainning (){
+        Collection<Mail> mailsSpam = reader.read(this.spamDirectoryPath);
+        Collection<Mail> mailsHam = reader.read(this.hamDirectoryPath);
+
+
+
     }
 
 }

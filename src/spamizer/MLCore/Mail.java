@@ -1,4 +1,7 @@
 package spamizer.MLCore;
+
+import java.util.HashMap;
+
 public class Mail {
 
     private String subject;
@@ -18,29 +21,29 @@ public class Mail {
      * @param isfiltered
      * @return
      */
-    /*public Set<Pair<String,Integer>> getSubjectMail(boolean isfiltered){
-        if(isfiltered){
+    public HashMap<String,Integer> getSubjectMail(boolean isfiltered){
             return filter.Filter(subjectSet);
-        }else{
-            return subjectSet;
-        }
-    }*/
+    }
     /**
      * Returns set of Pair<String,Integer> represents subject's words and their appear frecuency
      * @param isfiltered
      * @return
      */
-    /*public Set<Pair<String,Integer>> getBodyMail(boolean isfiltered){
-        if(isfiltered){
+    public HashMap<String,Integer> getBodyMail(boolean isfiltered){
             return filter.Filter(bodySet);
-        }else{
-            return bodySet;
-        }
-    }*/
+    }
 
-   public String getBody(){
+    /**
+     * Get body from mail
+     * @return body
+     */
+    public String getBody(){
        return body;
-   }
+    }
+    /**
+     * Get subject from mail
+     * @return subject
+     */
     public String getSubject(){
         return subject;
     }
