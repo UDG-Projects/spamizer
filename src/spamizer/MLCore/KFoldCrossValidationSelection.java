@@ -1,6 +1,7 @@
 package spamizer.MLCore;
 
 import spamizer.exceptions.BadPercentageException;
+import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
 import java.util.*;

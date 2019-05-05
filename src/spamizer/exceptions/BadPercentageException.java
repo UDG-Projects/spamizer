@@ -1,14 +1,9 @@
 package spamizer.exceptions;
 
-public class BadPercentageException extends Exception {
+public class BadPercentageException extends CustomException {
 
-    private String message;
 
-    public BadPercentageException(String message){
-        this.message = message;
-    }
-
-    public String getCustomMessage(){
-        return this.message;
+    public BadPercentageException(String message) {
+        super(message);
     }
 }

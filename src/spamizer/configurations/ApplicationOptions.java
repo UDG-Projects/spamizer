@@ -27,7 +27,7 @@ public class ApplicationOptions {
         options.addOption(new Option(OPTION_DATABASE, true, "Database file with other execution data, this or directory training argument must be present"));
         options.addOption(new Option(OPTION_VALIDATION, true, "Directory where validation mails in txt are stored"));
         options.addOption(new Option(OPTION_PERSIST, true, "Directory where final database will be persisted"));
-        options.addOption(new Option(OPTION_COMPUTE, true, "Receives 2 parameters, A directory with spam mails and a directory with ham mails. "
+        options.addOption(new Option(OPTION_COMPUTE, true, "Usage : -c <spamDir> <hamDir> [-n <int>] \nReceives 2 parameters, A directory with spam mails and a directory with ham mails. "
                 + "A calculation for values phi and k will be done using a selection for the mails set. The selection will be k-fold cross-validation and the heuristic method used to calculate phi and k values will be High Climbing with random restarts"));
         options.addOption(new Option(OPTION_COMPUTATIONS_NUMBER, true, "The number of iterations for -c mode execution."));
     }
