@@ -39,7 +39,7 @@ public class KFoldCrossValidationSelection {
      * @return Una collecció amb els correus considerats spam
      */
     public Collection<Mail> getSpam(){
-        return getFilteredByPercentage(spamReader.read());
+        return getFilteredByPercentage(spamReader.read(true));
     }
 
     /**
@@ -47,7 +47,7 @@ public class KFoldCrossValidationSelection {
      * @return Una collecció amb els correus considerats ham
      */
     public Collection<Mail> getHam(){
-        return getFilteredByPercentage(hamReader.read());
+        return getFilteredByPercentage(hamReader.read(false));
     }
 
     /**

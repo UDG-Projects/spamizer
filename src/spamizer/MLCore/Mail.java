@@ -12,10 +12,12 @@ public class Mail {
     private String subject;
     private String body;
     private Filter filter;
+    private Boolean isSpam;
 
-    public Mail(String subject,String body){
+    public Mail(String subject,String body, boolean isSpam){
         this.subject = subject;
         this.body = body;
+        this.isSpam = isSpam;
         this.filter = new StanfordCoreNLPFilter();
     }
     /**
@@ -30,7 +32,6 @@ public class Mail {
      * @return
      */
     public HashMap<String,Integer> getBodyMail(){
-
         return filter.filterText(this.body);
     }
 
@@ -51,5 +52,9 @@ public class Mail {
 
     public void setFilter(Filter filter){
         this.filter = filter;
+    }
+
+    public Boolean getSpam() {
+        return isSpam;
     }
 }

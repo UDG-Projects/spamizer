@@ -17,7 +17,7 @@ public class Trainer {
     }
 
     public void train (Database.Table table, Reader reader, Filter filter) throws SQLException {
-        Collection<Mail> mailsFiltrats = reader.read();
+        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table);
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 1;
         for (Mail m : mailsFiltrats)

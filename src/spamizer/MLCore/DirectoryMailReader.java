@@ -28,7 +28,7 @@ public class DirectoryMailReader implements Reader {
      * @return list of mails.
      */
     @Override
-    public Collection<Mail> read()
+    public Collection<Mail> read(boolean isSpam)
     {
         List<Mail> mails = new ArrayList<Mail>();
         File folder = new File(folderPath);
@@ -49,7 +49,7 @@ public class DirectoryMailReader implements Reader {
                         lowerData=lowerData.replace("subject:","");
                     }
                     String body = lowerData.replace(subject,"");
-                    Mail m = new Mail(subject,body);
+                    Mail m = new Mail(subject,body, isSpam);
                     mails.add(m);
                 }
                 catch(Exception e){
