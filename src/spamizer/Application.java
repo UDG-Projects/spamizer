@@ -3,7 +3,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
+import spamizer.MLCore.DirectoryMailReader;
+import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.configurations.ApplicationOptions;
+import spamizer.entity.Database;
 import spamizer.exceptions.BadArgumentsException;
 
 import java.util.concurrent.TimeUnit;
@@ -28,7 +31,7 @@ public class Application  {
      * 3- Validem si s'afegeix la opció.
      * 4- Persistim la bd en memòria a un fitxer local si s'afegeix la opció.
      */
-    public static void start(CommandLine options) throws BadArgumentsException {
+    public static void start(CommandLine options) throws BadArgumentsException, SQLException, ClassNotFoundException {
 
         // TODO : No està implementat encara la lpògica per el mètode "-c" càlcul de phi i k i el paràmetre -n
 
@@ -41,17 +44,36 @@ public class Application  {
         if(options.hasOption(ApplicationOptions.OPTION_TRAINING) && options.hasOption(ApplicationOptions.OPTION_HAM) && options.hasOption(ApplicationOptions.OPTION_SPAM))
             throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
 
-        if(options.hasOption(ApplicationOptions.OPTION_DATABASE))
+        if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
             // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
             System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
 
-        if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
 
+
+            /*hamReader = new DirectoryMailReader(hamDirectoryPath);
+            spamReader = new DirectoryMailReader(spamDirectoryPath);
+            this.hamDirectoryPath = hamDirectoryPath;
+            this.spamDirectoryPath = spamDirectoryPath;*/
+        }
+
+
+        if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
+            Trainer trainer = new Trainer();
             if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
                 System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és ham");
+
+                trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
+                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                                new StanfordCoreNLPFilter());
+
             }
             else{
+
                 System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és spam");
+
+                trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
+                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                                new StanfordCoreNLPFilter());
             }
 
         }
@@ -77,6 +99,9 @@ public class Application  {
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
             start(options);
 
+            System.out.println(Database.getInstance().select(Database.Table.HAM));
+            System.out.println(Database.getInstance().select(Database.Table.SPAM));
+
         } catch (BadArgumentsException e) {
             System.err.println(e.getCustomMessage());
             System.err.println("------------------------------------------------------------------------------");
@@ -93,6 +118,16 @@ public class Application  {
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("spamizer", applicationOptions.getOptions());
+        } catch (SQLException e) {
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println("HA PETAT L'SQL!!");
+            System.err.println("------------------------------------------------------------------------------");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println("HA PETAT L'SQL!!");
+            System.err.println("------------------------------------------------------------------------------");
+            e.printStackTrace();
         }
     }
 

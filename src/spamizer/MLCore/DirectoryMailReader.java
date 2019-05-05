@@ -1,5 +1,7 @@
 package spamizer.MLCore;
 
+import spamizer.interfaces.Reader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,19 +13,22 @@ import java.util.List;
 
 import static jdk.nashorn.internal.objects.NativeString.toLowerCase;
 
-public class DirectoryMailReader implements Reader{
-    List<Mail> mails;
-    List<String> splitter;
+public class DirectoryMailReader implements Reader {
 
-    public DirectoryMailReader(){
+    String folderPath;
+
+    public DirectoryMailReader(String folderPath){
+        if(System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+            this.folderPath = folderPath + "\\";
+        else
+            this.folderPath = folderPath + "/";
     }
     /**
      * Function to read all files from folder in folderPath, and return a list of Mails.
-     * @param folderPath folder path.
      * @return list of mails.
      */
     @Override
-    public Collection<Mail> read(String folderPath)
+    public Collection<Mail> read()
     {
         List<Mail> mails = new ArrayList<Mail>();
         File folder = new File(folderPath);
@@ -36,7 +41,7 @@ public class DirectoryMailReader implements Reader{
                 BufferedReader br = null;
                 try {
                     file = new File (listOfFiles[i].getName());
-                    String data = new String(Files.readAllBytes(Paths.get(folderPath+"\\"+file)));
+                    String data = new String(Files.readAllBytes(Paths.get(folderPath + file)));
                     String lowerData = toLowerCase(data).replaceAll("cc|to|from", "");
                     String subject = "";
                     if(lowerData.indexOf("subject:")!=-1){

@@ -1,5 +1,7 @@
 package spamizer.MLCore;
 
+import spamizer.interfaces.Filter;
+
 import java.util.HashMap;
 
 /**

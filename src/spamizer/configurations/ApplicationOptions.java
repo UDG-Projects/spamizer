@@ -2,6 +2,8 @@ package spamizer.configurations;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.omg.CORBA.DATA_CONVERSION;
+import spamizer.entity.Database;
 
 public class ApplicationOptions {
 
@@ -29,6 +31,14 @@ public class ApplicationOptions {
                 + "A calculation for values phi and k will be done using a selection for the mails set. The selection will be k-fold cross-validation and the heuristic method used to calculate phi and k values will be High Climbing with random restarts"));
         options.addOption(new Option(OPTION_COMPUTATIONS_NUMBER, true, "The number of iterations for -c mode execution."));
     }
+
+    public static Database.Table getTableFromParameter(String param){
+        if(param == OPTION_SPAM) return Database.Table.SPAM;
+        else if(param == OPTION_HAM) return Database.Table.HAM;
+        // Està fet expressament per què falli.
+        else return null;
+    }
+
 
     public Options getOptions(){
         return options;
