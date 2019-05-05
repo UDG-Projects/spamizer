@@ -48,7 +48,8 @@ Per executar el programa mitjançant un paquet jar ens trobarem les següents op
 
 ```{java}
 usage: spamizer
- -c <arg>   Receives 2 parameters, A directory with spam mails and a
+ -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
+            Receives 2 parameters, A directory with spam mails and a
             directory with ham mails. A calculation for values phi and k
             will be done using a selection for the mails set. The
             selection will be k-fold cross-validation and the heuristic
@@ -78,6 +79,8 @@ Si es pretén llegir un conjunt finit de correus des d'un directori s'ha d'espec
 El mode validation reb un conjunt finit de correus procedents d'un directori que s'especifica per paràmetre. Aquest procediment exporta els resultats dels correus llegits en el format TP, FP, TN i FN per tots els correus inserits. 
 
 ### Mode Phi and K Evaluation
+
+Reb dos directoris per aquest ordre <dirSpam> <dirHam> en cas que detecti que no els reb o que per el nom del directori els reb malament llençarà una excepció. 
 
 El paràmetre -c realitza una execució per el càlcul dels valors phi i k. S'utilitza el mètode heurístic High Climbing amb random restarts per ajustar-los i el procés de selecció dels correus electrònics és mitjançant un k-fold cross-validation (selecció aleatòria). Reb 2 directoris, el directori spam i el directori ham per aquest ordre. Requereix del paràmetre -n per estipular un nombre finit d'execucions, en cas que no se li assigni el paràmetre -n s'executarà només una vegada. 
 

@@ -3,11 +3,19 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
+import spamizer.MLCore.DirectoryMailReader;
+import spamizer.MLCore.KFoldCrossValidationSelection;
+import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.configurations.ApplicationOptions;
+import spamizer.entity.Database;
 import spamizer.exceptions.BadArgumentsException;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import spamizer.MLCore.Trainer;
+import spamizer.exceptions.BadPercentageException;
+import spamizer.exceptions.CustomException;
+import spamizer.interfaces.Reader;
 
 import java.sql.SQLException;
 import java.util.Random;
@@ -16,6 +24,9 @@ import java.util.Random;
  * Application Spamizer
  */
 public class Application  {
+
+    public static int MIN_PERC = 5;
+    public static int MAX_PERC = 15;
 
     public static Random random;
 
@@ -28,45 +39,109 @@ public class Application  {
      * 3- Validem si s'afegeix la opció.
      * 4- Persistim la bd en memòria a un fitxer local si s'afegeix la opció.
      */
-    public static void start(CommandLine options) throws BadArgumentsException {
+    public static void start(CommandLine options) throws BadArgumentsException, SQLException, ClassNotFoundException, BadPercentageException {
 
         // TODO : No està implementat encara la lpògica per el mètode "-c" càlcul de phi i k i el paràmetre -n
+        if(options.hasOption(ApplicationOptions.OPTION_COMPUTE)){
+            compute(options);
+        }
+        else {
+            if(!options.hasOption(ApplicationOptions.OPTION_VALIDATION) && !options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_DATABASE))
+                throw new BadArgumentsException("No option selected. ");
 
-        if(!options.hasOption(ApplicationOptions.OPTION_VALIDATION) && !options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_DATABASE))
-            throw new BadArgumentsException("No option selected. ");
+            if (options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))
+                throw new BadArgumentsException("To train database from Directory files must include arguments ham or spam [-h | -s].");
 
-        if (options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))
-            throw new BadArgumentsException("To train database from Directory files must include arguments ham or spam [-h | -s].");
+            if(options.hasOption(ApplicationOptions.OPTION_TRAINING) && options.hasOption(ApplicationOptions.OPTION_HAM) && options.hasOption(ApplicationOptions.OPTION_SPAM))
+                throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
 
-        if(options.hasOption(ApplicationOptions.OPTION_TRAINING) && options.hasOption(ApplicationOptions.OPTION_HAM) && options.hasOption(ApplicationOptions.OPTION_SPAM))
-            throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
-
-        if(options.hasOption(ApplicationOptions.OPTION_DATABASE))
-            // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
-            System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
-
-        if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
-
-            if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
-                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és ham");
-            }
-            else{
-                System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" saben que és spam");
+            if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
+                // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
+                System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
             }
 
-        }
 
-        if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
-            System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
-        }
+            if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
+                Trainer trainer = new Trainer();
+                if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
+                    System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
 
-        // Persistim els canvis a la base de dades local sí o sí
-        if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
-            System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+                    trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
+                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                            new StanfordCoreNLPFilter());
+
+                }
+                else{
+
+                    System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
+
+                    trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
+                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                            new StanfordCoreNLPFilter());
+                }
+
+            }
+
+            if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
+                System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
+            }
+
+            // Persistim els canvis a la base de dades local sí o sí
+            if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
+                System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+            }
         }
 
     }
 
+    /**
+     * Mètode per calcular la phi i la k
+     *
+     * Si no hi ha nombre d'iteracions només ho farà un sol cop.
+     * Per l'ordre següent es realitza la lectura de spam i després de ham dels directoris.
+     * @param options les opcions on hi ha els directoris spam i ham i el nombre de iteracions que ha de realitzar
+     */
+    public static void compute(CommandLine options) throws BadArgumentsException, BadPercentageException {
+
+        int iterations = 1;
+        if(options.hasOption(ApplicationOptions.OPTION_COMPUTATIONS_NUMBER)){
+            iterations = Integer.valueOf(options.getOptionValue(ApplicationOptions.OPTION_COMPUTATIONS_NUMBER));
+        }
+
+        // Llegim els directoris per spam i ham
+        String[] dirs = options.getOptionValues(ApplicationOptions.OPTION_COMPUTE);
+
+        // Validem l'existència dels dos fitxers.
+        if(!(dirs.length > 1 && dirs.length < 3)) throw new BadArgumentsException("Els directoris que s'han passat no son correctes per la opció -c");
+        String spamDir = dirs[0];
+        String hamDir = dirs[1];
+
+        // A la documentació marca que el directori spam primer i després el directori ham peró per prevenció fem un petit check que ens ho validi amb el nom del directori per no corrompir la BD.
+        if(spamDir.toLowerCase().indexOf("ham") > 0 || hamDir.toLowerCase().indexOf("spam") > 0) throw new BadArgumentsException("Comprova que el directori spam va primer i el ham va segon -c");
+
+        Reader spamReader = new DirectoryMailReader(spamDir);
+        Reader hamReader = new DirectoryMailReader(hamDir);
+
+        int phi, k;
+
+        /**
+         * Per cada una de les iteracions demanades :
+         * 1. Generem nombre aleatòri per el percentatge de correus que discriminarà dins del rang entre 5 i 15.
+         * 2. Generem nombres aleatoris per phi i k.
+         */
+        for(int count = 0; count < iterations; count++){
+            int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
+            // TODO : S'ha de fer el generador de phi i k amb high climbing.
+
+            KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random);
+            // TODO : a selection hi ha els mails carregats sense filtrar.
+            // TODO : Primer s'ha d'accedir a getSpam i getHam i després accedir a getUnknown.
+
+            // TODO : S'ha de llençar la validació , rebre els resultats ok i els resultats bad
+            // TODO : S'ha d'inserir la fila de l'execució amb la phi i la k generades.
+        }
+
+    }
 
     public static void main(String [] args) {
         random = new Random();
@@ -77,7 +152,10 @@ public class Application  {
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
             start(options);
 
-        } catch (BadArgumentsException e) {
+            System.out.println(Database.getInstance().select(Database.Table.HAM));
+            System.out.println(Database.getInstance().select(Database.Table.SPAM));
+
+        } catch (CustomException e) {
             System.err.println(e.getCustomMessage());
             System.err.println("------------------------------------------------------------------------------");
             System.err.println(e.getMessage());
@@ -93,6 +171,16 @@ public class Application  {
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("spamizer", applicationOptions.getOptions());
+        } catch (SQLException e) {
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println("HA PETAT L'SQL!!");
+            System.err.println("------------------------------------------------------------------------------");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println("HA PETAT L'SQL!!");
+            System.err.println("------------------------------------------------------------------------------");
+            e.printStackTrace();
         }
     }
 
