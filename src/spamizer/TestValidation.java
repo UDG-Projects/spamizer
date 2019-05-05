@@ -48,8 +48,15 @@ public class TestValidation {
             database.insertOrUpdate(Database.Table.SPAM,spam);
 
             database.updateCounters(hamMessages.size(),spamMessages.size());
+            System.out.println("Contadors actuals");
             System.out.println(database.selectCounters());
 
+            System.out.println("Probabilitats");
+            List<String> words = new ArrayList<>();
+            words.add("SPORTS");
+            words.add("SECRET");
+            words.add("PLAY");
+            System.out.println(database.calculateProbability(words, Database.Table.HAM));
 
         } catch (SQLException e) {
             e.printStackTrace();

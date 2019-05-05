@@ -159,6 +159,28 @@ public class Database {
         return result;
     }
 
+    public double get
+
+    public String calculateProbability(List<String> words, Table table) throws SQLException {
+        Statement statement = connection.createStatement();
+        String query = "SELECT * FROM "  +table;
+        if(!words.isEmpty())
+            query += " WHERE word IN (";
+        for(String word:words){
+            query+= "'"+ word + "'";
+        }
+        if(!words.isEmpty())
+            query += ")";
+
+        ResultSet res= statement.executeQuery(query);
+        String result ="";
+        while(res.next()) {
+            result += res.getString("word") + " " + res.getInt("times") + "\n";
+        }
+        statement.close();
+        return result;
+
+    }
 
     public int count(Table table) throws SQLException{
         Statement statement = connection.createStatement();
