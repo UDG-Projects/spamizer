@@ -26,7 +26,7 @@ public class Trainer {
         trainningSpam(Database.Table.SPAM,spamDirectoryPath);
     }
     private void trainningSpam(Database.Table table,String pathDirectory) throws SQLException {
-        Collection<Mail> mailsFiltrats = reader.read(this.spamDirectoryPath);
+        Collection<Mail> mailsFiltrats = reader.read(pathDirectory);
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         for (Mail m : mailsFiltrats)
         {
