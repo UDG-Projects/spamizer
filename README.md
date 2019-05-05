@@ -60,11 +60,11 @@ usage: spamizer
  -h         Set training mails as ham, adding this argument -s must not be
             present
  -n <arg>   The number of iterations for -c mode execution.
- -p <arg>   Directory where final database will be persisted
+ -p <arg>   Directory where final memDB will be persisted
  -s         Set training mails as spam, adding this argument -h must not
             be present
  -t <arg>   Directory where training mails in txt are stored, this or
-            database argument must be present
+            memDB argument must be present
  -v <arg>   Directory where validation mails in txt are stored
 ```
 

@@ -37,7 +37,7 @@ public class LocalDB {
     private static void init() throws ClassNotFoundException, SQLException {
         database = new LocalDB();
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        database.connection = DriverManager.getConnection("jdbc:hsqldb:file:db/result_db","spamizer", "spamizer");
+        database.connection = DriverManager.getConnection("jdbc:hsqldb:file:db/result_db;shutdown=true;hsqldb.write_delay=false;","spamizer", "spamizer");
 
         /**
          * Configurem la base de dades per que s'utilitzi la sintaxis mysql.
@@ -63,7 +63,15 @@ public class LocalDB {
                 "VALUES (" + phi + "," + k + "," + tp + "," + tn + "," + fp + "," + fn + ")";
 
         statement.executeUpdate(insert);
-        statement.close();
+        statement.closeOnCompletion();
+    }
+
+    public void closeDB() throws SQLException {
+        while(!connection.isClosed()){
+            //wait for ending
+            connection.commit();
+            connection.close();
+        }
     }
 
 }

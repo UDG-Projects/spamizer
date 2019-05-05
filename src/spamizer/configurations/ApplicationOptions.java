@@ -2,8 +2,7 @@ package spamizer.configurations;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.omg.CORBA.DATA_CONVERSION;
-import spamizer.entity.Database;
+import spamizer.entity.MemDB;
 
 public class ApplicationOptions {
 
@@ -24,7 +23,7 @@ public class ApplicationOptions {
         options.addOption(new Option(OPTION_HAM,  "Set training mails as ham, adding this argument -s must not be present"));
         options.addOption(new Option(OPTION_SPAM,  "Set training mails as spam, adding this argument -h must not be present"));
         options.addOption(new Option(OPTION_TRAINING, true, "Directory where training mails in txt are stored, this or database argument must be present"));
-        options.addOption(new Option(OPTION_DATABASE, true, "Database file with other execution data, this or directory training argument must be present"));
+        options.addOption(new Option(OPTION_DATABASE, true, "MemDB file with other execution data, this or directory training argument must be present"));
         options.addOption(new Option(OPTION_VALIDATION, true, "Directory where validation mails in txt are stored"));
         options.addOption(new Option(OPTION_PERSIST, true, "Directory where final database will be persisted"));
         options.addOption(new Option(OPTION_COMPUTE, true, "Usage : -c <spamDir> <hamDir> [-n <int>] \nReceives 2 parameters, A directory with spam mails and a directory with ham mails. "
@@ -32,9 +31,9 @@ public class ApplicationOptions {
         options.addOption(new Option(OPTION_COMPUTATIONS_NUMBER, true, "The number of iterations for -c mode execution."));
     }
 
-    public static Database.Table getTableFromParameter(String param){
-        if(param == OPTION_SPAM) return Database.Table.SPAM;
-        else if(param == OPTION_HAM) return Database.Table.HAM;
+    public static MemDB.Table getTableFromParameter(String param){
+        if(param == OPTION_SPAM) return MemDB.Table.SPAM;
+        else if(param == OPTION_HAM) return MemDB.Table.HAM;
         // Està fet expressament per què falli.
         else return null;
     }

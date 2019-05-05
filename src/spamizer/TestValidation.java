@@ -1,19 +1,15 @@
 package spamizer;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
-import javafx.scene.control.Tab;
-import spamizer.entity.Database;
+import spamizer.MLCore.Mail;
+import spamizer.MLCore.NaiveBayes;
+import spamizer.MLCore.Validator;
+import spamizer.entity.MemDB;
 import spamizer.entity.LocalDB;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class TestValidation {
 
@@ -23,9 +19,8 @@ public class TestValidation {
 
 
         try {
-            LocalDB localDB = LocalDB.getInstance();
-            localDB.insertResult(2,3,1,0,1,0);
-            Database database = Database.getInstance();
+            LocalDB.getInstance();
+            MemDB memDB = MemDB.getInstance();
 
 
             List<String> spamMessages = new ArrayList<>();
@@ -44,18 +39,18 @@ public class TestValidation {
             HashMap<String, Integer> ham = populateMap(hamMessages);
             HashMap<String, Integer> spam = populateMap(spamMessages);
 
-            database.insertOrUpdate(Database.Table.HAM, ham);
-            database.insertOrUpdate(Database.Table.SPAM,spam);
+            memDB.insertOrUpdate(MemDB.Table.HAM, ham);
+            memDB.insertOrUpdate(MemDB.Table.SPAM,spam);
 
-            database.updateCounters(hamMessages.size(),spamMessages.size());
+            memDB.updateCounters(hamMessages.size(),spamMessages.size());
             System.out.println("Contadors actuals");
-            System.out.println(database.selectCounters());
+            System.out.println(memDB.selectCounters());
             System.out.println();
 
             System.out.println("Alfabet");
-            int wordsHam =database.getCountAlphabet(Database.Table.HAM);
+            int wordsHam = memDB.getCountAlphabet(MemDB.Table.HAM);
             System.out.println( wordsHam);
-            int wordsSpam = database.getCountAlphabet(Database.Table.SPAM);
+            int wordsSpam = memDB.getCountAlphabet(MemDB.Table.SPAM);
             System.out.println(wordsSpam);
             System.out.println();
 
@@ -66,16 +61,24 @@ public class TestValidation {
             words.add("SECRET");
             words.add("IS");
             System.out.println("Numerador de paraules HAM sense pTHam ");
-            System.out.println(database.calculateProbability(words, Database.Table.HAM,1, wordsHam));
+            System.out.println(Math.exp(memDB.calculateProbability(words, MemDB.Table.HAM,1, wordsHam)));
             System.out.println("Numerador de paraules SPAM sense pTSpam ");
-            System.out.println(database.calculateProbability(words, Database.Table.SPAM,1, wordsSpam));
+            System.out.println(Math.exp(memDB.calculateProbability(words, MemDB.Table.SPAM,1, wordsSpam)));
 
             System.out.println();
             System.out.println("pTHam ");
-            System.out.println(database.getMessageProbabylity(Database.Column.HAM));
+            System.out.println(Math.exp(memDB.getMessageProbabylity(MemDB.Column.HAM,1)));
             System.out.println("pTSpam ");
-            System.out.println(database.getMessageProbabylity(Database.Column.SPAM));
+            System.out.println(Math.exp(memDB.getMessageProbabylity(MemDB.Column.SPAM,1)));
+            System.out.println();
+            System.out.println("Prova Validator ");
+            Validator validator = new Validator(new NaiveBayes());
+            List<Mail> mails = new ArrayList<>();
+            mails.add(new Mail("","TODAY IS SECRET",false));
+            validator.validate(mails,1,1);
 
+            //Thread.sleep(1000);
+            LocalDB.getInstance().closeDB();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -84,6 +87,7 @@ public class TestValidation {
             System.out.println("Consulta el README.md i segueix els passos descrits.");
             System.out.println("Happy coding!");
             e.printStackTrace();
+
         }
     }
 

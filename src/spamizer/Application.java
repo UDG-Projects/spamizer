@@ -7,7 +7,7 @@ import spamizer.MLCore.DirectoryMailReader;
 import spamizer.MLCore.KFoldCrossValidationSelection;
 import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.configurations.ApplicationOptions;
-import spamizer.entity.Database;
+import spamizer.entity.MemDB;
 import spamizer.exceptions.BadArgumentsException;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -152,8 +152,8 @@ public class Application  {
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
             start(options);
 
-            System.out.println(Database.getInstance().select(Database.Table.HAM));
-            System.out.println(Database.getInstance().select(Database.Table.SPAM));
+            System.out.println(MemDB.getInstance().select(MemDB.Table.HAM));
+            System.out.println(MemDB.getInstance().select(MemDB.Table.SPAM));
 
         } catch (CustomException e) {
             System.err.println(e.getCustomMessage());
@@ -243,20 +243,20 @@ public class Application  {
             LocalDB localDB = LocalDB.getInstance();
             localDB.insertResult(2,3,1,0,1,0);
 
-            Database database = Database.getInstance();
+            MemDB database = MemDB.getInstance();
 
             /*List<Pair<String, Integer>> values = new ArrayList<>();
             values.add(new Pair<>("hola", 1));
             values.add(new Pair<>("adeu", 2));
 
-            database.insertOrUpdate(Database.Table.HAM, values);
-            System.out.println(database.select(Database.Table.HAM));
+            database.insertOrUpdate(MemDB.Table.HAM, values);
+            System.out.println(database.select(MemDB.Table.HAM));
 
             values.add(new Pair<>("hola", 1));
             values.add(new Pair<>("adeu", 2));
 
-            database.insertOrUpdate(Database.Table.HAM, values);
-            System.out.println(database.select(Database.Table.HAM));*/
+            database.insertOrUpdate(MemDB.Table.HAM, values);
+            System.out.println(database.select(MemDB.Table.HAM));*/
 
     // Genero 1000 paraules diferents, simulem que és l'alfabet
 
@@ -284,14 +284,14 @@ public class Application  {
                     else
                         email.put(word, 1);
                 }
-                database.insertOrUpdate(Database.Table.HAM, email);
+                database.insertOrUpdate(MemDB.Table.HAM, email);
             }
             end = Instant.now();
             System.out.println("Finished insertion done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
 
             start = Instant.now();
             System.out.println("Started selection");
-            System.out.println(database.sum(Database.Table.HAM));
+            System.out.println(database.sum(MemDB.Table.HAM));
             end = Instant.now();
             System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
 
@@ -340,7 +340,7 @@ public class Application  {
             }*/
 
     //System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-            /*System.out.println(database.select(Database.Table.HAM));
+            /*System.out.println(database.select(MemDB.Table.HAM));
 
 
         } catch (SQLException e) {
