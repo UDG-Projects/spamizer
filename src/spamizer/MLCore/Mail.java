@@ -11,15 +11,14 @@ public class Mail {
     public Mail(){
 
     }
-    public Mail(String subject, String body){
+    public Mail(String subject, String body,Filter filter){
         this.subject = subject;
         this.body = body;
-        filter = new StanfordCoreNLPFilter();
+        this.filter = filter;
     }
 
     /**
      * Returns set of Pair<String,Integer> represents body's words and their appear frecuency
-     * @param isfiltered
      * @return
      */
     public HashMap<String,Integer> getSubjectMail(){
@@ -27,7 +26,6 @@ public class Mail {
     }
     /**
      * Returns set of Pair<String,Integer> represents subject's words and their appear frecuency
-     * @param isfiltered
      * @return
      */
     public HashMap<String,Integer> getBodyMail(){
