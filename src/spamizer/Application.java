@@ -1,6 +1,4 @@
 package spamizer;
-import com.github.jankroken.commandline.CommandLineParser;
-import com.github.jankroken.commandline.OptionStyle;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,8 +7,9 @@ import spamizer.configurations.ApplicationOptions;
 import spamizer.exceptions.BadArgumentsException;
 
 import java.util.concurrent.TimeUnit;
+import spamizer.MLCore.Trainer;
 
-
+import java.sql.SQLException;
 import java.util.Random;
 
 /**
@@ -262,20 +261,6 @@ public class Application  {
             System.out.println("Happy coding!");
             e.printStackTrace();
         }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

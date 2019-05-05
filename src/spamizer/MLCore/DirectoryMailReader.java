@@ -41,9 +41,10 @@ public class DirectoryMailReader implements Reader{
                     String subject = "";
                     if(lowerData.indexOf("subject:")!=-1){
                         subject = (lowerData.substring(lowerData.indexOf("subject:"), lowerData.indexOf("\n"))).replace("subject:","");
+                        lowerData=lowerData.replace("subject:","");
                     }
                     String body = lowerData.replace(subject,"");
-                    Mail m = new Mail(subject, body);
+                    Mail m = new Mail(subject,body);
                     mails.add(m);
                 }
                 catch(Exception e){

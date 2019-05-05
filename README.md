@@ -72,3 +72,10 @@ Trainer és el mòdul que permet interactuar amb la base de dades en memòria HS
 ### MLCore Package
 
 Dins d'aquest package s'hi desa el cor del machine learning. Conté les instàncies de les bases de dades, les classes de validació i les d'entrenament.
+
+#### COMANDES AUXILIARS
+Comanda grep que ens serveix per mirar si una paraula ens apareix a un seguit de fitxers.
+grep -c paraula directori -d read -r
+-c -> busca la paraula al fitxer
+-d read -> passes un directori i li dius que llegeixi
+-r -> que ho faci de manera recursiva per tots els fitxers del directori
