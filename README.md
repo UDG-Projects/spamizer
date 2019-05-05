@@ -18,6 +18,12 @@ Un cop descarregats els drivers ja tenim el que necessitem, podem tencar la fine
 
 Play i a gaudir!! Happy Coding!!
 
+### Instal·lació de la llibreria Stanford Core NLP 
+
+- Descarregar [aixó](https://stanfordnlp.github.io/CoreNLP/download.html). 
+- Descomprimir-ho.
+- Anar a File -> Project Structure i afegir el directori descomprimit com a Library.
+
 ## Estudi sobre les dades 
 
 Les dades que ens entren son correus que poden considerar-se o no spam. Un pas previ al desenvolupament ha de ser el d'evaluar com son majoritàirament aquests correus en longitud. Estudiar la longitud ens ajudarà a veure les dimensions de les dades a processar. També tal i com posa a l'enunciat de la pràctica (com a millora) s'hauria de purgar els correus de mots que no tenen semàntica, tals com proposicions, adverbis o connectors gramaticals. 
@@ -66,3 +72,10 @@ Trainer és el mòdul que permet interactuar amb la base de dades en memòria HS
 ### MLCore Package
 
 Dins d'aquest package s'hi desa el cor del machine learning. Conté les instàncies de les bases de dades, les classes de validació i les d'entrenament.
+
+#### COMANDES AUXILIARS
+Comanda grep que ens serveix per mirar si una paraula ens apareix a un seguit de fitxers.
+grep -c paraula directori -d read -r
+-c -> busca la paraula al fitxer
+-d read -> passes un directori i li dius que llegeixi
+-r -> que ho faci de manera recursiva per tots els fitxers del directori

@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/spamizer.iml" filepath="$PROJECT_DIR$/spamizer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spamizerartifactid/spamizerartifactid.iml" filepath="$PROJECT_DIR$/spamizerartifactid/spamizerartifactid.iml" />
+      <module fileurl="file://$USER_HOME$/Baixades/stanford-corenlp-full-2018-10-05/stanford-corenlp-full-2018-10-05.iml" filepath="$USER_HOME$/Baixades/stanford-corenlp-full-2018-10-05/stanford-corenlp-full-2018-10-05.iml" />
     </modules>
   </component>
 </project>

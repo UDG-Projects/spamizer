@@ -159,7 +159,7 @@ public class Database {
         return result;
     }
 
-    public double get
+
 
     public String calculateProbability(List<String> words, Table table) throws SQLException {
         Statement statement = connection.createStatement();
