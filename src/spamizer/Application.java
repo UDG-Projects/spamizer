@@ -82,7 +82,7 @@ public class Application  {
             e.printStackTrace();
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("ant", applicationOptions.getOptions());
+            formatter.printHelp("spamizer", applicationOptions.getOptions());
         } catch (ParseException e) {
             System.err.println("Something went wrong parsing arguments.");
             System.err.println("------------------------------------------------------------------------------");
@@ -90,7 +90,7 @@ public class Application  {
             e.printStackTrace();
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("ant", applicationOptions.getOptions());
+            formatter.printHelp("spamizer", applicationOptions.getOptions());
         }
     }
 

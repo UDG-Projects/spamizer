@@ -33,6 +33,41 @@ Per tant caldrà :
 - **POSAR LA LLARGADA MITJANA DELS EMAILS** 
 - **EXCLOURE ELS MOTS QUE NO TENEN SEMÀNTICA I EXPLICAR COM ES FA EL PROCÉS**
 
+## Instruccions per a l'execució 
+
+Per executar el programa mitjançant un paquet jar ens trobarem les següents opcions : 
+
+```{java}
+usage: spamizer
+ -d <arg>   Database file with other execution data, this or directory
+            training argument must be present
+ -h         Set training mails as ham, adding this argument -s must not be
+            present
+ -p <arg>   Directory where final database will be persisted
+ -s         Set training mails as spam, adding this argument -h must not
+            be present
+ -t <arg>   Directory where training mails in txt are stored, this or
+            database argument must be present
+ -v <arg>   Directory where validation mails in txt are stored
+```
+
+El programa permet la interacció amb el machine learning en diferents modes, el mode entrenament (training) que permet nodrid la base de dades en memòria tant amb una base de dades desada en un fitxer com amb un conjunt finit de correus llegits dins d'un directori.
+
+### Mode Training
+
+Si es pretén llegir un conjunt finit de correus des d'un directori s'ha d'especificar si aquests correus son spam o ham mitjançant els paràmetres -h o -s, el programa no accepta els dos paràmetres a la vegada o la inexistència dels dos en cas que la opció -t (training des d'un directori) estigui especificada. Per part del mode training mitjançant una base de dades no hi ha restricció sobre els paràmetres ham o spam ja que l'estructura de la base de dades ha de ser la mateixa que la que està creada en memòria. 
+
+### Mode Validation
+
+El mode validation reb un conjunt finit de correus procedents d'un directori que s'especifica per paràmetre. Aquest procediment exporta els resultats dels correus llegits en el format TP, FP, TN i FN per tots els correus inserits. 
+
+### Other parameters
+
+El paràmetre -p estipula que es desi la base de dades en memòria a algun fitxer que pugui ser restaurat en una altre execució per així no perdre el possible entrenament realitzat. 
+
+
+
+
 ## Classes i Packages
 
 ### Package reader
