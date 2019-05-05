@@ -24,8 +24,6 @@ public class Trainer {
         Collection<Mail> mailsSpam = reader.read(this.spamDirectoryPath);
         Collection<Mail> mailsHam = reader.read(this.hamDirectoryPath);
 
-
-
     }
 
 }
