@@ -3,6 +3,7 @@ package spamizer.entity;
 import javafx.scene.control.Tab;
 import javafx.util.Pair;
 
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.*;
 
@@ -14,6 +15,7 @@ public class Database {
         HAM("HAM"),
         MESSAGE("MESSAGE")
         ;
+
 
         private final String table;
 
@@ -30,6 +32,31 @@ public class Database {
         @Override
         public String toString() {
             return table;
+        }
+    }
+
+    public enum Column {
+        SPAM("SPAM"),
+        HAM("HAM"),
+
+        ;
+
+
+        private final String column;
+
+        /**
+         * @param table
+         */
+        Column(final String table) {
+            this.column = table;
+        }
+
+        /* (non-Javadoc)
+         * @see java.lang.Enum#toString()
+         */
+        @Override
+        public String toString() {
+            return column;
         }
     }
 
@@ -173,22 +200,52 @@ public class Database {
     }
 
 
-
-    public String calculateProbability(List<String> words, Table table) throws SQLException {
+    public double getMessageProbabylity(Column column) throws SQLException {
         Statement statement = connection.createStatement();
-        String query = "SELECT * FROM "  +table;
+        String query = "Select CAST(" + column + " as FLOAT)/CAST((HAM + SPAM) as FLOAT) as PTOTAL from " +Table.MESSAGE + " where id = 1 ";
+
+        ResultSet rs = statement.executeQuery(query);
+        float    result=0;
+
+        while(rs.next()){
+            result += rs.getDouble("PTOTAL");
+        }
+
+        statement.close();
+        return result;
+    }
+
+    public int getCountAlphabet(Table table) throws SQLException {
+        Statement statement = connection.createStatement();
+        int result=0;
+        String query = "SELECT count(*) +  (select sum(times) from "+ table +" ) as totalword " +
+                "from ( SELECT word FROM spam  UNION SELECT word FROM ham) as t";
+
+        ResultSet rs= statement.executeQuery(query);
+        if(rs.next())
+            result = rs.getInt("totalword");
+
+        statement.close();
+        return result;
+    }
+
+    public double calculateProbability(List<String> words, Table table, int k, int totalWords) throws SQLException {
+        Statement statement = connection.createStatement();
+        String query = "SELECT exp(sum(ln(CAST(times + " + k +" as FLOAT)/Cast( "+totalWords+" as FLOAT)))) FROM "  +table;
         if(!words.isEmpty())
             query += " WHERE word IN (";
         for(String word:words){
-            query+= "'"+ word + "'";
+            query+= "'"+ word + "',";
         }
-        if(!words.isEmpty())
+        if(!words.isEmpty()) {
+            query = query.substring(0,query.length()-1);
             query += ")";
-
+        }
         ResultSet res= statement.executeQuery(query);
-        String result ="";
+        double result = 0;
         while(res.next()) {
-            result += res.getString("word") + " " + res.getInt("times") + "\n";
+            result = res.getDouble(1);
+           //result += res.getString("word") + " " + res.getInt("times") + "\n";
         }
         statement.close();
         return result;

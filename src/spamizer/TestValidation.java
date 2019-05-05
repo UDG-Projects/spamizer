@@ -37,8 +37,8 @@ public class TestValidation {
             hamMessages.add("PLAY SPORTS TODAY");
             hamMessages.add("WENT PLAY SPORTS");
             hamMessages.add("SECRET SPORTS EVENT");
-            hamMessages.add("SPORT IS TODAY");
-            hamMessages.add("SPORT COSTS MONEY");
+            hamMessages.add("SPORTS IS TODAY");
+            hamMessages.add("SPORTS COSTS MONEY");
 
 
             HashMap<String, Integer> ham = populateMap(hamMessages);
@@ -50,13 +50,32 @@ public class TestValidation {
             database.updateCounters(hamMessages.size(),spamMessages.size());
             System.out.println("Contadors actuals");
             System.out.println(database.selectCounters());
+            System.out.println();
 
-            System.out.println("Probabilitats");
+            System.out.println("Alfabet");
+            int wordsHam =database.getCountAlphabet(Database.Table.HAM);
+            System.out.println( wordsHam);
+            int wordsSpam = database.getCountAlphabet(Database.Table.SPAM);
+            System.out.println(wordsSpam);
+            System.out.println();
+
+            System.out.println("Probabilitats ");
+            System.out.println();
             List<String> words = new ArrayList<>();
-            words.add("SPORTS");
+            words.add("TODAY");
             words.add("SECRET");
-            words.add("PLAY");
-            System.out.println(database.calculateProbability(words, Database.Table.HAM));
+            words.add("IS");
+            System.out.println("Numerador de paraules HAM sense pTHam ");
+            System.out.println(database.calculateProbability(words, Database.Table.HAM,1, wordsHam));
+            System.out.println("Numerador de paraules SPAM sense pTSpam ");
+            System.out.println(database.calculateProbability(words, Database.Table.SPAM,1, wordsSpam));
+
+            System.out.println();
+            System.out.println("pTHam ");
+            System.out.println(database.getMessageProbabylity(Database.Column.HAM));
+            System.out.println("pTSpam ");
+            System.out.println(database.getMessageProbabylity(Database.Column.SPAM));
+
 
         } catch (SQLException e) {
             e.printStackTrace();
