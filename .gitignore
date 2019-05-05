@@ -3,6 +3,8 @@
 
 target/
 
+spamizerartifactid/spamizerartifactid.iml
+
 # DB
 db/result_db.lck
 db/result_db.properties
