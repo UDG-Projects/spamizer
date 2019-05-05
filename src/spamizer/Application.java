@@ -1,29 +1,27 @@
 package spamizer;
+
 import javafx.util.Pair;
 import spamizer.entity.Database;
 import spamizer.entity.LocalDB;
 
-import java.sql.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
+import spamizer.MLCore.DirectoryMailReader;
+
+import java.util.Random;
 
 
 public class Application  {
 
     public static Random random;
-
-    public static void main(String [] args)
-    {
+    static String   FOLDERPATH = "C:/Users/Gil/Desktop/mails";
+    public static void main(String [] args) {
         random = new Random();
 
-        try {
+
+        /*try {
             LocalDB localDB = LocalDB.getInstance();
             localDB.insertResult(2,3,1,0,1,0);
+
             Database database = Database.getInstance();
 
             /*List<Pair<String, Integer>> values = new ArrayList<>();
@@ -39,9 +37,9 @@ public class Application  {
             database.insertOrUpdate(Database.Table.HAM, values);
             System.out.println(database.select(Database.Table.HAM));*/
 
-            // Genero 1000 paraules diferents, simulem que és l'alfabet
+        // Genero 1000 paraules diferents, simulem que és l'alfabet
 
-            Instant start = Instant.now();
+            /*Instant start = Instant.now();
             System.out.println("Started word generation. ");
             String[] words = new String[1000];
             for(int i = 0; i < 1000; i++){
@@ -108,6 +106,6 @@ public class Application  {
                 TimeUnit.MILLISECONDS.toMillis(millis) -
                         TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis))
         );
+    }*/
     }
-
 }
