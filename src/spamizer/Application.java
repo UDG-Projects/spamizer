@@ -30,6 +30,8 @@ public class Application  {
      */
     public static void start(CommandLine options) throws BadArgumentsException {
 
+        // TODO : No està implementat encara la lpògica per el mètode "-c" càlcul de phi i k i el paràmetre -n
+
         if(!options.hasOption(ApplicationOptions.OPTION_VALIDATION) && !options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_DATABASE))
             throw new BadArgumentsException("No option selected. ");
 
