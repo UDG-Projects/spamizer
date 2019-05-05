@@ -1,15 +1,9 @@
 package spamizer.exceptions;
 
-public class BadArgumentsException extends Exception {
+public class BadArgumentsException extends CustomException {
 
-    private String message;
 
-    public BadArgumentsException(String message){
-        this.message = message;
+    public BadArgumentsException(String message) {
+        super(message);
     }
-
-    public String getCustomMessage(){
-        return this.message;
-    }
-
 }

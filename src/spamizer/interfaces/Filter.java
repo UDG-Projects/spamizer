@@ -1,4 +1,4 @@
-package spamizer.MLCore;
+package spamizer.interfaces;
 
 import java.util.HashMap;
 public interface Filter {
