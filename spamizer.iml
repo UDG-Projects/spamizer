@@ -10,5 +10,8 @@
     <orderEntry type="library" exported="" name="hsqldb" level="project" />
     <orderEntry type="library" exported="" name="Maven: edu.stanford.nlp:stanford-corenlp:3.9.2" level="project" />
     <orderEntry type="library" name="stanford-corenlp-full-2018-10-05" level="project" />
+    <orderEntry type="library" name="Maven: com.github.pcj:google-options:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.jankroken:commandline:1.7.0" level="project" />
+    <orderEntry type="library" name="commons-cli-1.4" level="project" />
   </component>
 </module>
