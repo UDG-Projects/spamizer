@@ -20,7 +20,7 @@ public class Application  {
         Collection<Mail> mailsFiltrats = mailreader.read("C:\\Users\\Gil\\Desktop\\mails");
         for (Mail m : mailsFiltrats)
         {
-          mailFiltrat.putAll(m.getBodyMail(true));
+          mailFiltrat.putAll(m.getBodyMail());
         }
 
         System.out.println("HELLOOO");

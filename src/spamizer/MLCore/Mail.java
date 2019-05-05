@@ -22,7 +22,7 @@ public class Mail {
      * @param isfiltered
      * @return
      */
-    public HashMap<String,Integer> getSubjectMail(boolean isfiltered){
+    public HashMap<String,Integer> getSubjectMail(){
             return filter.filterText(this.subject);
     }
     /**
@@ -30,7 +30,7 @@ public class Mail {
      * @param isfiltered
      * @return
      */
-    public HashMap<String,Integer> getBodyMail(boolean isfiltered){
+    public HashMap<String,Integer> getBodyMail(){
 
         return filter.filterText(this.body);
     }
