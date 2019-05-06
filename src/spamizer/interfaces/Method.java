@@ -1,11 +1,18 @@
 package spamizer.interfaces;
 
-import spamizer.MLCore.ProbabylityResult;
-import spamizer.entity.Database;
+import spamizer.entity.MemDB;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 public interface Method {
 
-    ProbabylityResult getProbabilities(Database database, Collection<String> words);
+    /**
+     *
+     * @param memDB
+     * @param message Collection of strings of the message to be calssificated
+     * @param k
+     * @return true if message is classificated as spam
+     */
+    boolean isSpam(MemDB memDB, Collection<String> message, int k, int phi) throws SQLException;
 }

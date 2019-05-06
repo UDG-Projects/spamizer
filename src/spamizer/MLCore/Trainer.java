@@ -1,6 +1,6 @@
 package spamizer.MLCore;
 
-import spamizer.entity.Database;
+import spamizer.entity.MemDB;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
@@ -10,14 +10,14 @@ import java.util.HashMap;
 
 public class Trainer {
 
-    protected Database memoryDataBase;
+    protected MemDB memoryDataBase;
 
     public Trainer() throws SQLException, ClassNotFoundException {
-        memoryDataBase = Database.getInstance();
+        memoryDataBase = MemDB.getInstance();
     }
 
-    public void train (Database.Table table, Reader reader, Filter filter) throws SQLException {
-        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table);
+    public void train (MemDB.Table table, Reader reader, Filter filter) throws SQLException {
+        Collection<Mail> mailsFiltrats = reader.read(MemDB.Table.SPAM == table);
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 1;
         for (Mail m : mailsFiltrats)

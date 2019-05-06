@@ -57,9 +57,9 @@ select exp(sum(ln((times+1)/((select count(*) as totalword from (
                                                                     SELECT word FROM ham) as t))))) as NaiveP
 from spam where word in ("TODAY","IS","SECRET");
 
+ount(*) + (select sum(times) from spam) as totalword from ( SELECT word FROM spam  UNION SELECT word FROM ham) as t;
 # 21
-select count(*) + (select sum(times) from spam) as totalword from ( SELECT word FROM spam  UNION SELECT word FROM ham) as t;
-
+select c
 
 select exp(sum(ln((times+1)/((select count(*) + (select sum(times) from spam) as totalword from ( SELECT word FROM spam  UNION SELECT word FROM ham)  as t)))))
 from
