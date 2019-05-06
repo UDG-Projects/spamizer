@@ -7,9 +7,12 @@ import spamizer.MLCore.DirectoryMailReader;
 import spamizer.MLCore.KFoldCrossValidationSelection;
 import spamizer.MLCore.StanfordCoreNLPFilter;
 import spamizer.configurations.ApplicationOptions;
+import spamizer.entity.Database;
+import spamizer.entity.LocalDB;
 import spamizer.entity.MemDB;
 import spamizer.exceptions.BadArgumentsException;
 
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import spamizer.MLCore.Trainer;
@@ -67,6 +70,17 @@ public class Application  {
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
                 // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
                 System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
+                LocalDB localDb = LocalDB.getInstance();
+                MemDB memDb = MemDB.getInstance();
+
+                memDb.insertOrUpdate(Database.Table.SPAM, localDb.select(Database.Table.SPAM));
+                memDb.insertOrUpdate(Database.Table.HAM, localDb.select(Database.Table.HAM));
+
+                localDb.closeDB();
+
+                System.out.println("## TODO : Carregada la informació en memòria : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
+                System.out.println("SPAM : \n" + memDb.select(Database.Table.SPAM));
+                System.out.println("HAM : \n" + memDb.select(Database.Table.HAM));
             }
 
 
@@ -116,6 +130,16 @@ public class Application  {
             // Persistim els canvis a la base de dades local sí o sí
             if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
                 System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+
+                MemDB memory = MemDB.getInstance();
+                LocalDB file = LocalDB.getInstance();
+
+                // Eliminem les entrades en local i inserim la base de dades en local.
+                file.delete(Database.Table.HAM);
+                file.delete(Database.Table.SPAM);
+
+                file.insertOrUpdate(Database.Table.HAM, memory.select(MemDB.Table.HAM));
+                file.insertOrUpdate(Database.Table.SPAM, memory.select(MemDB.Table.SPAM));
             }
         }
 

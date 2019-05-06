@@ -55,8 +55,8 @@ usage: spamizer
             selection will be k-fold cross-validation and the heuristic
             method used to calculate phi and k values will be High
             Climbing with random restarts
- -d <arg>   MemDB file with other execution data, this or directory
-            training argument must be present
+ -d         Flag that indicates that data must be loaded from local
+            database
  -h         Set training mails as ham, adding this argument -s must not be
             present
  -n <arg>   The number of iterations for -c mode execution.
