@@ -49,11 +49,20 @@ public class Application  {
             if(!options.hasOption(ApplicationOptions.OPTION_VALIDATION) && !options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_DATABASE))
                 throw new BadArgumentsException("No option selected. ");
 
-            if (options.hasOption(ApplicationOptions.OPTION_TRAINING) && !options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))
+            if ((options.hasOption(ApplicationOptions.OPTION_TRAINING) &&
+                    options.getOptionValues(ApplicationOptions.OPTION_TRAINING).length == 1 &&
+                    !options.hasOption(ApplicationOptions.OPTION_HAM) &&
+                    !options.hasOption(ApplicationOptions.OPTION_SPAM)))
                 throw new BadArgumentsException("To train database from Directory files must include arguments ham or spam [-h | -s].");
 
-            if(options.hasOption(ApplicationOptions.OPTION_TRAINING) && options.hasOption(ApplicationOptions.OPTION_HAM) && options.hasOption(ApplicationOptions.OPTION_SPAM))
+            if(options.hasOption(ApplicationOptions.OPTION_TRAINING) &&
+                    options.getOptionValues(ApplicationOptions.OPTION_TRAINING).length == 1 &&
+                    options.hasOption(ApplicationOptions.OPTION_HAM) &&
+                    options.hasOption(ApplicationOptions.OPTION_SPAM))
                 throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
+
+            if(options.hasOption(ApplicationOptions.OPTION_VALIDATION) && options.getOptionValues(ApplicationOptions.OPTION_VALIDATION).length != 2)
+                throw new BadArgumentsException("The Validation -v option must include 2 and only 2 directories.");
 
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
                 // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
@@ -63,26 +72,42 @@ public class Application  {
 
             if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
                 Trainer trainer = new Trainer();
-                if(options.hasOption(ApplicationOptions.OPTION_HAM)) {
-                    System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
+                if(options.getOptionValues(ApplicationOptions.OPTION_TRAINING).length == 1) {
 
-                    trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
-                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                            new StanfordCoreNLPFilter());
+                    if (options.hasOption(ApplicationOptions.OPTION_HAM)) {
+                        System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
 
+                        trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
+                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                                new StanfordCoreNLPFilter());
+
+                    } else {
+
+                        System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
+
+                        trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
+                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                                new StanfordCoreNLPFilter());
+                    }
                 }
-                else{
-
-                    System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
-
-                    trainer.train(  ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
-                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                else {
+                    String directorySpam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[0];
+                    String directoryHam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[1];
+                    trainer.train(MemDB.Table.SPAM,
+                            new DirectoryMailReader(directorySpam),
                             new StanfordCoreNLPFilter());
+
+                    trainer.train(MemDB.Table.HAM,
+                            new DirectoryMailReader(directoryHam),
+                            new StanfordCoreNLPFilter());
+
                 }
 
             }
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
+                String spamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
+                String hamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
             }
 
