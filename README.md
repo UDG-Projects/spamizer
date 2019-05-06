@@ -55,17 +55,22 @@ usage: spamizer
             selection will be k-fold cross-validation and the heuristic
             method used to calculate phi and k values will be High
             Climbing with random restarts
- -d <arg>   Database file with other execution data, this or directory
+ -d <arg>   MemDB file with other execution data, this or directory
             training argument must be present
  -h         Set training mails as ham, adding this argument -s must not be
             present
  -n <arg>   The number of iterations for -c mode execution.
- -p <arg>   Directory where final memDB will be persisted
+ -p <arg>   Directory where final database will be persisted
  -s         Set training mails as spam, adding this argument -h must not
             be present
- -t <arg>   Directory where training mails in txt are stored, this or
-            memDB argument must be present
- -v <arg>   Directory where validation mails in txt are stored
+ -t <arg>   Directories where training mails in txt are stored, this or
+            database argument must be presentyou can set a maximum of 2
+            directories in this order : -t <spamDir> <hamDir>. If only one
+            dir is set the parameter -h or -s must be included
+ -v <arg>   Directories where validation mails in txt are storedyou can
+            set a maximum of 2 directories in this order : -v <spamDir>
+            <hamDir>.
+
 ```
 
 El programa permet la interacció amb el machine learning en diferents modes, el mode entrenament (training) que permet nodrid la base de dades en memòria tant amb una base de dades desada en un fitxer com amb un conjunt finit de correus llegits dins d'un directori.
