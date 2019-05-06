@@ -109,6 +109,8 @@ public class Application  {
                 String spamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 String hamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
+
+                // TODO : Aquí s'ha de fer la validació. 
             }
 
             // Persistim els canvis a la base de dades local sí o sí

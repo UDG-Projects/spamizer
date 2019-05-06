@@ -26,7 +26,7 @@ public class ApplicationOptions {
         Option training = new Option(OPTION_TRAINING, true, "Directories where training mails in txt are stored, this or database argument must be present" +
                 "you can set a maximum of 2 directories in this order : -t <spamDir> <hamDir>. " +
                 "If only one dir is set the parameter -h or -s must be included");
-        training.setArgs(2);
+        training.setArgs(Option.UNLIMITED_VALUES);
         options.addOption(training);
 
 
