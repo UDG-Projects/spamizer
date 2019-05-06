@@ -2,7 +2,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 target/
-
+stanford-corenlp-full-2018-10-05/
 spamizerartifactid/spamizerartifactid.iml
 
 # DB
