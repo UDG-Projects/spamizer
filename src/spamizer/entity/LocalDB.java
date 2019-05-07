@@ -1,5 +1,7 @@
 package spamizer.entity;
 
+import javafx.util.Pair;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -52,6 +54,16 @@ public class LocalDB extends Database {
     @Override
     public HashMap<String, Integer> select(Database.Table table) throws SQLException {
         return select(table, connection);
+    }
+
+    @Override
+    public Pair<Integer, Integer> selectMessages() throws SQLException {
+        return selectMessages(connection);
+    }
+
+    @Override
+    public void insertCounters(int ham, int spam) throws SQLException {
+        insertCounters(connection, ham, spam);
     }
 
 

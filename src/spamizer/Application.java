@@ -1,4 +1,5 @@
 package spamizer;
+import javafx.util.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -8,6 +9,7 @@ import spamizer.configurations.ApplicationOptions;
 import spamizer.entity.Database;
 import spamizer.entity.LocalDB;
 import spamizer.entity.MemDB;
+import spamizer.entity.Result;
 import spamizer.exceptions.BadArgumentsException;
 
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
 import spamizer.interfaces.Reader;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -30,6 +33,7 @@ public class Application  {
     public static int MAX_PERC = 15;
 
     public static Random random;
+    public static Result result;
 
     /**
      * Procés de creació i validació en funció dels arguments de la instrucció que es reb per paràmetre.
@@ -62,8 +66,11 @@ public class Application  {
                     options.hasOption(ApplicationOptions.OPTION_SPAM))
                 throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
 
-            if(options.hasOption(ApplicationOptions.OPTION_VALIDATION) && options.getOptionValues(ApplicationOptions.OPTION_VALIDATION).length != 2)
-                throw new BadArgumentsException("The Validation -v option must include 2 and only 2 directories.");
+            if ((options.hasOption(ApplicationOptions.OPTION_VALIDATION) &&
+                    !options.hasOption(ApplicationOptions.OPTION_HAM) &&
+                    !options.hasOption(ApplicationOptions.OPTION_SPAM)))
+                throw new BadArgumentsException("The Validation -v option must include [-h | -s] parameters.");
+
 
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
                 // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
@@ -74,7 +81,8 @@ public class Application  {
                 memDb.insertOrUpdate(Database.Table.SPAM, localDb.select(Database.Table.SPAM));
                 memDb.insertOrUpdate(Database.Table.HAM, localDb.select(Database.Table.HAM));
 
-                localDb.closeDB();
+                Pair<Integer, Integer> messagesCounters = localDb.selectMessages();
+                memDb.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
 
                 System.out.println("## TODO : Carregada la informació en memòria : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
                 System.out.println("SPAM : \n" + memDb.select(Database.Table.SPAM));
@@ -118,25 +126,11 @@ public class Application  {
             }
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
-                String spamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
-                String hamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[1];
+                String validateDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
-
-                // TODO : Aquí s'ha de fer la validació.
-
-                int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
-                KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
-                        new DirectoryMailReader(spamDir),
-                        new DirectoryMailReader(hamDir),
-                        percentage,
-                        random
-                );
                 Validator validator = new Validator(new NaiveBayes());
-                validator.train(Database.Table.HAM, selector.getHam(),new StanfordCoreNLPFilter());
-                validator.train(Database.Table.SPAM,selector.getSpam(), new StanfordCoreNLPFilter());
 
-                validator.validate(selector.getUnknown(),2,2);
-
+                validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM)),1,1);
             }
 
             // Persistim els canvis a la base de dades local sí o sí
@@ -149,9 +143,13 @@ public class Application  {
                 // Eliminem les entrades en local i inserim la base de dades en local.
                 file.delete(Database.Table.HAM);
                 file.delete(Database.Table.SPAM);
+                file.delete(Database.Table.MESSAGE);
 
                 file.insertOrUpdate(Database.Table.HAM, memory.select(MemDB.Table.HAM));
                 file.insertOrUpdate(Database.Table.SPAM, memory.select(MemDB.Table.SPAM));
+
+                Pair<Integer, Integer> messagesCounters = memory.selectMessages();
+                file.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
             }
         }
 
@@ -164,7 +162,7 @@ public class Application  {
      * Per l'ordre següent es realitza la lectura de spam i després de ham dels directoris.
      * @param options les opcions on hi ha els directoris spam i ham i el nombre de iteracions que ha de realitzar
      */
-    public static void compute(CommandLine options) throws BadArgumentsException, BadPercentageException {
+    public static void compute(CommandLine options) throws BadArgumentsException, BadPercentageException, SQLException, ClassNotFoundException {
 
         int iterations = 1;
         if(options.hasOption(ApplicationOptions.OPTION_COMPUTATIONS_NUMBER)){
@@ -187,33 +185,64 @@ public class Application  {
 
         int phi, k;
 
+
         /**
          * Per cada una de les iteracions demanades :
          * 1. Generem nombre aleatòri per el percentatge de correus que discriminarà dins del rang entre 5 i 15.
          * 2. Generem nombres aleatoris per phi i k.
          */
         for(int count = 0; count < iterations; count++){
+
             int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
+
             // TODO : S'ha de fer el generador de phi i k amb high climbing.
+            phi = Math.abs(random.nextInt()) % 1000;
+            k = Math.abs(random.nextInt()) % 1000;
 
-            KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random);
-            // TODO : a selection hi ha els mails carregats sense filtrar.
-            // TODO : Primer s'ha d'accedir a getSpam i getHam i després accedir a getUnknown.
+            //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
+            KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
+                    spamReader,
+                    hamReader,
+                    percentage,
+                    random,
+                    result
+            );
 
-            // TODO : S'ha de llençar la validació , rebre els resultats ok i els resultats bad
-            // TODO : S'ha d'inserir la fila de l'execució amb la phi i la k generades.
+            Validator validator = new Validator(new NaiveBayes());
+            validator.train(Database.Table.HAM, selector.getHam(),new StanfordCoreNLPFilter());
+            validator.train(Database.Table.SPAM,selector.getSpam(), new StanfordCoreNLPFilter());
+
+            validator.validate(selector.getUnknown(),k,phi);
         }
+
+        /**
+         *
+         System.out.println("---------------------------------------------------------");
+         System.out.println("---------------------------------------------------------");
+         System.out.println(" PHI : " + phi);
+         System.out.println(" K   : " + k);
+         System.out.println("---------------------------------------------------------");
+         System.out.println(" Missatge HAM classificat correctament com a HAM : " + tp);
+         System.out.println(" Missatge HAM classificat com a SPAM : " + fp);
+         System.out.println(" Missatge SPAM classificat correctament com spam : " + tn);
+         System.out.println(" Missatge SPAM classificat com a HAM : " + fn);
+         System.out.println("---------------------------------------------------------");
+         System.out.println("---------------------------------------------------------");
+         */
 
     }
 
     public static void main(String [] args) {
         random = new Random();
+        result = new Result();
         ApplicationOptions applicationOptions = new ApplicationOptions();
         try {
 
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
             start(options);
+
+            LocalDB.getInstance().closeDB();
 
             System.out.println(MemDB.getInstance().select(MemDB.Table.HAM));
             System.out.println(MemDB.getInstance().select(MemDB.Table.SPAM));
@@ -245,6 +274,9 @@ public class Application  {
             System.err.println("------------------------------------------------------------------------------");
             e.printStackTrace();
         }
+
+
+
     }
 
 

@@ -45,7 +45,20 @@ public class Validator extends Trainer {
         }
 
         //Un cop finalitzada la cassificacio inserir resultats
+        // TODO : Falta actualtizar la taula amb els valors de temps i els nombres correus que s'han fet servir tant com a ham i com a spam i com unknown.
         LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn);
+
+        System.out.println("---------------------------------------------------------");
+        System.out.println("---------------------------------------------------------");
+        System.out.println(" PHI : " + phi);
+        System.out.println(" K   : " + k);
+        System.out.println("---------------------------------------------------------");
+        System.out.println(" Missatge HAM classificat correctament com a HAM : " + tp);
+        System.out.println(" Missatge HAM classificat com a SPAM : " + fp);
+        System.out.println(" Missatge SPAM classificat correctament com spam : " + tn);
+        System.out.println(" Missatge SPAM classificat com a HAM : " + fn);
+        System.out.println("---------------------------------------------------------");
+        System.out.println("---------------------------------------------------------");
     }
 
     private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam) throws SQLException {

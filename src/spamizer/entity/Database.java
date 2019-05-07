@@ -1,5 +1,8 @@
 package spamizer.entity;
 
+import javafx.util.Pair;
+import org.omg.PortableInterceptor.INACTIVE;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,6 +44,8 @@ public abstract class Database {
     public abstract void insertZeroValues(Database.Table table, HashMap<String, Integer> appearances) throws SQLException;
     public abstract void delete(Database.Table table) throws SQLException;
     public abstract HashMap<String, Integer> select(Database.Table table) throws SQLException;
+    public abstract Pair<Integer, Integer> selectMessages() throws SQLException;
+    public abstract void insertCounters(int ham, int spam) throws SQLException;
 
     private void insertOrUpdate(Statement statement, Table table, String word, int times) throws SQLException {
 
@@ -68,6 +73,17 @@ public abstract class Database {
         }
         statement.close();
         return result;
+    }
+
+    public Pair<Integer, Integer> selectMessages(Connection connection) throws SQLException{
+        Statement statement = connection.createStatement();
+        ResultSet set = statement.executeQuery("SELECT HAM, SPAM FROM MESSAGE where ID = 1");
+        Pair<Integer, Integer> res = null;
+        while (set.next()){
+            res = new Pair<>(set.getInt("HAM"), set.getInt("SPAM"));
+        }
+        statement.close();
+        return res;
     }
 
     public void delete(Table table, Connection connection) throws SQLException {
@@ -120,6 +136,14 @@ public abstract class Database {
 
             statement.executeUpdate(insert);
         }
+        statement.close();
+    }
+
+    public void insertCounters(Connection connection, int ham, int spam) throws SQLException {
+        Statement statement = connection.createStatement();
+        String insert = "INSERT INTO " + Table.MESSAGE + "( ID, HAM, SPAM) " +
+                " VALUES( 1, "+ ham +","+ spam +")";
+        statement.executeUpdate(insert);
         statement.close();
     }
 

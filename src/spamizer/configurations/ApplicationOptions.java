@@ -32,10 +32,9 @@ public class ApplicationOptions {
 
         options.addOption(new Option(OPTION_DATABASE,  "Flag that indicates that data must be loaded from local database"));
 
-        Option validation = new Option(OPTION_VALIDATION, true, "Directories where validation mails in txt are stored" +
-                                                                        "you can set a maximum of 2 directories in this order : -v <spamDir> <hamDir>. ");
-        validation.setArgs(2);
-
+        Option validation = new Option(OPTION_VALIDATION, true, "Directory where validation mails in txt are stored. " +
+                "This procedure will validate mail inside validationDir with database loaded by default or stored inside memory."+
+                                                                        " [-h | -s] -v <validationDir> . ");
         options.addOption(validation);
         options.addOption(new Option(OPTION_PERSIST,  "Set the persistance of the memory database to a local database"));
 
