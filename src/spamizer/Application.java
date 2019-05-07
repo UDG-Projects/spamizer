@@ -99,7 +99,7 @@ public class Application  {
 
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                new StanfordCoreNLPFilter());
+                                StanfordCoreNLPFilter.getInstance());
 
                     } else {
 
@@ -107,7 +107,7 @@ public class Application  {
 
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                new StanfordCoreNLPFilter());
+                                StanfordCoreNLPFilter.getInstance());
                     }
                 }
                 else {
@@ -115,11 +115,11 @@ public class Application  {
                     String directoryHam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[1];
                     trainer.train(MemDB.Table.SPAM,
                             new DirectoryMailReader(directorySpam),
-                            new StanfordCoreNLPFilter());
+                            StanfordCoreNLPFilter.getInstance());
 
                     trainer.train(MemDB.Table.HAM,
                             new DirectoryMailReader(directoryHam),
-                            new StanfordCoreNLPFilter());
+                            StanfordCoreNLPFilter.getInstance());
 
                 }
 
@@ -209,8 +209,8 @@ public class Application  {
             );
 
             Validator validator = new Validator(new NaiveBayes());
-            validator.train(Database.Table.HAM, selector.getHam(),new StanfordCoreNLPFilter());
-            validator.train(Database.Table.SPAM,selector.getSpam(), new StanfordCoreNLPFilter());
+            validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
+            validator.train(Database.Table.SPAM,selector.getSpam(), StanfordCoreNLPFilter.getInstance());
 
             validator.validate(selector.getUnknown(),k,phi);
         }
@@ -237,6 +237,9 @@ public class Application  {
         result = new Result();
         ApplicationOptions applicationOptions = new ApplicationOptions();
         try {
+
+            // TODO: Ens assegurem que la bd no està ocupada abans de començar l'execució.
+            LocalDB.getInstance().select(Database.Table.HAM);
 
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);

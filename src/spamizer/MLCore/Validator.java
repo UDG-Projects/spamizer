@@ -46,6 +46,8 @@ public class Validator extends Trainer {
 
         //Un cop finalitzada la cassificacio inserir resultats
         // TODO : Falta actualtizar la taula amb els valors de temps i els nombres correus que s'han fet servir tant com a ham i com a spam i com unknown.
+        // LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn);
+
         LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn);
 
         System.out.println("---------------------------------------------------------");

@@ -5,12 +5,14 @@ import spamizer.interfaces.Reader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static jdk.nashorn.internal.objects.NativeString.toLowerCase;
 
 public class DirectoryMailReader implements Reader {
@@ -41,7 +43,7 @@ public class DirectoryMailReader implements Reader {
                 BufferedReader br = null;
                 try {
                     file = new File (listOfFiles[i].getName());
-                    String data = new String(Files.readAllBytes(Paths.get(folderPath + file)));
+                    String data = new String(Files.readAllBytes(Paths.get(folderPath + file)), UTF_8);
                     String lowerData = toLowerCase(data).replaceAll("cc|to|from", "");
                     String subject = "";
                     if(lowerData.indexOf("subject:")!=-1){

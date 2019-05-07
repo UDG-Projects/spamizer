@@ -16,13 +16,22 @@ import java.util.*;
  */
 public class StanfordCoreNLPFilter implements Filter {
 
+    private static StanfordCoreNLPFilter filter;
     StanfordCoreNLP pipeline;
 
-    public StanfordCoreNLPFilter(){
+    private StanfordCoreNLPFilter(){
         Properties properties = new Properties();
         properties.setProperty("annotators", "tokenize,ssplit,pos,lemma");
         properties.setProperty("coref.algorithm", "neural");
+        properties.put("threads", "8");
         pipeline = new StanfordCoreNLP(properties);
+    }
+
+    public static StanfordCoreNLPFilter getInstance(){
+        if(filter == null){
+            filter = new StanfordCoreNLPFilter();
+        }
+        return filter;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Mail {
         this.subject = subject;
         this.body = body;
         this.isSpam = isSpam;
-        this.filter = new StanfordCoreNLPFilter();
+        this.filter = StanfordCoreNLPFilter.getInstance();
     }
     /**
      * Returns set of Pair<String,Integer> represents body's words and their appear frecuency
