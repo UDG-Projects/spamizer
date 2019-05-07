@@ -3,9 +3,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
-import spamizer.MLCore.DirectoryMailReader;
-import spamizer.MLCore.KFoldCrossValidationSelection;
-import spamizer.MLCore.StanfordCoreNLPFilter;
+import spamizer.MLCore.*;
 import spamizer.configurations.ApplicationOptions;
 import spamizer.entity.Database;
 import spamizer.entity.LocalDB;
@@ -15,7 +13,7 @@ import spamizer.exceptions.BadArgumentsException;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import spamizer.MLCore.Trainer;
+
 import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
 import spamizer.interfaces.Reader;
@@ -121,10 +119,24 @@ public class Application  {
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
                 String spamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
-                String hamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
+                String hamDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[1];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
 
-                // TODO : Aquí s'ha de fer la validació. 
+                // TODO : Aquí s'ha de fer la validació.
+
+                int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
+                KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
+                        new DirectoryMailReader(spamDir),
+                        new DirectoryMailReader(hamDir),
+                        percentage,
+                        random
+                );
+                Validator validator = new Validator(new NaiveBayes());
+                validator.train(Database.Table.HAM, selector.getHam(),new StanfordCoreNLPFilter());
+                validator.train(Database.Table.SPAM,selector.getSpam(), new StanfordCoreNLPFilter());
+
+                validator.validate(selector.getUnknown(),2,2);
+
             }
 
             // Persistim els canvis a la base de dades local sí o sí

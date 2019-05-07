@@ -61,7 +61,9 @@ public class KFoldCrossValidationSelection {
             Collection<Mail> spam = getSpam();
             Collection<Mail> ham = getHam();
         }
-        return unknown;
+        List<Mail> result = new ArrayList<>(unknown);
+        Collections.shuffle(result);
+        return result;
     }
 
     /**

@@ -18,9 +18,13 @@ public class Trainer {
 
     public void train (MemDB.Table table, Reader reader, Filter filter) throws SQLException {
         Collection<Mail> mailsFiltrats = reader.read(MemDB.Table.SPAM == table);
+        train(table, mailsFiltrats,filter);
+    }
+
+    public void train(MemDB.Table table, Collection<Mail> mails, Filter filter) throws SQLException {
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 1;
-        for (Mail m : mailsFiltrats)
+        for (Mail m : mails)
         {
             m.setFilter(filter);
             if(!mapinsertMailFiltered.isEmpty()){
@@ -34,5 +38,7 @@ public class Trainer {
         }
         memoryDataBase.insertOrUpdate(table,mapinsertMailFiltered);
     }
+
+
 
 }
