@@ -135,7 +135,7 @@ public class Application  {
 
                 String validateDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
-                Validator validator = new Validator(new NaiveBayes());
+                Validator validator = new Validator(new NaiveBayes(), result);
 
                 validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM)),1,1);
                 System.out.println("Validation finished in " + validator.getExecutionMillis() + " millis");
@@ -172,6 +172,11 @@ public class Application  {
      * @param options les opcions on hi ha els directoris spam i ham i el nombre de iteracions que ha de realitzar
      */
     public static void compute(CommandLine options) throws BadArgumentsException, BadPercentageException, SQLException, ClassNotFoundException {
+
+        System.out.println("---------------------------------------------------------");
+        System.out.println("---------------------------------------------------------");
+        System.out.println("Started Phi and k Computation ... ");
+        System.out.println("---------------------------------------------------------");
 
         int iterations = 1;
         if(options.hasOption(ApplicationOptions.OPTION_COMPUTATIONS_NUMBER)){
@@ -220,7 +225,7 @@ public class Application  {
             );
             System.out.println("Kfold finished ... ");
 
-            Validator validator = new Validator(new NaiveBayes());
+            Validator validator = new Validator(new NaiveBayes(), result);
 
             validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
             System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");

@@ -16,10 +16,14 @@ public class Validator extends Trainer {
     private Method classifcationMethod;
     private Result result;
 
+    public Validator(Method classifcationMethod, Result result) throws SQLException, ClassNotFoundException {
+        this(classifcationMethod);
+        this.result = result;
+    }
+
     public Validator(Method classifcationMethod) throws SQLException, ClassNotFoundException {
         super();
         this.classifcationMethod = classifcationMethod;
-        this.result = result;
     }
 
     public void validate(Collection<Mail> testMail, int k, int phi) throws SQLException, ClassNotFoundException {
@@ -55,7 +59,6 @@ public class Validator extends Trainer {
         result.setFp(fp);
         result.setTn(tn);
         result.setFn(fn);
-        System.out.println(result);
         LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn);
     }
 
