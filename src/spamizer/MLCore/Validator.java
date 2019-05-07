@@ -1,6 +1,7 @@
 package spamizer.MLCore;
 
-import spamizer.entity.MemDB.Table;
+import spamizer.entity.Database.Table;
+
 import spamizer.entity.LocalDB;
 import spamizer.interfaces.Method;
 

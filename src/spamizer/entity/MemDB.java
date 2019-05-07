@@ -3,38 +3,12 @@ package spamizer.entity;
 import java.sql.*;
 import java.util.*;
 
-public class MemDB {
+public class MemDB extends Database {
 
-
-    public enum Table {
-        SPAM("SPAM"),
-        HAM("HAM"),
-        MESSAGE("MESSAGE")
-        ;
-
-
-        private final String table;
-
-        /**
-         * @param table
-         */
-        Table(final String table) {
-            this.table = table;
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Enum#toString()
-         */
-        @Override
-        public String toString() {
-            return table;
-        }
-    }
 
     public enum Column {
         SPAM("SPAM"),
         HAM("HAM"),
-
         ;
 
 
@@ -56,9 +30,10 @@ public class MemDB {
         }
     }
 
+
+
     private static MemDB memDB;
     private static Connection connection;
-
 
 
     private MemDB(){}
@@ -94,10 +69,6 @@ public class MemDB {
     }
 
     private void createTable(Table tableName) throws SQLException {
-       /* Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE " + tableName + "(word VARCHAR(255) not NULL, times INTEGER, PRIMARY KEY (word))");
-        statement.close();
-        */
        createTable(tableName, "(word VARCHAR(255) not NULL, times INTEGER, PRIMARY KEY (word))");
     }
 
@@ -107,67 +78,27 @@ public class MemDB {
         statement.close();
     }
 
-    private void insertOrUpdate(Statement statement, Table table, String word, int times) throws SQLException {
 
-        // En la següent query es fa un insert or update
-/*        String insert = "MERGE INTO " + table + " AS t USING (" +
-                            "VALUES('"+ word + "'," + times + ")" +
-                        ") AS vals(word, times) ON t.WORD=VALS.word " +
-                        "WHEN MATCHED THEN UPDATE SET t.times=t.times+vals.times " +
-                        "WHEN NOT MATCHED THEN INSERT VALUES vals.word, vals.times";*/
-
-        String insert = "INSERT INTO " + table + "(word, times) " +
-                "VALUES ('" + word + "'," + times + ") as times" +
-                "ON DUPLICATE KEY UPDATE times = times + " + times;
-
-        statement.executeUpdate(insert);
-
+    @Override
+    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
+        insertOrUpdate(table, appearances, connection);
     }
 
-    public void insertOrUpdate(Table table, HashMap<String, Integer> appearances) throws SQLException {
-        Statement statement = connection.createStatement();
-        Table complementaryTable = Table.HAM;
-        if (table == Table.HAM)
-            complementaryTable = Table.SPAM;
-
-        if(appearances.size() > 0) {
-            String insert = "MERGE INTO " + table + " using (values";
-            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
-                insert += "('" + element.getKey() + "'," + element.getValue() + "),";
-            }
-
-            insert = insert.substring(0, insert.length() - 1);
-            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
-                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
-                    "when not matched then insert values vals.x, vals.y";
-
-            statement.executeUpdate(insert);
-
-            insertZeroValues(complementaryTable, appearances);
-        }
-        statement.close();
+    @Override
+    public void insertZeroValues(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
+        insertZeroValues(table, appearances, connection);
     }
 
-    public void insertZeroValues(Table table, HashMap<String, Integer> appearances) throws SQLException {
-        Statement statement = connection.createStatement();
-
-        if(appearances.size() > 0) {
-            String insert = "MERGE INTO " + table + " using (values";
-
-            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
-                insert += "('" + element.getKey() + "'," + 0 + "),";
-            }
-
-            insert = insert.substring(0, insert.length() - 1);
-            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
-                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
-                    "when not matched then insert values vals.x, vals.y";
-
-            statement.executeUpdate(insert);
-
-        }
-        statement.close();
+    @Override
+    public void delete(Table table) throws SQLException {
+        delete(table, connection);
     }
+
+    @Override
+    public HashMap<String, Integer> select(Table table) throws SQLException {
+        return select(table, connection);
+    }
+
 
     private void insertFirstCounters() throws SQLException {
         Statement statement = connection.createStatement();
@@ -187,16 +118,6 @@ public class MemDB {
         statement.close();
     }
 
-    public String select(Table table) throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet res = statement.executeQuery("SELECT * FROM " + table);
-        String result = "";
-        while(res.next()) {
-            result += res.getString("word") + " " + res.getInt("times") + "\n";
-        }
-        statement.close();
-        return result;
-    }
 
     public String selectCounters() throws SQLException {
         Statement statement = connection.createStatement();
@@ -208,7 +129,6 @@ public class MemDB {
         statement.close();
         return result;
     }
-
 
     public double getMessageProbabylity(Column column, int k) throws SQLException {
         Statement statement = connection.createStatement();
@@ -284,6 +204,11 @@ public class MemDB {
         catch (Exception e){
             return -1;
         }
+    }
+
+    @Override
+    public void closeDB() throws SQLException {
+        connection.close();
     }
 }
 

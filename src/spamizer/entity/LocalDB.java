@@ -4,33 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
-public class LocalDB {
+public class LocalDB extends Database {
 
-    public enum Table {
-        RESULTS("RESULT")
-        ;
 
-        private final String table;
-
-        /**
-         * @param table
-         */
-        Table(final String table) {
-            this.table = table;
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Enum#toString()
-         */
-        @Override
-        public String toString() {
-            return table;
-        }
-    }
 
     private static LocalDB database;
-    private static Connection connection;
+    protected static Connection connection;
 
     private LocalDB(){}
 
@@ -45,10 +26,7 @@ public class LocalDB {
         Statement statement = connection.createStatement();
         statement.execute("SET DATABASE SQL SYNTAX MYS TRUE");
         statement.close();
-
-
     }
-
 
     public static LocalDB getInstance() throws SQLException, ClassNotFoundException {
         if(database == null) {
@@ -66,6 +44,17 @@ public class LocalDB {
         statement.closeOnCompletion();
     }
 
+
+    public void delete(Database.Table table) throws SQLException {
+        delete(table, connection);
+    }
+
+    @Override
+    public HashMap<String, Integer> select(Database.Table table) throws SQLException {
+        return select(table, connection);
+    }
+
+
     public void closeDB() throws SQLException {
         while(!connection.isClosed()){
             //wait for ending
@@ -73,5 +62,16 @@ public class LocalDB {
             connection.close();
         }
     }
+
+    @Override
+    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
+        insertOrUpdate(table, appearances, connection);
+    }
+
+    @Override
+    public void insertZeroValues(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
+        insertZeroValues(table, appearances, connection);
+    }
+
 
 }

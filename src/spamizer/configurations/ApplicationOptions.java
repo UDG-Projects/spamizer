@@ -30,13 +30,14 @@ public class ApplicationOptions {
         options.addOption(training);
 
 
-        options.addOption(new Option(OPTION_DATABASE, true, "MemDB file with other execution data, this or directory training argument must be present"));
+        options.addOption(new Option(OPTION_DATABASE,  "Flag that indicates that data must be loaded from local database"));
+
         Option validation = new Option(OPTION_VALIDATION, true, "Directories where validation mails in txt are stored" +
                                                                         "you can set a maximum of 2 directories in this order : -v <spamDir> <hamDir>. ");
         validation.setArgs(2);
 
         options.addOption(validation);
-        options.addOption(new Option(OPTION_PERSIST, true, "Directory where final database will be persisted"));
+        options.addOption(new Option(OPTION_PERSIST,  "Set the persistance of the memory database to a local database"));
 
         Option compute = new Option(OPTION_COMPUTE, true, "Usage : -c <spamDir> <hamDir> [-n <int>] \nReceives 2 parameters, A directory with spam mails and a directory with ham mails. "
                 + "A calculation for values phi and k will be done using a selection for the mails set. The selection will be k-fold cross-validation and the heuristic method used to calculate phi and k values will be High Climbing with random restarts");
