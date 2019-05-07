@@ -5,9 +5,28 @@ public class Result {
     private int spamNumber, hamNumber, validateNumber;
     private double phi, k;
     private int tp, fp, tn, fn;
+    private long totalMillis;
 
     public Result(){
 
+    }
+
+    @Override
+    public String toString() {
+        return "---------------------------------------------------------" + "\n" +
+        "---------------------------------------------------------" + "\n" +
+        " Spam number       : " + spamNumber + "\n" +
+        " Ham number        : " + spamNumber + "\n" +
+        " Unknwon number    : " + spamNumber + "\n" +
+        " PHI               : " + phi + "\n" +
+        " K                 : " + k + "\n" +
+        "---------------------------------------------------------" + "\n" +
+        " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
+        " Missatge HAM classificat com a SPAM : " + fp + "\n" +
+        " Missatge SPAM classificat correctament com spam : " + tn + "\n" +
+        " Missatge SPAM classificat com a HAM : " + fn + "\n" +
+        "---------------------------------------------------------" + "\n" +
+        "---------------------------------------------------------" + "\n";
     }
 
     public int getSpamNumber() {
@@ -80,5 +99,13 @@ public class Result {
 
     public void setFn(int fn) {
         this.fn = fn;
+    }
+
+    public long getTotalMillis() {
+        return totalMillis;
+    }
+
+    public void setTotalMillis(long totalMillis) {
+        this.totalMillis = totalMillis;
     }
 }

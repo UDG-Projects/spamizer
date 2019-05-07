@@ -7,23 +7,29 @@ import spamizer.interfaces.Reader;
 
 import javax.xml.crypto.Data;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class Trainer {
 
     protected MemDB memoryDataBase;
+    protected Instant start;
+    protected Instant end;
 
     public Trainer() throws SQLException, ClassNotFoundException {
         memoryDataBase = MemDB.getInstance();
     }
 
     public void train (MemDB.Table table, Reader reader, Filter filter) throws SQLException {
+
         Collection<Mail> mailsFiltrats = reader.read(MemDB.Table.SPAM == table);
         train(table, mailsFiltrats,filter);
     }
 
     public void train(MemDB.Table table, Collection<Mail> mails, Filter filter) throws SQLException {
+        start = Instant.now();
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 0;
         for (Mail m : mails)
@@ -35,7 +41,9 @@ public class Trainer {
             }else{
                 mapinsertMailFiltered.putAll(m.getBodyMail());
             }
-            System.out.println(counter);
+            if(counter % 500 == 0 && counter > 0) {
+                System.out.println("Readed and lemmatized " + counter + " messages.");
+            }
             counter++;
         }
         if(table.equals(Database.Table.HAM))
@@ -44,6 +52,11 @@ public class Trainer {
             memoryDataBase.updateCounters(0,counter);
         }
         memoryDataBase.insertOrUpdate(table,mapinsertMailFiltered);
+        end = Instant.now();
+    }
+
+    public long getExecutionMillis(){
+        return ChronoUnit.MILLIS.between(start, end);
     }
 
 

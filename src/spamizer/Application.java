@@ -12,6 +12,8 @@ import spamizer.entity.MemDB;
 import spamizer.entity.Result;
 import spamizer.exceptions.BadArgumentsException;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -85,8 +87,7 @@ public class Application  {
                 memDb.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
 
                 System.out.println("## TODO : Carregada la informació en memòria : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
-                System.out.println("SPAM : \n" + memDb.select(Database.Table.SPAM));
-                System.out.println("HAM : \n" + memDb.select(Database.Table.HAM));
+
             }
 
 
@@ -100,6 +101,7 @@ public class Application  {
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                                 StanfordCoreNLPFilter.getInstance());
+                        System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
 
                     } else {
 
@@ -108,6 +110,7 @@ public class Application  {
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                                 StanfordCoreNLPFilter.getInstance());
+                        System.out.println("Trained SPAM in " + trainer.getExecutionMillis() + " millis");
                     }
                 }
                 else {
@@ -117,20 +120,26 @@ public class Application  {
                             new DirectoryMailReader(directorySpam),
                             StanfordCoreNLPFilter.getInstance());
 
+                    System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
+
                     trainer.train(MemDB.Table.HAM,
                             new DirectoryMailReader(directoryHam),
                             StanfordCoreNLPFilter.getInstance());
 
+                    System.out.println("Trained SPAM in " + trainer.getExecutionMillis() + " millis");
                 }
 
             }
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
+
                 String validateDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
                 Validator validator = new Validator(new NaiveBayes());
 
                 validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM)),1,1);
+                System.out.println("Validation finished in " + validator.getExecutionMillis() + " millis");
+
             }
 
             // Persistim els canvis a la base de dades local sí o sí
@@ -193,12 +202,14 @@ public class Application  {
          */
         for(int count = 0; count < iterations; count++){
 
-            int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
+            Instant start = Instant.now();
 
+            int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
             // TODO : S'ha de fer el generador de phi i k amb high climbing.
             phi = Math.abs(random.nextInt()) % 1000;
             k = Math.abs(random.nextInt()) % 1000;
 
+            System.out.println("Kfold Started ... ");
             //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
             KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
                     spamReader,
@@ -207,29 +218,22 @@ public class Application  {
                     random,
                     result
             );
+            System.out.println("Kfold finished ... ");
 
             Validator validator = new Validator(new NaiveBayes());
+
             validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
+            System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
             validator.train(Database.Table.SPAM,selector.getSpam(), StanfordCoreNLPFilter.getInstance());
-
+            System.out.println("Trained SPAM in "+ validator.getExecutionMillis() + " millis");
             validator.validate(selector.getUnknown(),k,phi);
+            System.out.println("Validation done in "+ validator.getExecutionMillis() + " millis");
+
+            Instant end = Instant.now();
+            result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
+
+            System.out.println(result);
         }
-
-        /**
-         *
-         System.out.println("---------------------------------------------------------");
-         System.out.println("---------------------------------------------------------");
-         System.out.println(" PHI : " + phi);
-         System.out.println(" K   : " + k);
-         System.out.println("---------------------------------------------------------");
-         System.out.println(" Missatge HAM classificat correctament com a HAM : " + tp);
-         System.out.println(" Missatge HAM classificat com a SPAM : " + fp);
-         System.out.println(" Missatge SPAM classificat correctament com spam : " + tn);
-         System.out.println(" Missatge SPAM classificat com a HAM : " + fn);
-         System.out.println("---------------------------------------------------------");
-         System.out.println("---------------------------------------------------------");
-         */
-
     }
 
     public static void main(String [] args) {
@@ -241,14 +245,16 @@ public class Application  {
             // TODO: Ens assegurem que la bd no està ocupada abans de començar l'execució.
             LocalDB.getInstance().select(Database.Table.HAM);
 
+            Instant start = Instant.now();
+
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
             start(options);
 
             LocalDB.getInstance().closeDB();
 
-            System.out.println(MemDB.getInstance().select(MemDB.Table.HAM));
-            System.out.println(MemDB.getInstance().select(MemDB.Table.SPAM));
+            Instant end = Instant.now();
+            System.out.println("Final de l'execució, total de temps transcorregut : " + ChronoUnit.MILLIS.between(start, end));
 
         } catch (CustomException e) {
             System.err.println(e.getCustomMessage());
