@@ -13,7 +13,7 @@ public class NaiveBayes implements Method {
 
 
     @Override
-    public boolean isSpam(MemDB memDB, Collection<String> message, int k, int phi) throws SQLException {
+    public boolean isSpam(MemDB memDB, Collection<String> message, double k, double phi) throws SQLException {
         double spamProbability=0;
         double hamProbability=0;
 

@@ -133,7 +133,7 @@ public class MemDB extends Database {
         return result;
     }
 
-    public double getMessageProbabylity(Column column, int k) throws SQLException {
+    public double getMessageProbabylity(Column column, double k) throws SQLException {
         Statement statement = connection.createStatement();
         String query = "Select ln( CAST((" + column + " + " + k + ") as DOUBLE)/CAST(((HAM + SPAM) + " + k*2 +") as DOUBLE)) as PTOTAL from " +Table.MESSAGE + " where id = 1 ";
 
@@ -161,6 +161,32 @@ public class MemDB extends Database {
         statement.close();
         return result;
     }
+
+
+    /*public double calculateProbability(List<String> words, Table table, double k, int totalWords) throws SQLException {
+        Statement statement = connection.createStatement();
+        String query = "SELECT times from " + table;
+        if(!words.isEmpty())
+            query += " WHERE word IN (";
+        for(String word:words){
+            query+= "'"+ word + "',";
+        }
+        if(!words.isEmpty()) {
+            query = query.substring(0,query.length()-1);
+            query += ")";
+        }
+        ResultSet res= statement.executeQuery(query);
+        double result = 0;
+        while(res.next()) {
+            double times = res.getInt("times");
+            result += Math.log((times + k)/(totalWords + k * 2));
+            //result = res.getDouble(1);
+            //result += res.getString("word") + " " + res.getInt("times") + "\n";
+        }
+        statement.close();
+        return result;
+
+    }*/
 
     public double calculateProbability(List<String> words, Table table, double k, int totalWords) throws SQLException {
         Statement statement = connection.createStatement();

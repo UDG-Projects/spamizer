@@ -14,5 +14,5 @@ public interface Method {
      * @param k
      * @return true if message is classificated as spam
      */
-    boolean isSpam(MemDB memDB, Collection<String> message, int k, int phi) throws SQLException;
+    boolean isSpam(MemDB memDB, Collection<String> message, double k, double phi) throws SQLException;
 }
