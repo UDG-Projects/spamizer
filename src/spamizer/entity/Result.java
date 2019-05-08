@@ -32,6 +32,7 @@ public class Result {
         " Unknwon number    : " + validateNumber + "\n" +
         " PHI               : " + phi + "\n" +
         " K                 : " + k + "\n" +
+        " Accuracy          : " + (validateNumber - fp - fn) / (double)validateNumber + "\n" +
         "---------------------------------------------------------" + "\n" +
         " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
         " Missatge HAM classificat com a SPAM : " + fp + "\n" +

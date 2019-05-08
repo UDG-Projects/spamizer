@@ -217,8 +217,8 @@ public class Application  {
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
-                phi = Math.abs(random.nextInt()) % 100;
-                k = Math.abs(random.nextInt()) % 100;
+                phi = Math.abs(random.nextInt()) % 1000;
+                k = Math.abs(random.nextInt()) % 1000;
                 k++; //per evitar el 0
                 phi++;
                 System.out.println("Kfold Started ... ");

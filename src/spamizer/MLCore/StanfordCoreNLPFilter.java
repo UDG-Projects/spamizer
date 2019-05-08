@@ -39,9 +39,7 @@ public class StanfordCoreNLPFilter implements Filter {
 
     @Override
     public HashMap<String, Integer> filterText(String text) {
-        /*text = text.replace("%","percent");
-        text = text.replace("$","dollar");
-        text =text.replaceAll("[^a-zA-Z0-9 ]","");*/
+
         Annotation document = new Annotation(text);
         List<String> lemmas = new LinkedList<>();
 
@@ -52,14 +50,14 @@ public class StanfordCoreNLPFilter implements Filter {
                 String partOfSpeech = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
 
 
-                if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
+                /*if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
                         partOfSpeech.startsWith("R") ||
                         partOfSpeech.startsWith("V") ||
                         partOfSpeech.startsWith("J") ||
                         partOfSpeech.startsWith("PR") ||
-                        partOfSpeech.startsWith("DT"))){
+                        partOfSpeech.startsWith("DT"))){*/
                     lemmas.add(token.get(CoreAnnotations.LemmaAnnotation.class));
-                }
+                /*}*/
 
             }
         }
