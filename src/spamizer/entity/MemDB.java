@@ -133,7 +133,7 @@ public class MemDB extends Database {
         return result;
     }
 
-    public double getMessageProbabylity(Column column, int k) throws SQLException {
+    public double getMessageProbabylity(Column column, double k) throws SQLException {
         Statement statement = connection.createStatement();
         String query = "Select ln( CAST((" + column + " + " + k + ") as DOUBLE)/CAST(((HAM + SPAM) + " + k*2 +") as DOUBLE)) as PTOTAL from " +Table.MESSAGE + " where id = 1 ";
 

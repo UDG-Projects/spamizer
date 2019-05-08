@@ -211,10 +211,13 @@ public class Application  {
 
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
-                phi = Math.abs(random.nextInt()) % 1000;
-                k = Math.abs(random.nextInt()) % 1000;
+                phi = Math.abs(random.nextInt()) % 10;
+                k = Math.abs(random.nextInt()) % 10;
                 k++; //per evitar el 0
                 phi++;
+                k*=10;
+                k=50;
+                phi =2;
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
                 KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(

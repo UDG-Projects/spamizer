@@ -28,8 +28,8 @@ public class Result {
         return "---------------------------------------------------------" + "\n" +
         "---------------------------------------------------------" + "\n" +
         " Spam number       : " + spamNumber + "\n" +
-        " Ham number        : " + spamNumber + "\n" +
-        " Unknwon number    : " + spamNumber + "\n" +
+        " Ham number        : " + hamNumber + "\n" +
+        " Unknwon number    : " + validateNumber + "\n" +
         " PHI               : " + phi + "\n" +
         " K                 : " + k + "\n" +
         "---------------------------------------------------------" + "\n" +

@@ -23,7 +23,10 @@ public class StanfordCoreNLPFilter implements Filter {
         Properties properties = new Properties();
         properties.setProperty("annotators", "tokenize,ssplit,pos,lemma");
         properties.setProperty("coref.algorithm", "neural");
+        properties.setProperty("parse.model", "edu/stanford/nlp/models/srparser/englishSR.ser.gz");
         properties.put("threads", "8");
+
+
         pipeline = new StanfordCoreNLP(properties);
     }
 
@@ -37,10 +40,12 @@ public class StanfordCoreNLPFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
+
+        text = text.replace("%","percent");
+        text = text.replace("$","dollar");
+        text =text.replaceAll("[^a-zA-Z0-9 ]","");
         Annotation document = new Annotation(text);
         List<String> lemmas = new LinkedList<>();
-
-        pipeline.annotate(document);
 
         pipeline.annotate(document);
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
