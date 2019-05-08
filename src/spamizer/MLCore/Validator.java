@@ -29,26 +29,38 @@ public class Validator extends Trainer {
     public void validate(Collection<Mail> testMail, int k, int phi) throws SQLException, ClassNotFoundException {
         start = Instant.now();
         int tp=0, tn=0, fp=0, fn=0;
+        int totalHam=0;
+        int totalSpam=0;
         for(Mail m: testMail){
-            HashMap<String,Integer> words = m.getBodyMail();
-            //abans de classificar s'ha d'assegurar que les paraules hi son com a minim un cop a les 2 taules
-            memoryDataBase.insertZeroValues(Table.HAM,words);
-            memoryDataBase.insertZeroValues(Table.SPAM,words);
-            boolean isSpam = classifcationMethod.isSpam(memoryDataBase,words.keySet(),k,phi);
+            try {
+                HashMap<String, Integer> words = m.getBodyMail();
+                //abans de classificar s'ha d'assegurar que les paraules hi son com a minim un cop a les 2 taules
+                memoryDataBase.insertZeroValues(Table.HAM, words);
+                memoryDataBase.insertZeroValues(Table.SPAM, words);
+                boolean isSpam = classifcationMethod.isSpam(memoryDataBase, words.keySet(), k, phi);
 
-            insertClassificatedMail(words,isSpam);
-            //actualitzar comtadors
-            if(!m.getSpam()){
-                if(!isSpam)
-                    tp++; //Missatge HAM classificat correctament com a HAM
-                else
-                    fp++; //Missatge HAM classificat com a SPAM
+                insertClassificatedMail(words, isSpam);
+                //actualitzar comtadors
+                if (!m.getSpam()) {
+                    totalHam++;
+                    if (!isSpam)
+                        tp++; //Missatge HAM classificat correctament com a HAM
+                    else
+                        fp++; //Missatge HAM classificat com a SPAM
+                } else {
+                    totalSpam++;
+                    if (isSpam)
+                        tn++; //Missatge SPAM classificat correctament com spam
+                    else
+                        fn++; //Missatge SPAM classificat com a HAM
+                }
             }
-            else{
-                if(isSpam)
-                    tn++; //Missatge SPAM classificat correctament com spam
-                else
-                    fn++; //Missatge SPAM classificat com a HAM
+            catch (SQLException sqlEx){
+                System.err.println("No s'ha pogut fer el calcul de SPAM --------------------");
+                System.err.println(sqlEx.getStackTrace());
+            }
+            catch (Exception e){
+                System.err.println(e.getStackTrace());
             }
         }
         end = Instant.now();
@@ -59,7 +71,7 @@ public class Validator extends Trainer {
         result.setFp(fp);
         result.setTn(tn);
         result.setFn(fn);
-        LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn);
+        LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn,totalHam,totalSpam);
     }
 
     private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam) throws SQLException {

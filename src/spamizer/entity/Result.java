@@ -1,5 +1,8 @@
 package spamizer.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Result {
 
     private int spamNumber, hamNumber, validateNumber;
@@ -7,12 +10,21 @@ public class Result {
     private int tp, fp, tn, fn;
     private long totalMillis;
 
-    public Result(){
 
+    private List<Exception> exceptions;
+
+    public Result(){
+        exceptions = new ArrayList<>();
     }
 
     @Override
     public String toString() {
+        String exceptionsResult = "";
+        for(Exception e: exceptions){
+            exceptionsResult+= "EXCEPCIO ================================================\n";
+            exceptionsResult+=e.getStackTrace();
+            exceptionsResult+="\n\n";
+        }
         return "---------------------------------------------------------" + "\n" +
         "---------------------------------------------------------" + "\n" +
         " Spam number       : " + spamNumber + "\n" +
@@ -26,7 +38,9 @@ public class Result {
         " Missatge SPAM classificat correctament com spam : " + tn + "\n" +
         " Missatge SPAM classificat com a HAM : " + fn + "\n" +
         "---------------------------------------------------------" + "\n" +
-        "---------------------------------------------------------" + "\n";
+        "---------------------------------------------------------" + "\n" +
+        exceptionsResult.toString();
+
     }
 
     public int getSpamNumber() {
@@ -107,5 +121,10 @@ public class Result {
 
     public void setTotalMillis(long totalMillis) {
         this.totalMillis = totalMillis;
+    }
+
+
+    public void addException(Exception e){
+        exceptions.add(e);
     }
 }

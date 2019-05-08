@@ -1,6 +1,7 @@
 package spamizer.MLCore;
 
 import spamizer.entity.MemDB;
+import spamizer.entity.Result;
 import spamizer.interfaces.Method;
 
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class NaiveBayes implements Method {
+
 
     @Override
     public boolean isSpam(MemDB memDB, Collection<String> message, int k, int phi) throws SQLException {

@@ -206,38 +206,43 @@ public class Application  {
          * 2. Generem nombres aleatoris per phi i k.
          */
         for(int count = 0; count < iterations; count++){
+            try {
+                Instant start = Instant.now();
 
-            Instant start = Instant.now();
+                int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
+                // TODO : S'ha de fer el generador de phi i k amb high climbing.
+                phi = Math.abs(random.nextInt()) % 1000;
+                k = Math.abs(random.nextInt()) % 1000;
+                k++; //per evitar el 0
+                phi++;
+                System.out.println("Kfold Started ... ");
+                //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
+                KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
+                        spamReader,
+                        hamReader,
+                        percentage,
+                        random,
+                        result
+                );
+                System.out.println("Kfold finished ... ");
 
-            int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
-            // TODO : S'ha de fer el generador de phi i k amb high climbing.
-            phi = Math.abs(random.nextInt()) % 1000;
-            k = Math.abs(random.nextInt()) % 1000;
+                Validator validator = new Validator(new NaiveBayes(), result);
 
-            System.out.println("Kfold Started ... ");
-            //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
-            KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
-                    spamReader,
-                    hamReader,
-                    percentage,
-                    random,
-                    result
-            );
-            System.out.println("Kfold finished ... ");
+                validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
+                System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
+                validator.train(Database.Table.SPAM, selector.getSpam(), StanfordCoreNLPFilter.getInstance());
+                System.out.println("Trained SPAM in " + validator.getExecutionMillis() + " millis");
+                validator.validate(selector.getUnknown(), k, phi);
+                System.out.println("Validation done in " + validator.getExecutionMillis() + " millis");
 
-            Validator validator = new Validator(new NaiveBayes(), result);
+                Instant end = Instant.now();
+                result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
 
-            validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
-            System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
-            validator.train(Database.Table.SPAM,selector.getSpam(), StanfordCoreNLPFilter.getInstance());
-            System.out.println("Trained SPAM in "+ validator.getExecutionMillis() + " millis");
-            validator.validate(selector.getUnknown(),k,phi);
-            System.out.println("Validation done in "+ validator.getExecutionMillis() + " millis");
-
-            Instant end = Instant.now();
-            result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
-
-            System.out.println(result);
+                System.out.println(result);
+            }
+            catch (Exception e){
+                System.err.println(e.getStackTrace());
+            }
         }
     }
 

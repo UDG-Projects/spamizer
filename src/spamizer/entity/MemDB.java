@@ -162,9 +162,9 @@ public class MemDB extends Database {
         return result;
     }
 
-    public double calculateProbability(List<String> words, Table table, int k, int totalWords) throws SQLException {
+    public double calculateProbability(List<String> words, Table table, double k, int totalWords) throws SQLException {
         Statement statement = connection.createStatement();
-        String query = "SELECT (sum(ln(CAST(times + " + k +" as FLOAT)/Cast( "+totalWords+" as FLOAT)))) FROM "  +table;
+        String query = "SELECT (sum(ln(CAST(times + " + k +" as FLOAT)/Cast( ("+totalWords+" + "+k+"*2) as FLOAT)))) FROM "  +table;
         if(!words.isEmpty())
             query += " WHERE word IN (";
         for(String word:words){

@@ -37,10 +37,10 @@ public class LocalDB extends Database {
         return database;
     }
 
-    public void insertResult(double phi, double k, int tp, int tn, int fp, int fn) throws SQLException {
+    public void insertResult(double phi, double k, int tp, int tn, int fp, int fn,int totalHam, int totalSpam) throws SQLException {
         Statement statement = connection.createStatement();
-        String insert = "INSERT INTO "+ Table.RESULTS + "(phi,k,true_positive,true_negative,false_positive,false_negative) " +
-                "VALUES (" + phi + "," + k + "," + tp + "," + tn + "," + fp + "," + fn + ")";
+        String insert = "INSERT INTO "+ Table.RESULTS + "(phi,k,true_positive,true_negative,false_positive,false_negative, nham, nspam) " +
+                "VALUES (" + phi + "," + k + "," + tp + "," + tn + "," + fp + "," + fn + ","+totalHam+ ","+totalSpam+")";
 
         statement.executeUpdate(insert);
         statement.closeOnCompletion();
