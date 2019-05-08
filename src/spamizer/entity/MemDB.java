@@ -80,6 +80,9 @@ public class MemDB { // extends Database {
         return memDB;
     }
 
+    public void clearDB(){
+        this.memDB=null;
+    }
   /*  private void createTable(Database.Table tableName) throws SQLException {
        createTable(tableName, "(word VARCHAR(255) not NULL, times INTEGER, PRIMARY KEY (word))");
     }*/

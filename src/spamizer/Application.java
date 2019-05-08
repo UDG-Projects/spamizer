@@ -202,7 +202,7 @@ public class Application  {
         Reader spamReader = new DirectoryMailReader(spamDir);
         Reader hamReader = new DirectoryMailReader(hamDir);
 
-        int phi, k;
+        double phi, k;
 
 
         /**
@@ -217,10 +217,10 @@ public class Application  {
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
-                phi = Math.abs(random.nextInt()) % 100;
-                k = Math.abs(random.nextInt()) % 100;
-                k++; //per evitar el 0
-                phi++;
+                phi = Math.abs(random.nextDouble()*1000);
+                k = Math.abs(random.nextDouble()*1000);
+
+
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
                 KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
@@ -245,6 +245,7 @@ public class Application  {
                 result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
 
                 System.out.println(result);
+                MemDB.getInstance().clearDB();
             }
             catch (Exception e){
                 e.printStackTrace();

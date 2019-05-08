@@ -26,7 +26,7 @@ public class Validator extends Trainer {
         this.classifcationMethod = classifcationMethod;
     }
 
-    public void validate(Collection<Mail> testMail, int k, int phi) throws SQLException, ClassNotFoundException {
+    public void validate(Collection<Mail> testMail, double k, double phi) throws SQLException, ClassNotFoundException {
         start = Instant.now();
         int tp=0, tn=0, fp=0, fn=0;
         int totalHam=0;
