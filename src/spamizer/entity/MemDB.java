@@ -1,18 +1,16 @@
 package spamizer.entity;
 
 import javafx.util.Pair;
-import sun.tools.jconsole.Tab;
-
 import java.sql.*;
 import java.util.*;
 
 public class MemDB { // extends Database {
 
-    private static HashMap<String, Integer> wordsHam;
-    private static HashMap<String, Integer> wordsSpam;
-
-    private static int spamM;
-    private static int hamM;
+    private HashMap<String, Integer> wordsHam;
+    private HashMap<String, Integer> wordsSpam;
+    private Set<String> vocabulary;
+    private int spamM;
+    private int hamM;
 
     public enum Column {
         SPAM("SPAM"),
@@ -71,56 +69,55 @@ public class MemDB { // extends Database {
 
     public static MemDB getInstance() throws SQLException, ClassNotFoundException {
         if(memDB == null) {
-            wordsHam = new HashMap<>();
-            wordsSpam = new HashMap<>();
-            spamM = 0;
-            hamM = 0;
+            memDB = new MemDB();
+            memDB.wordsHam = new HashMap<>();
+            memDB.wordsSpam = new HashMap<>();
+            memDB.vocabulary = new HashSet<>();
+            memDB.spamM = 0;
+            memDB.hamM = 0;
             // memDB.init();
         }
         return memDB;
     }
 
-    private void createTable(Database.Table tableName) throws SQLException {
+  /*  private void createTable(Database.Table tableName) throws SQLException {
        createTable(tableName, "(word VARCHAR(255) not NULL, times INTEGER, PRIMARY KEY (word))");
-    }
+    }*/
 
-    private void createTable(Database.Table tableName, String columnQuery) throws SQLException{
-        /*Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE " + tableName + columnQuery);
+    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
+        vocabulary.addAll(appearances.keySet());
+        if(table.equals(Database.Table.HAM)){
+            appearances.forEach(
+                    (key, value) -> wordsHam.merge( key, value, (v1, v2) -> v1+v2));
+        }
+        else{
+            appearances.forEach(
+                    (key, value) -> wordsSpam.merge( key, value, (v1, v2) -> v1+v2));
+        }
+
+       /* Statement statement = connection.createStatement();
+        MemDB.Table complementaryTable = MemDB.Table.HAM;
+        if (table == MemDB.Table.HAM)
+            complementaryTable = MemDB.Table.SPAM;
+
+        if(appearances.size() > 0) {
+            String insert = "MERGE INTO " + table + " using (values";
+            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
+                insert += "('" + element.getKey() + "'," + element.getValue() + "),";
+            }
+
+            insert = insert.substring(0, insert.length() - 1);
+            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
+                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
+                    "when not matched then insert values vals.x, vals.y";
+
+            statement.executeUpdate(insert);
+
+            insertZeroValues(complementaryTable, appearances);
+        }
         statement.close();*/
     }
 
-/*
-    @Override
-    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
-        insertOrUpdate(table, appearances, connection);
-    }
-
-    @Override
-    public void insertZeroValues(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
-        insertZeroValues(table, appearances, connection);
-    }
-
-    @Override
-    public void delete(Table table) throws SQLException {
-        delete(table, connection);
-    }
-
-    @Override
-    public HashMap<String, Integer> select(Table table) throws SQLException {
-        return select(table, connection);
-    }
-
-    @Override
-    public Pair<Integer, Integer> selectMessages() throws SQLException {
-        return selectMessages(connection);
-    }
-
-    @Override
-    public void insertCounters(int ham, int spam) throws SQLException {
-        insertCounters(connection, ham, spam);
-    }
-*/
     public void updateCounters(int ham, int spam) throws SQLException {
         /*Statement statement = connection.createStatement();
         String update ="UPDATE " + Table.MESSAGE +
@@ -182,13 +179,19 @@ public class MemDB { // extends Database {
 
         statement.close();
         return result;*/
-        int totalsDif =
+
+        int count = vocabulary.size();
         if(table.equals(Database.Table.HAM)){
-            int totalsDif
+            for(Map.Entry<String, Integer> word : wordsHam.entrySet()){
+                count += word.getValue();
+            }
         }
         else{
-
+            for(Map.Entry<String, Integer> word : wordsSpam.entrySet()){
+                count += word.getValue();
+            }
         }
+        return count;
     }
 
 
@@ -217,8 +220,8 @@ public class MemDB { // extends Database {
 
     }*/
 
-    public double calculateProbability(List<String> words, Table table, double k, int totalWords) throws SQLException {
-        Statement statement = connection.createStatement();
+    public double calculateProbability(List<String> words, Database.Table table, double k, int totalWords) throws SQLException {
+        /*Statement statement = connection.createStatement();
         String query = "SELECT (sum(ln(CAST(times + " + k +" as FLOAT)/Cast( ("+totalWords+" + "+k+"*2) as FLOAT)))) FROM "  +table;
         if(!words.isEmpty())
             query += " WHERE word IN (";
@@ -236,10 +239,27 @@ public class MemDB { // extends Database {
            //result += res.getString("word") + " " + res.getInt("times") + "\n";
         }
         statement.close();
-        return result;
+        return result;*/
 
+        // Set<String> wordsSet = new HashSet<>(words);
+        double counter = 0;
+        for(String s : words){
+            int times = 0;
+            if(table.equals(Database.Table.HAM)){
+                if(wordsHam.containsKey(s)){
+                    times = wordsHam.get(s);
+                }
+            }
+            else {
+                if (wordsSpam.containsKey(s)) {
+                    times = wordsSpam.get(s);
+                }
+            }
+            counter += Math.log((times +  k)/(totalWords+k*2));
+        }
+        return counter;
     }
-
+/*
     public int count(Table table) throws SQLException{
         Statement statement = connection.createStatement();
         ResultSet res = statement.executeQuery("SELECT COUNT(*) AS COUNT FROM " + table);
@@ -250,9 +270,9 @@ public class MemDB { // extends Database {
         Statement statement = connection.createStatement();
         ResultSet res = statement.executeQuery("SELECT SUM(times) AS addition FROM " + table);
         return  returnInteger(res, "addition");
-    }
+    }*/
 
-    private int returnInteger(ResultSet res, String label){
+    /*private int returnInteger(ResultSet res, String label){
         try{
             if(res.next())
                 return res.getInt(label);
@@ -262,11 +282,101 @@ public class MemDB { // extends Database {
         catch (Exception e){
             return -1;
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void closeDB() throws SQLException {
         connection.close();
+    }*/
+
+    public HashMap<String, Integer> select(Database.Table table) throws SQLException {
+        /*Statement statement = connection.createStatement();
+        ResultSet res = statement.executeQuery("SELECT * FROM " + table);
+        HashMap<String, Integer> result = new HashMap<>();
+        while(res.next()) {
+            result.put(res.getString("word"), res.getInt("times"));
+        }
+        statement.close();
+        return result;*/
+        if(Database.Table.SPAM.equals(table))
+            return wordsSpam;
+        else
+            return wordsHam;
+    }
+
+    public Pair<Integer, Integer> selectMessages() throws SQLException{
+       /* Statement statement = connection.createStatement();
+        ResultSet set = statement.executeQuery("SELECT HAM, SPAM FROM MESSAGE where ID = 1");
+        Pair<Integer, Integer> res = null;
+        while (set.next()){
+            res = new Pair<>(set.getInt("HAM"), set.getInt("SPAM"));
+        }
+        statement.close();
+        return res;*/
+        return new Pair<>(hamM, spamM);
+    }
+
+    /*public void delete(Table table, Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        String delete = "DELETE FROM " + table;
+        statement.executeUpdate(delete);
+        statement.close();
+    }
+*/
+
+
+   /* public void insertOrUpdate(MemDB.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        MemDB.Table complementaryTable = MemDB.Table.HAM;
+        if (table == MemDB.Table.HAM)
+            complementaryTable = MemDB.Table.SPAM;
+
+        if(appearances.size() > 0) {
+            String insert = "MERGE INTO " + table + " using (values";
+            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
+                insert += "('" + element.getKey() + "'," + element.getValue() + "),";
+            }
+
+            insert = insert.substring(0, insert.length() - 1);
+            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
+                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
+                    "when not matched then insert values vals.x, vals.y";
+
+            statement.executeUpdate(insert);
+
+            insertZeroValues(complementaryTable, appearances);
+        }
+        statement.close();
+    }*/
+
+    /*public void insertZeroValues(MemDB.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+
+        if(appearances.size() > 0) {
+            String insert = "MERGE INTO " + table + " using (values";
+
+            for (Map.Entry<String, Integer> element : appearances.entrySet()) {
+                insert += "('" + element.getKey() + "'," + 0 + "),";
+            }
+
+            insert = insert.substring(0, insert.length() - 1);
+            insert += ") as vals(x, y) ON " + table + ".word = vals.x " +
+                    "when matched then update set " + table + ".times = " + table + ".times + vals.y " +
+                    "when not matched then insert values vals.x, vals.y";
+
+            statement.executeUpdate(insert);
+        }
+        statement.close();
+    }*/
+
+    public void insertCounters(int ham, int spam) throws SQLException {
+        /*Statement statement = connection.createStatement();
+        String insert = "INSERT INTO " + Table.MESSAGE + "( ID, HAM, SPAM) " +
+                " VALUES( 1, "+ ham +","+ spam +")";
+        statement.executeUpdate(insert);
+        statement.close();*/
+        hamM = ham;
+        spamM = spam;
     }
 }
 

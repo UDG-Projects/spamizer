@@ -22,13 +22,13 @@ public class Trainer {
         memoryDataBase = MemDB.getInstance();
     }
 
-    public void train (MemDB.Table table, Reader reader, Filter filter) throws SQLException {
+    public void train (Database.Table table, Reader reader, Filter filter) throws SQLException {
 
-        Collection<Mail> mailsFiltrats = reader.read(MemDB.Table.SPAM == table);
+        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table);
         train(table, mailsFiltrats,filter);
     }
 
-    public void train(MemDB.Table table, Collection<Mail> mails, Filter filter) throws SQLException {
+    public void train(Database.Table table, Collection<Mail> mails, Filter filter) throws SQLException {
         start = Instant.now();
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 0;

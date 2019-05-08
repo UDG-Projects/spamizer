@@ -1,8 +1,10 @@
 package spamizer;
 
+import spamizer.MLCore.CustomFilter;
 import spamizer.MLCore.Mail;
 import spamizer.MLCore.NaiveBayes;
 import spamizer.MLCore.Validator;
+import spamizer.entity.Database;
 import spamizer.entity.MemDB;
 import spamizer.entity.LocalDB;
 
@@ -39,8 +41,8 @@ public class TestValidation {
             HashMap<String, Integer> ham = populateMap(hamMessages);
             HashMap<String, Integer> spam = populateMap(spamMessages);
 
-            memDB.insertOrUpdate(MemDB.Table.HAM, ham);
-            memDB.insertOrUpdate(MemDB.Table.SPAM,spam);
+            memDB.insertOrUpdate(Database.Table.HAM, ham);
+            memDB.insertOrUpdate(Database.Table.SPAM,spam);
 
             memDB.updateCounters(hamMessages.size(),spamMessages.size());
             System.out.println("Contadors actuals");
@@ -48,9 +50,9 @@ public class TestValidation {
             System.out.println();
 
             System.out.println("Alfabet");
-            int wordsHam = memDB.getCountAlphabet(MemDB.Table.HAM);
+            int wordsHam = memDB.getCountAlphabet(Database.Table.HAM);
             System.out.println( wordsHam);
-            int wordsSpam = memDB.getCountAlphabet(MemDB.Table.SPAM);
+            int wordsSpam = memDB.getCountAlphabet(Database.Table.SPAM);
             System.out.println(wordsSpam);
             System.out.println();
 
@@ -61,9 +63,9 @@ public class TestValidation {
             words.add("SECRET");
             words.add("IS");
             System.out.println("Numerador de paraules HAM sense pTHam ");
-            System.out.println(Math.exp(memDB.calculateProbability(words, MemDB.Table.HAM,1, wordsHam)));
+            System.out.println(Math.exp(memDB.calculateProbability(words, Database.Table.HAM,1, wordsHam)));
             System.out.println("Numerador de paraules SPAM sense pTSpam ");
-            System.out.println(Math.exp(memDB.calculateProbability(words, MemDB.Table.SPAM,1, wordsSpam)));
+            System.out.println(Math.exp(memDB.calculateProbability(words, Database.Table.SPAM,1, wordsSpam)));
 
             System.out.println();
             System.out.println("pTHam ");
@@ -74,7 +76,7 @@ public class TestValidation {
             System.out.println("Prova Validator ");
             Validator validator = new Validator(new NaiveBayes());
             List<Mail> mails = new ArrayList<>();
-            mails.add(new Mail("","TODAY IS SECRET",false));
+            mails.add(new Mail("","TODAY IS SECRET",false, new CustomFilter()));
             validator.validate(mails,1,1);
 
             //Thread.sleep(1000);

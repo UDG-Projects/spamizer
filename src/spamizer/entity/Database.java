@@ -95,11 +95,11 @@ public abstract class Database {
 
 
 
-    public void insertOrUpdate(MemDB.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
+    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
-        MemDB.Table complementaryTable = MemDB.Table.HAM;
-        if (table == MemDB.Table.HAM)
-            complementaryTable = MemDB.Table.SPAM;
+        Database.Table complementaryTable = Database.Table.HAM;
+        if (table == Database.Table.HAM)
+            complementaryTable = Database.Table.SPAM;
 
         if(appearances.size() > 0) {
             String insert = "MERGE INTO " + table + " using (values";
@@ -119,7 +119,7 @@ public abstract class Database {
         statement.close();
     }
 
-    public void insertZeroValues(MemDB.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
+    public void insertZeroValues(Database.Table table, HashMap<String, Integer> appearances, Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
 
         if(appearances.size() > 0) {

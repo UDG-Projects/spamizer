@@ -35,8 +35,8 @@ public class Validator extends Trainer {
             try {
                 HashMap<String, Integer> words = m.getBodyMail();
                 //abans de classificar s'ha d'assegurar que les paraules hi son com a minim un cop a les 2 taules
-                memoryDataBase.insertZeroValues(Table.HAM, words);
-                memoryDataBase.insertZeroValues(Table.SPAM, words);
+               /* memoryDataBase.insertZeroValues(Table.HAM, words);
+                memoryDataBase.insertZeroValues(Table.SPAM, words);*/
                 boolean isSpam = classifcationMethod.isSpam(memoryDataBase, words.keySet(), k, phi);
 
                 insertClassificatedMail(words, isSpam);

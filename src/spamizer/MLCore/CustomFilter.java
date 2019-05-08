@@ -16,7 +16,7 @@ public class CustomFilter implements Filter {
 
         /*ByteBuffer byteBuff = StandardCharsets.UTF_8.encode(text);// .UTF-8.encode(s);
         String partial = new String( byteBuff.array(), "UTF-8");*/
-        text = text.replaceAll("((?![\\x00-\\x7F]).)", "");
+        /*text = text.replaceAll("((?![\\x00-\\x7F]).)", "");*/
         String[] parts = text.split(" ");
         HashMap<String, Integer> mails = new HashMap<>();
         for(String s : parts){
@@ -28,5 +28,6 @@ public class CustomFilter implements Filter {
             }
         }
         return mails;
+
     }
 }

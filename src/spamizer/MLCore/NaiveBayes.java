@@ -1,5 +1,6 @@
 package spamizer.MLCore;
 
+import spamizer.entity.Database;
 import spamizer.entity.MemDB;
 import spamizer.entity.Result;
 import spamizer.interfaces.Method;
@@ -17,12 +18,12 @@ public class NaiveBayes implements Method {
         double spamProbability=0;
         double hamProbability=0;
 
-        int hamAlphabet = memDB.getCountAlphabet(MemDB.Table.HAM);
-        int spamAlphabet = memDB.getCountAlphabet(MemDB.Table.SPAM);
+        int hamAlphabet = memDB.getCountAlphabet(Database.Table.HAM);
+        int spamAlphabet = memDB.getCountAlphabet(Database.Table.SPAM);
 
         List<String> words = new ArrayList<>(message);
-        hamProbability = memDB.calculateProbability(words, MemDB.Table.HAM,k,hamAlphabet);
-        spamProbability = memDB.calculateProbability(words, MemDB.Table.SPAM,k,spamAlphabet);
+        hamProbability = memDB.calculateProbability(words, Database.Table.HAM,k,hamAlphabet);
+        spamProbability = memDB.calculateProbability(words, Database.Table.SPAM,k,spamAlphabet);
 
         double pTotalSpam = memDB.getMessageProbabylity(MemDB.Column.SPAM,k);
         double pTotalHam = memDB.getMessageProbabylity(MemDB.Column.HAM,k);

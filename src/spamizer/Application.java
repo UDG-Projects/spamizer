@@ -106,7 +106,7 @@ public class Application  {
                                 StanfordCoreNLPFilter.getInstance());
                         System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
 
-                        System.out.println(MemDB.getInstance().select(HAM));
+                        System.out.println(MemDB.getInstance().select(Database.Table.HAM));
 
                     } else {
 
@@ -121,7 +121,7 @@ public class Application  {
                 else {
                     String directorySpam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[0];
                     String directoryHam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[1];
-                    trainer.train(MemDB.Table.SPAM,
+                    trainer.train(Database.Table.SPAM,
                             new DirectoryMailReader(directorySpam),
                             StanfordCoreNLPFilter.getInstance());
 
@@ -160,7 +160,7 @@ public class Application  {
                 file.delete(Database.Table.MESSAGE);
 
                 file.insertOrUpdate(HAM, memory.select(HAM));
-                file.insertOrUpdate(Database.Table.SPAM, memory.select(MemDB.Table.SPAM));
+                file.insertOrUpdate(Database.Table.SPAM, memory.select(Database.Table.SPAM));
 
                 Pair<Integer, Integer> messagesCounters = memory.selectMessages();
                 file.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());

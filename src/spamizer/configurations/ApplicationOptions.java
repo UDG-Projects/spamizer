@@ -2,6 +2,7 @@ package spamizer.configurations;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import spamizer.entity.Database;
 import spamizer.entity.MemDB;
 
 public class ApplicationOptions {
@@ -46,9 +47,9 @@ public class ApplicationOptions {
         options.addOption(new Option(OPTION_COMPUTATIONS_NUMBER, true, "The number of iterations for -c mode execution."));
     }
 
-    public static MemDB.Table getTableFromParameter(String param){
-        if(param == OPTION_SPAM) return MemDB.Table.SPAM;
-        else if(param == OPTION_HAM) return MemDB.Table.HAM;
+    public static Database.Table getTableFromParameter(String param){
+        if(param == OPTION_SPAM) return Database.Table.SPAM;
+        else if(param == OPTION_HAM) return Database.Table.HAM;
         // Està fet expressament per què falli.
         else return null;
     }

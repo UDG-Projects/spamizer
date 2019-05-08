@@ -20,6 +20,14 @@ public class Mail {
         this.isSpam = isSpam;
         this.filter = StanfordCoreNLPFilter.getInstance();
     }
+
+    public Mail(String subject,String body, boolean isSpam, Filter filter){
+        this.subject = subject;
+        this.body = body;
+        this.isSpam = isSpam;
+        this.filter = filter;
+    }
+
     /**
      * Returns set of Pair<String,Integer> represents body's words and their appear frecuency
      * @return
