@@ -1,12 +1,18 @@
 package spamizer.entity;
 
 import javafx.util.Pair;
+import sun.tools.jconsole.Tab;
 
 import java.sql.*;
 import java.util.*;
 
-public class MemDB extends Database {
+public class MemDB { // extends Database {
 
+    private static HashMap<String, Integer> wordsHam;
+    private static HashMap<String, Integer> wordsSpam;
+
+    private static int spamM;
+    private static int hamM;
 
     public enum Column {
         SPAM("SPAM"),
@@ -35,52 +41,56 @@ public class MemDB extends Database {
 
 
     private static MemDB memDB;
-    private static Connection connection;
+    // private static Connection connection;
 
 
     private MemDB(){}
 
-    private static void init() throws ClassNotFoundException, SQLException {
+    /*private static void init() throws ClassNotFoundException, SQLException {
         memDB = new MemDB();
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
         memDB.connection = DriverManager.getConnection("jdbc:hsqldb:mem:spamizer_db","spamizer", ""); //"SA", "");
 
-        /**
+        **
          * Configurem la base de dades per que s'utilitzi la sintaxis mysql.
-         */
+         *
         Statement statement = connection.createStatement();
         statement.execute("SET DATABASE SQL SYNTAX MYS TRUE");
         statement.close();
 
         /** Es creen dues taules degut a que sinó es repeteix la clau primària
          *  Si s'utilitza le booleà queda tot bifurcat, el codi quedarà més senzill si passem el nom de la taula per paràmetre.
-         */
+         *
         memDB.createTable(Table.HAM);
         memDB.createTable(Table.SPAM);
         memDB.createTable(Table.MESSAGE,"(id INTEGER, ham integer, spam integer)");
         //inserir els primers contadors
         memDB.insertCounters(0,0);
 
-    }
+    }*/
 
     public static MemDB getInstance() throws SQLException, ClassNotFoundException {
         if(memDB == null) {
-            memDB.init();
+            wordsHam = new HashMap<>();
+            wordsSpam = new HashMap<>();
+            spamM = 0;
+            hamM = 0;
+            // memDB.init();
         }
         return memDB;
     }
 
-    private void createTable(Table tableName) throws SQLException {
+    private void createTable(Database.Table tableName) throws SQLException {
        createTable(tableName, "(word VARCHAR(255) not NULL, times INTEGER, PRIMARY KEY (word))");
     }
 
-    private void createTable(Table tableName, String columnQuery) throws SQLException{
-        Statement statement = connection.createStatement();
+    private void createTable(Database.Table tableName, String columnQuery) throws SQLException{
+        /*Statement statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE " + tableName + columnQuery);
-        statement.close();
+        statement.close();*/
     }
 
-
+/*
     @Override
     public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws SQLException {
         insertOrUpdate(table, appearances, connection);
@@ -110,19 +120,23 @@ public class MemDB extends Database {
     public void insertCounters(int ham, int spam) throws SQLException {
         insertCounters(connection, ham, spam);
     }
-
+*/
     public void updateCounters(int ham, int spam) throws SQLException {
-        Statement statement = connection.createStatement();
+        /*Statement statement = connection.createStatement();
         String update ="UPDATE " + Table.MESSAGE +
                 " SET HAM = HAM +" + ham + ","+
                 "    SPAM = SPAM +" + spam +
                 " WHERE ID = 1";
         statement.executeUpdate(update);
-        statement.close();
+        statement.close();*/
+
+        hamM += ham;
+        spamM += spam;
     }
 
 
     public String selectCounters() throws SQLException {
+        /*
         Statement statement = connection.createStatement();
         ResultSet res = statement.executeQuery("SELECT * FROM " + Table.MESSAGE);
         String result = "";
@@ -130,11 +144,12 @@ public class MemDB extends Database {
             result += res.getInt("HAM") + " " + res.getInt("SPAM") + "\n";
         }
         statement.close();
-        return result;
+        return result;*/
+        return hamM + " " + spamM;
     }
 
     public double getMessageProbabylity(Column column, double k) throws SQLException {
-        Statement statement = connection.createStatement();
+        /*Statement statement = connection.createStatement();
         String query = "Select ln( CAST((" + column + " + " + k + ") as DOUBLE)/CAST(((HAM + SPAM) + " + k*2 +") as DOUBLE)) as PTOTAL from " +Table.MESSAGE + " where id = 1 ";
 
         ResultSet rs = statement.executeQuery(query);
@@ -145,11 +160,18 @@ public class MemDB extends Database {
         }
 
         statement.close();
-        return result;
+        return result;*/
+        if(column.equals(Column.HAM)){
+            return Math.log((hamM+k) / ((hamM + spamM) + k * 2));
+        }
+        else{
+            return Math.log((spamM+k) / ((hamM + spamM) + k * 2));
+        }
+
     }
 
-    public int getCountAlphabet(Table table) throws SQLException {
-        Statement statement = connection.createStatement();
+    public int getCountAlphabet(Database.Table table) throws SQLException {
+        /*Statement statement = connection.createStatement();
         int result=0;
         String query = "SELECT count(*) +  (select sum(times) from "+ table +" ) as totalword " +
                 "from ( SELECT word FROM spam  UNION SELECT word FROM ham) as t";
@@ -159,7 +181,14 @@ public class MemDB extends Database {
             result = rs.getInt("totalword");
 
         statement.close();
-        return result;
+        return result;*/
+        int totalsDif =
+        if(table.equals(Database.Table.HAM)){
+            int totalsDif
+        }
+        else{
+
+        }
     }
 
 
