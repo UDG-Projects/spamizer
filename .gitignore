@@ -1,14 +1,14 @@
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+.idea/dataSources.xml
 
+.DS_Store
 target/
 stanford-corenlp-full-2018-10-05/
 spamizerartifactid/spamizerartifactid.iml
 
 # DB
 db/result_db.lck
-db/result_db.properties
-db/result_db.script
 db/result_db.log
 
 
