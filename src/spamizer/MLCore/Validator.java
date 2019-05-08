@@ -57,10 +57,10 @@ public class Validator extends Trainer {
             }
             catch (SQLException sqlEx){
                 System.err.println("No s'ha pogut fer el calcul de SPAM --------------------");
-                System.err.println(sqlEx.getStackTrace());
+                sqlEx.printStackTrace();
             }
             catch (Exception e){
-                System.err.println(e.getStackTrace());
+                e.printStackTrace();
             }
         }
         end = Instant.now();

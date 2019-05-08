@@ -50,7 +50,7 @@ public class DirectoryMailReader implements Reader {
                         subject = (lowerData.substring(lowerData.indexOf("subject:"), lowerData.indexOf("\n"))).replace("subject:","");
                         lowerData=lowerData.replace("subject:","");
                     }
-                    String body = lowerData.replace(subject,"");
+                    String body = lowerData.replace(subject,"").replaceAll("([^A-Za-z0-9_@-])", " ");;
                     Mail m = new Mail(subject,body, isSpam);
                     mails.add(m);
                 }

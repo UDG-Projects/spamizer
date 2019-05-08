@@ -36,17 +36,16 @@ public class StanfordCoreNLPFilter implements Filter {
 
     @Override
     public HashMap<String, Integer> filterText(String text) {
-
         Annotation document = new Annotation(text);
         List<String> lemmas = new LinkedList<>();
-
-        pipeline.annotate(document);
 
         pipeline.annotate(document);
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
         for(CoreMap sentence : sentences){
             for(CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)){
                 String partOfSpeech = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+
+
                 if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
                         partOfSpeech.startsWith("R") ||
                         partOfSpeech.startsWith("V") ||
@@ -55,8 +54,10 @@ public class StanfordCoreNLPFilter implements Filter {
                         partOfSpeech.startsWith("DT"))){
                     lemmas.add(token.get(CoreAnnotations.LemmaAnnotation.class));
                 }
+
             }
         }
+
 
         HashMap<String, Integer> lemmaMap = new HashMap<>();
         for(String lemma : lemmas){

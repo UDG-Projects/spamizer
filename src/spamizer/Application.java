@@ -26,6 +26,8 @@ import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.Random;
 
+import static spamizer.entity.Database.Table.HAM;
+
 /**
  * Application Spamizer
  */
@@ -81,7 +83,7 @@ public class Application  {
                 MemDB memDb = MemDB.getInstance();
 
                 memDb.insertOrUpdate(Database.Table.SPAM, localDb.select(Database.Table.SPAM));
-                memDb.insertOrUpdate(Database.Table.HAM, localDb.select(Database.Table.HAM));
+                memDb.insertOrUpdate(HAM, localDb.select(HAM));
 
                 Pair<Integer, Integer> messagesCounters = localDb.selectMessages();
                 memDb.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
@@ -100,8 +102,11 @@ public class Application  {
 
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                                //new CustomFilter());
                                 StanfordCoreNLPFilter.getInstance());
                         System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
+
+                        System.out.println(MemDB.getInstance().select(HAM));
 
                     } else {
 
@@ -122,7 +127,7 @@ public class Application  {
 
                     System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
 
-                    trainer.train(MemDB.Table.HAM,
+                    trainer.train(HAM,
                             new DirectoryMailReader(directoryHam),
                             StanfordCoreNLPFilter.getInstance());
 
@@ -150,11 +155,11 @@ public class Application  {
                 LocalDB file = LocalDB.getInstance();
 
                 // Eliminem les entrades en local i inserim la base de dades en local.
-                file.delete(Database.Table.HAM);
+                file.delete(HAM);
                 file.delete(Database.Table.SPAM);
                 file.delete(Database.Table.MESSAGE);
 
-                file.insertOrUpdate(Database.Table.HAM, memory.select(MemDB.Table.HAM));
+                file.insertOrUpdate(HAM, memory.select(HAM));
                 file.insertOrUpdate(Database.Table.SPAM, memory.select(MemDB.Table.SPAM));
 
                 Pair<Integer, Integer> messagesCounters = memory.selectMessages();
@@ -211,10 +216,10 @@ public class Application  {
 
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
-                phi = Math.abs(random.nextInt()) % 1000;
-                k = Math.abs(random.nextInt()) % 1000;
-                k++; //per evitar el 0
-                phi++;
+                //phi = Math.abs(random.nextInt()) % 1000;
+                //k = Math.abs(random.nextInt()) % 1000;
+                //k++; //per evitar el 0
+                //phi++;
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
                 KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
@@ -228,11 +233,11 @@ public class Application  {
 
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.train(Database.Table.HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
+                validator.train(HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
                 validator.train(Database.Table.SPAM, selector.getSpam(), StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained SPAM in " + validator.getExecutionMillis() + " millis");
-                validator.validate(selector.getUnknown(), k, phi);
+                validator.validate(selector.getUnknown(), 200, 400);
                 System.out.println("Validation done in " + validator.getExecutionMillis() + " millis");
 
                 Instant end = Instant.now();
@@ -241,7 +246,7 @@ public class Application  {
                 System.out.println(result);
             }
             catch (Exception e){
-                System.err.println(e.getStackTrace());
+                e.printStackTrace();
             }
         }
     }
@@ -253,7 +258,7 @@ public class Application  {
         try {
 
             // TODO: Ens assegurem que la bd no està ocupada abans de començar l'execució.
-            LocalDB.getInstance().select(Database.Table.HAM);
+            LocalDB.getInstance().select(HAM);
 
             Instant start = Instant.now();
 
