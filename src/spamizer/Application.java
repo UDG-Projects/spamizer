@@ -220,6 +220,15 @@ public class Application  {
                 phi = Math.abs(random.nextDouble()*1000);
                 k = Math.abs(random.nextDouble()*1000);
 
+                if(count < iterations/2){
+                    k=2+count;
+                    phi=1;
+                }
+                else{
+                    phi=2+count/2;
+                    k=1;
+                }
+
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);

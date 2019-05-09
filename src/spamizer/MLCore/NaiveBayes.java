@@ -34,7 +34,8 @@ public class NaiveBayes implements Method {
         spamProbability += pTotalSpam;
 
         //comparem les probabilitats obtingudes aplicant el parametre phi.
-        return Math.exp(spamProbability) > (Math.exp(hamProbability)*(phi));
+//        return Math.exp(spamProbability) > (Math.exp(hamProbability)*(phi));
+        return (spamProbability) > ((hamProbability)+ Math.log(phi));
 
 
     }

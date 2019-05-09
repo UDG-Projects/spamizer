@@ -50,14 +50,15 @@ public class StanfordCoreNLPFilter implements Filter {
                 String partOfSpeech = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
 
 
-                /*if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
+                if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
                         partOfSpeech.startsWith("R") ||
                         partOfSpeech.startsWith("V") ||
                         partOfSpeech.startsWith("J") ||
-                        partOfSpeech.startsWith("PR") ||
-                        partOfSpeech.startsWith("DT"))){*/
+                        partOfSpeech.startsWith("PR") //||
+                        //partOfSpeech.startsWith("DT")
+                )){
                     lemmas.add(token.get(CoreAnnotations.LemmaAnnotation.class));
-                /*}*/
+                }
 
             }
         }
