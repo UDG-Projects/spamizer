@@ -8,7 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Carreguem les dades per a l'execució del gràfic.
-results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("/home/marc/projects/spamizer/analisys/20000m-500n-SF.csv")
 ```
 
 ## Estudi de les variables PHI i K
@@ -46,28 +46,53 @@ werr <- (50 * results$FP + results$FN) / (50 * results$NHAM + results$NSPAM) + 0
 # TCR : BASE / WERR
 tcr <- base/werr
 
-
-
-
 library(scatterplot3d)
 scatterplot3d(x=results$PHI, y=results$K, z=tcr)
 
 
 # Cargar librerias
 library(ggplot2)
+library(colorspace)
+library(gridExtra)
 # Generar la matriz
 valores <- data.frame(results$PHI, results$K, tcr)
-names(valores) <- c("phi", "k", "tcrVal")
+names(valores) <- c("phi", "k", "trcv")
 head(valores)
 
-plot(valores)
+ordenats <- valores[order(-valores$trcv), ]
+
 # Pintar
-p <- ggplot(valores, aes(phi, k, tcrVal))
-p + geom_tile(aes(fill = tcrVal))
+# p <- ggplot(head(ordenats, 20), aes(phi, k, fill=trcv)) 
+# p + geom_tile()
 
 
-plot(valores$tcr~sort(valores$k), type="l")
-line(valores$tcr~sort(valores$phi), col="red")
+d = ggplot(ordenats,aes(phi, k, fill=trcv))  +
+  ggtitle("Plot of 100 values") +
+  xlab("PHI") +
+  ylab("K")
+p1 = d + geom_point()
+p2 = d + geom_point(alpha = 0.01, colour="purple")
+grid.arrange(p1,p2,ncol=2)
+
+heatmap(data.matrix(valores))
+
+
+# create a color palette to use in smoothed scatterplot
+library(RColorBrewer)
+buylrd = c("#313695", "#4575B4", "#74ADD1", "#ABD9E9", "#E0F3F8", "#FFFFBF",
+           "#FEE090", "#FDAE61", "#F46D43", "#D73027", "#A50026") 
+myColRamp = colorRampPalette(c(buylrd))
+
+# smoothed scatterplot
+smoothScatter(x=valores$phi,y=valores$k,fill=valores$trcv
+              colramp=myColRamp,
+              main="Plot of 100K Point Dataset",
+              xlab="x1",
+              ylab="x2")
+
+
+#plot(valores$tcr~sort(valores$k), type="l")
+#line(valores$tcr~sort(valores$phi), col="red")
 ```
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 

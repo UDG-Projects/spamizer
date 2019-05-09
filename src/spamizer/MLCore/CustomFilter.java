@@ -14,19 +14,17 @@ public class CustomFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
-        System.out.println(text);
-        String cleaned = text.replace("[^A-Za-z0-9 ]", "");
-        cleaned = cleaned.replace("\\.", "");
-        System.out.println(cleaned);
-
+        //String cleaned = text.replaceAll("[^A-Za-z0-9 ]", " ");
+        //cleaned = cleaned.replaceAll("[s|S]ubject[ |:]?[ |:]?", "");
         String[] parts = text.split(" ");
         HashMap<String, Integer> mails = new HashMap<>();
         for(String s : parts){
-            if(mails.containsKey(s)){
-                mails.put(s, mails.get(s));
-            }
-            else{
-                mails.put(s, 1);
+            if(s.length() > 0) {
+                if (mails.containsKey(s)) {
+                    mails.put(s, mails.get(s));
+                } else {
+                    mails.put(s, 1);
+                }
             }
         }
 

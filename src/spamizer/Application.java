@@ -221,12 +221,13 @@ public class Application  {
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
                 // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
-                //phi = ThreadLocalRandom.current().nextDouble(1,5);
                 phi = ThreadLocalRandom.current().nextDouble(1,5);
+                //phi = ThreadLocalRandom.current().nextDouble(2.1030,2.1035);
                 // EL pes que li donem a una paraula que no existeix.
-                //k = ThreadLocalRandom.current().nextDouble(0, 3);
+
                 while(k==0)
                     k = ThreadLocalRandom.current().nextDouble(0, 3);
+                    //k = ThreadLocalRandom.current().nextDouble(0.811, 0.8215);
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
