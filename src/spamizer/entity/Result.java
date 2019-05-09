@@ -19,6 +19,10 @@ public class Result {
 
     @Override
     public String toString() {
+        return mountString(-1);
+    }
+
+    public String mountString(int count){
         String exceptionsResult = "";
         for(Exception e: exceptions){
             exceptionsResult+= "EXCEPCIO ================================================\n";
@@ -26,22 +30,22 @@ public class Result {
             exceptionsResult+="\n\n";
         }
         return "---------------------------------------------------------" + "\n" +
-        "---------------------------------------------------------" + "\n" +
-        " Spam number       : " + spamNumber + "\n" +
-        " Ham number        : " + hamNumber + "\n" +
-        " Unknwon number    : " + validateNumber + "\n" +
-        " PHI               : " + phi + "\n" +
-        " K                 : " + k + "\n" +
-        " Accuracy          : " + (validateNumber - fp - fn) / (double)validateNumber + "\n" +
-        "---------------------------------------------------------" + "\n" +
-        " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
-        " Missatge HAM classificat com a SPAM : " + fp + "\n" +
-        " Missatge SPAM classificat correctament com spam : " + tn + "\n" +
-        " Missatge SPAM classificat com a HAM : " + fn + "\n" +
-        "---------------------------------------------------------" + "\n" +
-        "---------------------------------------------------------" + "\n" +
-        exceptionsResult.toString();
-
+                "---------------------------------------------------------" + "\n" +
+                " Execution number  : " + count + "\n" +
+                " Spam number       : " + spamNumber + "\n" +
+                " Ham number        : " + hamNumber + "\n" +
+                " Unknwon number    : " + validateNumber + "\n" +
+                " PHI               : " + phi + "\n" +
+                " K                 : " + k + "\n" +
+                " Accuracy          : " + (validateNumber - fp - fn) / (double)validateNumber + "\n" +
+                "---------------------------------------------------------" + "\n" +
+                " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
+                " Missatge HAM classificat com a SPAM : " + fp + "\n" +
+                " Missatge SPAM classificat correctament com spam : " + tn + "\n" +
+                " Missatge SPAM classificat com a HAM : " + fn + "\n" +
+                "---------------------------------------------------------" + "\n" +
+                "---------------------------------------------------------" + "\n" +
+                exceptionsResult.toString();
     }
 
     public int getSpamNumber() {

@@ -32,16 +32,6 @@ La llibreria commons cli s'utilitza per a la lectura dels paràmetres des del ma
 
 Si no es troba la llibreria al directori arrel s'ha de descarregar de la [pàgina oficial d'apache](https://commons.apache.org/proper/commons-cli/download_cli.cgi). Només ens interessa el fitxer commons-cli-1.4.jar.
 
-
-## Estudi sobre les dades 
-
-Les dades que ens entren son correus que poden considerar-se o no spam. Un pas previ al desenvolupament ha de ser el d'evaluar com son majoritàirament aquests correus en longitud. Estudiar la longitud ens ajudarà a veure les dimensions de les dades a processar. També tal i com posa a l'enunciat de la pràctica (com a millora) s'hauria de purgar els correus de mots que no tenen semàntica, tals com proposicions, adverbis o connectors gramaticals. 
-
-Per tant caldrà : 
-
-- **POSAR LA LLARGADA MITJANA DELS EMAILS** 
-- **EXCLOURE ELS MOTS QUE NO TENEN SEMÀNTICA I EXPLICAR COM ES FA EL PROCÉS**
-
 ## Instruccions per a l'execució 
 
 Per executar el programa mitjançant un paquet jar ens trobarem les següents opcions : 
@@ -74,6 +64,8 @@ usage: spamizer
 ```
 
 El programa permet la interacció amb el machine learning en diferents modes, el mode entrenament (training) que permet nodrid la base de dades en memòria tant amb una base de dades desada en un fitxer com amb un conjunt finit de correus llegits dins d'un directori.
+
+
 
 ### Mode Training
 
@@ -136,9 +128,36 @@ Trainer és el mòdul que permet interactuar amb la base de dades en memòria HS
 
 Dins d'aquest package s'hi desa el cor del machine learning. Conté les instàncies de les bases de dades, les classes de validació i les d'entrenament.
 
-#### COMANDES AUXILIARS
+## COMANDES AUXILIARS
 Comanda grep que ens serveix per mirar si una paraula ens apareix a un seguit de fitxers.
 grep -c paraula directori -d read -r
--c -> busca la paraula al fitxer
--d read -> passes un directori i li dius que llegeixi
--r -> que ho faci de manera recursiva per tots els fitxers del directori
+
+- -c -> busca la paraula al fitxer
+- -d read -> passes un directori i li dius que llegeixi
+- -r -> que ho faci de manera recursiva per tots els fitxers del directori
+
+
+## Estudi sobre les dades 
+
+Les dades que ens entren son correus que poden considerar-se o no spam. Un pas previ al desenvolupament ha de ser el d'evaluar com son majoritàirament aquests correus en longitud. Estudiar la longitud ens ajudarà a veure les dimensions de les dades a processar. També tal i com posa a l'enunciat de la pràctica (com a millora) s'hauria de purgar els correus de mots que no tenen semàntica, tals com proposicions, adverbis o connectors gramaticals. 
+
+Per tant caldrà : 
+
+- **POSAR LA LLARGADA MITJANA DELS EMAILS** 
+- **EXCLOURE ELS MOTS QUE NO TENEN SEMÀNTICA I EXPLICAR COM ES FA EL PROCÉS**
+
+## Valors per phi 
+
+Phi és el nombre de vegades que ha de pesar la probabilitat de que un correu sigui ham per que sigui considerat ham. Si phi = 2 significa que un correu per ser considerat ham, la seva probabilitat d'spam ha de ser superior a 2 cops la probabilitat de ham.
+
+El rang d'actuació d'aquest valor hauria de ser d'entre 1 i 5 en forma decimal. 
+
+## Valors per k
+
+El valor de k és el valor que se li dona a la probabilitat de que una paraula sigui ham o spam quan no ha aparegut cap cop. En sí no és molt important aquesta constant i el seu valor podria ser inferior a 1 peró mai pot ser 0. Un rang de valors apropiat per aquesta constant és el rang d'entre [0 - 3] sent 3 el pes màxim que assolirà el fet que una paraula no existeixi al nostre bag of words. 
+
+## K-fold cross-validation.
+
+Es tracta de preparar paquets de correus d'entrenament i de validació. Si imaginem tot el conjunt de correus de ham i spam com un pastís, una manera d'actuar seria dividint el pastís en n parts (variable del k fold). Un cop fet aixó de manera aleatòria es selecciona una part del pastís i es defineix com a part de validació. 
+
+L'execució tractaria d'entrenar la màquina 1 sol cop amb una de les diferents configuracions i realitzar el bucle per cercar màxims globals amb la màquina entrenada i el conjunt d'entrenament. 

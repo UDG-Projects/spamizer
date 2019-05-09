@@ -217,18 +217,10 @@ public class Application  {
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
-                phi = Math.abs(random.nextDouble()*1000);
-                k = Math.abs(random.nextDouble()*1000);
-
-                if(count < iterations/2){
-                    k=2+count;
-                    phi=1;
-                }
-                else{
-                    phi=2+count/2;
-                    k=1;
-                }
-
+                // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
+                phi = ThreadLocalRandom.current().nextDouble(1,5);
+                // EL pes que li donem a una paraula que no existeix.
+                k = ThreadLocalRandom.current().nextDouble(0, 3);
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
@@ -243,9 +235,9 @@ public class Application  {
 
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.train(HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
+                validator.train(HAM, selector.getHam(), new CustomFilter()); //, StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
-                validator.train(Database.Table.SPAM, selector.getSpam(), StanfordCoreNLPFilter.getInstance());
+                validator.train(Database.Table.SPAM, selector.getSpam(), new CustomFilter()); //, StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained SPAM in " + validator.getExecutionMillis() + " millis");
                 validator.validate(selector.getUnknown(), k, phi);
                 System.out.println("Validation done in " + validator.getExecutionMillis() + " millis");
@@ -253,7 +245,7 @@ public class Application  {
                 Instant end = Instant.now();
                 result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
 
-                System.out.println(result);
+                System.out.println(result.mountString(count));
                 MemDB.getInstance().clearDB();
             }
             catch (Exception e){

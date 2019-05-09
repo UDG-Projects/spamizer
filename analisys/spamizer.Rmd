@@ -7,6 +7,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Carreguem les dades per a l'execució del gràfic.
+results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
 ```
 
 ## Estudi de les variables PHI i K
@@ -17,13 +19,11 @@ El que es pretén és realitzar un estudi de quan les variables phi i k consider
 
 # TODO : Explicar kfold. 
 
-### Execució amb 200 mails i 100 iteracions
+## Anàlisi de la PHI i la K
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
 
 ```{r Execucio amb 200 mail i 100 iteracions}
-# Carreguem les dades per a l'execució del gràfic.
-mydata = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/200m-100n.csv")
 head(mydata)
 radius <- sqrt(mydata$FP/pi)
 symbols(mydata$phi, mydata$k, circles = radius, inches = 0.25, fg = "white", 
