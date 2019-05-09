@@ -21,12 +21,61 @@ El que es pretén és realitzar un estudi de quan les variables phi i k consider
 
 ## Anàlisi de la PHI i la K
 
+### PHI 
+
+Si tenim en compte el què representa ela valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabiltat per que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que per que un correu sigui considerat spam ha de ser 2 cops superior a la probabiltiat de que sigui ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació. 
+
+El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. 
+
+### K 
+
+Quan apliquem el suavitzat hem de tenir en compte que donats el bag of words de ham i el de spam, què passa si la paraula no existeix? doncs que el valor de les multiplicacions serà 0 i farà que si una paraula no existeix aquesta paraula ens determini si un correu és ham o és spam. 
+
+Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no és present. Aquest valor no pot ser 0 peró pot ser proper a zero. Si fos zero es provocaria el mateix cas que l'esmentat anteriorment. Tanmateix no té sentit aplicar un valor molt gran a la k ja que si ho fem aquest valor provocaria que les paraules que no existeixen fossin puntuades molt altes i que les aparicions no computessin tant. 
+
+Limitarem els valors de k en un rang de (0 - 3]. 
+
+#### Exemple de funció K 
+
+```{results }
+#Calculem els tcr dels valors 
+# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
+base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)
+# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001
+werr <- (50 * results$FP + results$FN) / (50 * results$NHAM + results$NSPAM) + 0.000001
+# TCR : BASE / WERR
+tcr <- base/werr
+
+
+
+
+library(scatterplot3d)
+scatterplot3d(x=results$PHI, y=results$K, z=tcr)
+
+
+# Cargar librerias
+library(ggplot2)
+# Generar la matriz
+valores <- data.frame(results$PHI, results$K, tcr)
+names(valores) <- c("phi", "k", "tcrVal")
+head(valores)
+
+plot(valores)
+# Pintar
+p <- ggplot(valores, aes(phi, k, tcrVal))
+p + geom_tile(aes(fill = tcrVal))
+
+
+plot(valores$tcr~sort(valores$k), type="l")
+line(valores$tcr~sort(valores$phi), col="red")
+```
+
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
 
 ```{r Execucio amb 200 mail i 100 iteracions}
-head(mydata)
-radius <- sqrt(mydata$FP/pi)
-symbols(mydata$phi, mydata$k, circles = radius, inches = 0.25, fg = "white", 
+head(results)
+radius <- sqrt((1-(results$FP/100))/pi)
+symbols(results$PHI, results$K, circles = radius, inches = 0.25, fg = "white", 
     bg = "red", main = "Sized by NumVar3")
 ```
 

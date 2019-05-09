@@ -202,7 +202,7 @@ public class Application  {
         Reader spamReader = new DirectoryMailReader(spamDir);
         Reader hamReader = new DirectoryMailReader(hamDir);
 
-        double phi, k;
+        double phi, k=0;
 
 
         /**
@@ -218,9 +218,12 @@ public class Application  {
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
                 // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
+                //phi = ThreadLocalRandom.current().nextDouble(1,5);
                 phi = ThreadLocalRandom.current().nextDouble(1,5);
                 // EL pes que li donem a una paraula que no existeix.
-                k = ThreadLocalRandom.current().nextDouble(0, 3);
+                //k = ThreadLocalRandom.current().nextDouble(0, 3);
+                while(k==0)
+                    k = ThreadLocalRandom.current().nextDouble(0, 3);
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
@@ -235,9 +238,9 @@ public class Application  {
 
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.train(HAM, selector.getHam(), new CustomFilter()); //, StanfordCoreNLPFilter.getInstance());
+                validator.train(HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
-                validator.train(Database.Table.SPAM, selector.getSpam(), new CustomFilter()); //, StanfordCoreNLPFilter.getInstance());
+                validator.train(Database.Table.SPAM, selector.getSpam(), StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained SPAM in " + validator.getExecutionMillis() + " millis");
                 validator.validate(selector.getUnknown(), k, phi);
                 System.out.println("Validation done in " + validator.getExecutionMillis() + " millis");
