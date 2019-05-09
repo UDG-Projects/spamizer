@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
+import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
 import javax.xml.crypto.Data;
@@ -38,6 +39,8 @@ public class Application  {
 
     public static Random random;
     public static Result result;
+
+    public static Filter filter;
 
     /**
      * Procés de creació i validació en funció dels arguments de la instrucció que es reb per paràmetre.
@@ -104,7 +107,7 @@ public class Application  {
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                                 //new CustomFilter());
                                 StanfordCoreNLPFilter.getInstance());
-                        System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
+                        System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
 
                         System.out.println(MemDB.getInstance().select(Database.Table.HAM));
 
@@ -115,7 +118,7 @@ public class Application  {
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                                 StanfordCoreNLPFilter.getInstance());
-                        System.out.println("Trained SPAM in " + trainer.getExecutionMillis() + " millis");
+                        System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                     }
                 }
                 else {
@@ -125,13 +128,13 @@ public class Application  {
                             new DirectoryMailReader(directorySpam),
                             StanfordCoreNLPFilter.getInstance());
 
-                    System.out.println("Trained HAM in " + trainer.getExecutionMillis() + " millis");
+                    System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
 
                     trainer.train(HAM,
                             new DirectoryMailReader(directoryHam),
                             StanfordCoreNLPFilter.getInstance());
 
-                    System.out.println("Trained SPAM in " + trainer.getExecutionMillis() + " millis");
+                    System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                 }
 
             }
@@ -142,8 +145,8 @@ public class Application  {
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM)),1,1);
-                System.out.println("Validation finished in " + validator.getExecutionMillis() + " millis");
+                validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM), filter),1,1);
+                System.out.println("Validation finished in " + Application.millisToString(validator.getExecutionMillis()));
 
             }
 
@@ -232,18 +235,19 @@ public class Application  {
                         hamReader,
                         percentage,
                         random,
-                        result
+                        result,
+                        filter
                 );
                 System.out.println("Kfold finished ... ");
 
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.train(HAM, selector.getHam(), StanfordCoreNLPFilter.getInstance());
-                System.out.println("Trained HAM in " + validator.getExecutionMillis() + " millis");
-                validator.train(Database.Table.SPAM, selector.getSpam(), StanfordCoreNLPFilter.getInstance());
-                System.out.println("Trained SPAM in " + validator.getExecutionMillis() + " millis");
+                validator.train(HAM, selector.getHam(), filter);//StanfordCoreNLPFilter.getInstance());
+                System.out.println("Trained HAM in " +Application.millisToString( validator.getExecutionMillis()));
+                validator.train(Database.Table.SPAM, selector.getSpam(), filter);//StanfordCoreNLPFilter.getInstance());
+                System.out.println("Trained SPAM in " + Application.millisToString(validator.getExecutionMillis()));
                 validator.validate(selector.getUnknown(), k, phi);
-                System.out.println("Validation done in " + validator.getExecutionMillis() + " millis");
+                System.out.println("Validation done in " + Application.millisToString(validator.getExecutionMillis()));
 
                 Instant end = Instant.now();
                 result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
@@ -260,6 +264,7 @@ public class Application  {
     public static void main(String [] args) {
         random = new Random();
         result = new Result();
+        filter = new CustomFilter();
         ApplicationOptions applicationOptions = new ApplicationOptions();
         try {
 
@@ -305,13 +310,7 @@ public class Application  {
             e.printStackTrace();
         }
 
-
-
     }
-
-
-
-
     /**
      * DEBUG METHOD
      * @return
@@ -341,153 +340,13 @@ public class Application  {
      * @return
      */
     public static String millisToString(long millis){
-        return String.format("%d sec, %d millis",
-                TimeUnit.MILLISECONDS.toSeconds(millis),
-                TimeUnit.MILLISECONDS.toMillis(millis) -
-                        TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis))
-        );
+        double seconds = millis / 1000.0;
+        double minutes = 0;
+        if(seconds >= 60) {
+            minutes = seconds / 60;
+            seconds = seconds % 60;
+        }
+        return minutes +" m " +  seconds + " s";
+
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-        try {
-            LocalDB localDB = LocalDB.getInstance();
-            localDB.insertResult(2,3,1,0,1,0);
-
-            MemDB database = MemDB.getInstance();
-
-            /*List<Pair<String, Integer>> values = new ArrayList<>();
-            values.add(new Pair<>("hola", 1));
-            values.add(new Pair<>("adeu", 2));
-
-            database.insertOrUpdate(MemDB.Table.HAM, values);
-            System.out.println(database.select(MemDB.Table.HAM));
-
-            values.add(new Pair<>("hola", 1));
-            values.add(new Pair<>("adeu", 2));
-
-            database.insertOrUpdate(MemDB.Table.HAM, values);
-            System.out.println(database.select(MemDB.Table.HAM));*/
-
-    // Genero 1000 paraules diferents, simulem que és l'alfabet
-
-            /*Instant start = Instant.now();
-            System.out.println("Started word generation. ");
-            String[] wordsValues = new String[1000];
-            for(int i = 0; i < 1000; i++){
-                wordsValues[i] = generateRandomString();
-            }
-            Instant end = Instant.now();
-            System.out.println("Finished generation done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-
-            start = Instant.now();
-            System.out.println("Started insertion");
-            // Generem 10000 correus que tindran una mitjana aleatòria de fins a 300 paraules cada correu i fem les insercions
-            for(int i = 0; i < 1000; i++){
-                HashMap<String, Integer> email = new HashMap();
-                int wordsForEmail = Math.abs(random.nextInt()) % 300;
-                for(int j = 0; j < wordsForEmail; j++) {
-                    int randomPosition = Math.abs(random.nextInt()) % 1000;
-                    String word = wordsValues[randomPosition];
-                    if(email.containsKey(wordsValues[randomPosition])){
-                        email.replace(word, email.get(word) + 1);
-                    }
-                    else
-                        email.put(word, 1);
-                }
-                database.insertOrUpdate(MemDB.Table.HAM, email);
-            }
-            end = Instant.now();
-            System.out.println("Finished insertion done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-
-            start = Instant.now();
-            System.out.println("Started selection");
-            System.out.println(database.sum(MemDB.Table.HAM));
-            end = Instant.now();
-            System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-
-
-            /*String s = "dear vince ,\n" +
-                    "thank you very much for updating me on the status of my job application . ? i\n" +
-                    "got another good news last week . ? i am happy to inform you i passed the 2000\n" +
-                    "cfa level i examination . the pass rate for level i examination this year is\n" +
-                    "52 % . i look forward to hearing from you .\n" +
-                    "sincerely ,\n" +
-                    "rabi de\n" +
-                    "?\n" +
-                    "?\n" +
-                    "? vince . j . kaminski @ enron . com wrote :\n" +
-                    "rabi ,\n" +
-                    "thanks for your MESSAGE .\n" +
-                    "everybody who interviewed you was greatly impressed with your technical\n" +
-                    "skills and professional attitude .\n" +
-                    "we shall extend an offer to you within a day or two .\n" +
-                    "vince\n" +
-                    "rabi deon 08 / 22 / 2000 02 : 57 : 37 pm\n" +
-                    "to : vince kaminsky\n" +
-                    "cc :\n" +
-                    "subject : Follow - up interview on 8 / 21 / 00\n" +
-                    "dear dr . kaminsky :\n" +
-                    "thank you very much for arranging the follow - up interview with your\n" +
-                    "internal clients . i visited mr . ted murphy and his staff at rac and mr .\n" +
-                    "dennis benevides at ees yesterday . i was impressed with level of risk\n" +
-                    "technology employed by enron to achieve its business objectives . i want to\n" +
-                    "reiterate my strong interest in joining your group , which is held in very\n" +
-                    "high esteem both inside and outside of enron . ? i look forward to h ! earing\n" +
-                    "from you .\n" +
-                    "sincerely ,\n" +
-                    "rabi s . de\n" +
-                    "do you yahoo ! ?\n" +
-                    "yahoo ! mail - free email you can access from anywhere !\n" +
-                    "do you yahoo ! ?\n" +
-                    "yahoo ! mail - free email you can access from anywhere !";
-
-            StanfordCoreNLPFilter filter = new StanfordCoreNLPFilter();
-
-            HashMap<String, Integer> words = filter.filterText(s);
-
-            for(Map.Entry<String, Integer> word : words.entrySet()){
-                System.out.println(word.getKey() + " -> " + word.getValue());
-            }*/
-
-    //System.out.println("Selection done in " + millisToString(ChronoUnit.MILLIS.between(start, end)));
-            /*System.out.println(database.select(MemDB.Table.HAM));
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.out.println("Falta el driver i possiblement afegir el jar com a llibreria del projecte.");
-            System.out.println("Consulta el README.md i segueix els passos descrits.");
-            System.out.println("Happy coding!");
-            e.printStackTrace();
-        }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

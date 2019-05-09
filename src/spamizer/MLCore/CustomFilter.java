@@ -14,9 +14,11 @@ public class CustomFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
-        /*ByteBuffer byteBuff = StandardCharsets.UTF_8.encode(text);// .UTF-8.encode(s);
-        String partial = new String( byteBuff.array(), "UTF-8");*/
-        /*text = text.replaceAll("((?![\\x00-\\x7F]).)", "");*/
+        System.out.println(text);
+        String cleaned = text.replace("[^A-Za-z0-9 ]", "");
+        cleaned = cleaned.replace("\\.", "");
+        System.out.println(cleaned);
+
         String[] parts = text.split(" ");
         HashMap<String, Integer> mails = new HashMap<>();
         for(String s : parts){
@@ -27,6 +29,7 @@ public class CustomFilter implements Filter {
                 mails.put(s, 1);
             }
         }
+
         return mails;
 
     }
