@@ -224,10 +224,8 @@ public class Application  {
                 phi = ThreadLocalRandom.current().nextDouble(1,5);
                 //phi = ThreadLocalRandom.current().nextDouble(2.1030,2.1035);
                 // EL pes que li donem a una paraula que no existeix.
-
-                while(k==0)
-                    k = ThreadLocalRandom.current().nextDouble(0, 3);
-                    //k = ThreadLocalRandom.current().nextDouble(0.811, 0.8215);
+                k = ThreadLocalRandom.current().nextDouble(0.0000001, 3);
+                //k = ThreadLocalRandom.current().nextDouble(0.811, 0.8215);
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
