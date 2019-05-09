@@ -14,19 +14,20 @@ public class CustomFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
-        /*ByteBuffer byteBuff = StandardCharsets.UTF_8.encode(text);// .UTF-8.encode(s);
-        String partial = new String( byteBuff.array(), "UTF-8");*/
-        /*text = text.replaceAll("((?![\\x00-\\x7F]).)", "");*/
+        //String cleaned = text.replaceAll("[^A-Za-z0-9 ]", " ");
+        //cleaned = cleaned.replaceAll("[s|S]ubject[ |:]?[ |:]?", "");
         String[] parts = text.split(" ");
         HashMap<String, Integer> mails = new HashMap<>();
         for(String s : parts){
-            if(mails.containsKey(s)){
-                mails.put(s, mails.get(s));
-            }
-            else{
-                mails.put(s, 1);
+            if(s.length() > 0) {
+                if (mails.containsKey(s)) {
+                    mails.put(s, mails.get(s));
+                } else {
+                    mails.put(s, 1);
+                }
             }
         }
+
         return mails;
 
     }

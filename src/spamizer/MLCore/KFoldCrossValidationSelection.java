@@ -14,6 +14,7 @@ public class KFoldCrossValidationSelection {
     private int percentage;
     private Random random;
     private Result result;
+    private Filter filter;
 
     private Reader spamReader;
     private Reader hamReader;
@@ -26,7 +27,7 @@ public class KFoldCrossValidationSelection {
      * @param random Una llavor per generar nombres aleatòris.
      * @throws BadPercentageException
      */
-    public KFoldCrossValidationSelection(Reader spamReader, Reader hamReader, int percentage, Random random, Result result) throws BadPercentageException {
+    public KFoldCrossValidationSelection(Reader spamReader, Reader hamReader, int percentage, Random random, Result result, Filter filter) throws BadPercentageException {
         if(percentage < 0 || percentage > 100)
             throw new BadPercentageException("Value " + percentage + " is not correct, must be between 0 and 100");
         this.spamReader = spamReader;
@@ -35,6 +36,7 @@ public class KFoldCrossValidationSelection {
         this.random = random;
         unknown = new HashSet<>();
         this.result = result;
+        this.filter = filter;
     }
 
     /**
@@ -42,7 +44,7 @@ public class KFoldCrossValidationSelection {
      * @return Una collecció amb els correus considerats spam
      */
     public Collection<Mail> getSpam(){
-        Collection<Mail> mails =getFilteredByPercentage(spamReader.read(true));
+        Collection<Mail> mails =getFilteredByPercentage(spamReader.read(true, filter));
         this.result.setSpamNumber(mails.size());
         return mails;
     }
@@ -52,7 +54,7 @@ public class KFoldCrossValidationSelection {
      * @return Una collecció amb els correus considerats ham
      */
     public Collection<Mail> getHam(){
-        Collection<Mail> mails = getFilteredByPercentage(hamReader.read(false));
+        Collection<Mail> mails = getFilteredByPercentage(hamReader.read(false, filter));
         this.result.setHamNumber(mails.size());
         return mails;
     }

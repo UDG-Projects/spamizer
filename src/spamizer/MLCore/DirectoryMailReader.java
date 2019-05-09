@@ -1,16 +1,14 @@
 package spamizer.MLCore;
 
+import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static jdk.nashorn.internal.objects.NativeString.toLowerCase;
@@ -30,29 +28,38 @@ public class DirectoryMailReader implements Reader {
      * @return list of mails.
      */
     @Override
-    public Collection<Mail> read(boolean isSpam)
+    public Collection<Mail> read(boolean isSpam, Filter filter)
     {
         List<Mail> mails = new ArrayList<Mail>();
         File folder = new File(folderPath);
-        File[] listOfFiles = folder.listFiles();
+        //File[] listOfFiles = folder.listFiles();
 
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
+        List<File> listOfFiles = Arrays.asList(folder.listFiles());
+        Collections.shuffle(listOfFiles);
+
+        Iterator<File> it = listOfFiles.iterator();
+
+        //for (int i = 0; i < listOfFiles.length; i++) {
+        while(it.hasNext()){
+            File f = it.next();
+            if (f.isFile()) {
                 File file = null;
                 FileReader fileReader = null;
                 BufferedReader br = null;
                 try {
-                    file = new File (listOfFiles[i].getName());
-                    String data = new String(Files.readAllBytes(Paths.get(folderPath + file)), UTF_8);
+                    file = new File (f.getName());
+
+                    String data = new String(Files.readAllBytes(Paths.get(folderPath + file)),  "US-ASCII");
                     String lowerData = toLowerCase(data).replaceAll("cc|to|from", "");
-                    String subject = "";
+                    Mail m = new Mail(lowerData, isSpam, new CustomFilter());
+                    mails.add(m);
+                    /*String subject = "";
                     if(lowerData.indexOf("subject:")!=-1){
                         subject = (lowerData.substring(lowerData.indexOf("subject:"), lowerData.indexOf("\n"))).replace("subject:","");
                         lowerData=lowerData.replace("subject:","");
                     }
-                    String body = lowerData.replace(subject,"");//.replaceAll("([^A-Za-z0-9_@-])", " ");;
-                    Mail m = new Mail(subject,body, isSpam, new CustomFilter());
-                    mails.add(m);
+                    String body = lowerData.replace(subject,"");*///.replaceAll("([^A-Za-z0-9_@-])", " ");;
+
                 }
                 catch(Exception e){
                     e.printStackTrace();

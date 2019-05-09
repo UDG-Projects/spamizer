@@ -24,7 +24,7 @@ public class Trainer {
 
     public void train (Database.Table table, Reader reader, Filter filter) throws SQLException {
 
-        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table);
+        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table, filter);
         train(table, mailsFiltrats,filter);
     }
 

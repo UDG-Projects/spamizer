@@ -6,5 +6,5 @@ import java.util.Collection;
 
 public interface Reader {
 
-    public Collection<Mail> read(boolean isSpam);
+    public Collection<Mail> read(boolean isSpam, Filter filter);
 }

@@ -8,7 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Carreguem les dades per a l'execució del gràfic.
-results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("/home/marc/projects/spamizer/analisys/20000m-500n-SF.csv")
 ```
 
 ## Estudi de les variables PHI i K
@@ -52,30 +52,40 @@ scatterplot3d(x=results$PHI, y=results$K, z=tcr)
 
 # Cargar librerias
 library(ggplot2)
+library(colorspace)
+library(gridExtra)
 # Generar la matriz
 valores <- data.frame(results$PHI, results$K, tcr)
-names(valores) <- c("phi", "k", "tcrVal")
+names(valores) <- c("phi", "k", "trcv")
 head(valores)
 
-plot(valores)
+ordenats <- valores[order(-valores$trcv), ]
+
 # Pintar
-p <- ggplot(valores, aes(phi, k, tcrVal))
-p + geom_tile(aes(fill = tcrVal))
+# p <- ggplot(head(ordenats, 20), aes(phi, k, fill=trcv)) 
+# p + geom_tile()
 
-mtscaled <- as.matrix(scale(valores))
-# create heatmap and don't reorder columns
-heatmap(mtscaled, Colv=phi, Rowv = k, scale='none')
 
-# plot(valores$tcr~sort(valores$k), type="l")
-# plot(valores$tcr~sort(valores$phi), type="l")
+
+d = ggplot(ordenats,aes(phi, k, fill=trcv))  +
+  ggtitle("Plot of 100 values") +
+  xlab("PHI") +
+  ylab("K")
+p1 = d + geom_point()
+p2 = d + geom_point(alpha = 0.01, colour="purple")
+grid.arrange(p1,p2,ncol=2)
+heatmap(data.matrix(valores))
+
+#plot(valores$tcr~sort(valores$k), type="l")
+#line(valores$tcr~sort(valores$phi), col="red")
 ```
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
 
 ```{r Execucio amb 200 mail i 100 iteracions}
 head(results)
-radius <- sqrt((1-(results$FP/100))/pi)
-symbols(results$PHI, results$K, circles = radius, inches = 0.25, fg = "white", 
+radius <- sqrt(valores$trcv/pi)
+symbols(valores$phi, valores$k, circles = radius, inches = 0.25, fg = "white", 
     bg = "red", main = "Sized by NumVar3")
 ```
 
