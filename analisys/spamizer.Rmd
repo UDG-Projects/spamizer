@@ -90,9 +90,14 @@ smoothScatter(x=valores$phi,y=valores$k,fill=valores$trcv
               xlab="x1",
               ylab="x2")
 
+mtscaled <- as.matrix(scale(valores))
+# create heatmap and don't reorder columns
+heatmap(mtscaled, Colv=phi, Rowv = k, scale='none')
 
 #plot(valores$tcr~sort(valores$k), type="l")
 #line(valores$tcr~sort(valores$phi), col="red")
+# plot(valores$tcr~sort(valores$k), type="l")
+# plot(valores$tcr~sort(valores$phi), type="l")
 ```
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
