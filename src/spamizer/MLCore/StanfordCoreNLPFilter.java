@@ -40,25 +40,31 @@ public class StanfordCoreNLPFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
-        Annotation document = new Annotation(text);
+        String cleaned = text.replace("[^A-Za-z0-9_@-]", " ");
+
+        Annotation document = new Annotation(cleaned);
         List<String> lemmas = new LinkedList<>();
 
         pipeline.annotate(document);
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
         for(CoreMap sentence : sentences){
             for(CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)){
-                String partOfSpeech = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
-
-
-                if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
+                //String partOfSpeech = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+                if(token.lemma().length() > 1) {
+                    lemmas.add(token.lemma());
+                }
+                else{
+                    lemmas.add(token.value());
+                }
+                /*if((token.lemma().length() > 1 || token.lemma() == "i") && (partOfSpeech.startsWith("N") ||
                         partOfSpeech.startsWith("R") ||
                         partOfSpeech.startsWith("V") ||
                         partOfSpeech.startsWith("J") ||
                         partOfSpeech.startsWith("PR") //||
                         //partOfSpeech.startsWith("DT")
-                )){
-                    lemmas.add(token.get(CoreAnnotations.LemmaAnnotation.class));
-                }
+                )){*/
+
+                //}
 
             }
         }
