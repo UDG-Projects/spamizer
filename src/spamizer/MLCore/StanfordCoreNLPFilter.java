@@ -40,7 +40,7 @@ public class StanfordCoreNLPFilter implements Filter {
     @Override
     public HashMap<String, Integer> filterText(String text) {
 
-        String cleaned = text.replace("[^A-Za-z0-9_@-]", " ");
+        String cleaned = text.replaceAll("[^A-Za-z0-9_@-]", " ");
 
         Annotation document = new Annotation(cleaned);
         List<String> lemmas = new LinkedList<>();
