@@ -3,15 +3,22 @@ title: "spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# Carreguem les llibreries
+library(scatterplot3d)
+library(ggplot2)
+library(colorspace)
+library("plot3D")
+
 # Carreguem les dades per a l'execució del gràfic.
-results = read.csv("/home/marc/Projects/spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("/Users/marcsanchez/projects/spamizer/analisys/20000m-500n-SF.csv")
 ```
 
 
@@ -98,9 +105,50 @@ En comptes de realitzar la divisió ...
 
 // TODO : ... Pensar l'estructura encara. 
 
+## Evaluació dels FP i dels FN en funció de K i PHI
+
+// TODO : 
+
+## Càlcul del TCR (Total Cost Ratio)
+
+Amb el Total cost ratio podem extreure un valor que pondera amb més força el valor de les aparicions dels falços positius. El que es busca amb el Tcr és el valor màxim possibles. Per fer-ho hem realitzat vàries execucions i hem preparat una série de conclusions per intentar esbrinar les funcions phi i k que millor s'acosten al nostre problema mitjançant el càlcul del tcr. 
+
+### Veiem com es genera la columna TCR
+
+```{r tcr}
+#Calculem els tcr dels valors 
+# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
+base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)
+# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001 -> per que no sigui 0
+werr <- (50 * results$FP + results$FN) / (50 * results$NHAM + results$NSPAM) + 0.000001
+# TCR : BASE / WERR
+tcr <- base/werr
+
+# Generar una matriu que permeti representar els resultats en funció de k i phi
+values <- data.frame(results$PHI, results$K, tcr)
+names(values) <- c("phi", "k", "trcv")
+head(values)
+
+# Ordenem els valors
+values <- values[order(-values$trcv), ]
+head(values,20)
+```
+
 ## Estudi de les variables PHI i K.
 
 El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge.
+
+```{r tcr Matrix}
+scatter3D(values$phi, values$k, values$trcv, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+```
+
+Per tenir una idea de on queden encabits exactament els valors podem rotar el gràfic fins a aconseguir que es vegin on cauen més o menys. 
+
+```{r 3D tcr Matrix Rotated}
+scatter3D(values$phi, values$k, values$trcv, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+```
+
+// TODO : Extreure conclusions. 
 
 ## Anàlisi de la PHI i la K.
 
@@ -120,61 +168,40 @@ Limitarem els valors de k en un rang de (0 - 3].
 
 #### Exemple de funció K 
 
-```{results }
-#Calculem els tcr dels valors 
-# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
-base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)
-# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001
-werr <- (50 * results$FP + results$FN) / (50 * results$NHAM + results$NSPAM) + 0.000001
-# TCR : BASE / WERR
-tcr <- base/werr
 
-library(scatterplot3d)
-scatterplot3d(x=results$PHI, y=results$K, z=tcr)
-
-
-# Cargar librerias
-library(ggplot2)
-library(colorspace)
-library(gridExtra)
-
-# Generar la matriz
-valores <- data.frame(results$PHI, results$K, tcr)
-names(valores) <- c("phi", "k", "trcv")
-head(valores)
-
-valores <- valores[order(-valores$trcv), ]
-
-# Pintar
-# p <- ggplot(head(ordenats, 20), aes(phi, k, fill=trcv)) 
-# p + geom_tile()
-
-d = ggplot(valores,aes(phi, k, fill=trcv))  +
-  ggtitle("Plot of 100 values") +
-  xlab("PHI") +
-  ylab("K")
-d + geom_point(alpha = 0.1, colour="purple")
-
-
-
-grid.arrange(p1,p2,ncol=2)
-heatmap(data.matrix(valores))
-
-
-radius <- sqrt(valores$trcv/pi)
-symbols(valores$phi, valores$k, circles = radius, inches = 0.25, fg = "white", 
-    bg = "red", main = "Sized by NumVar3")
-
-#plot(valores$tcr~sort(valores$k), type="l")
-#line(valores$tcr~sort(valores$phi), col="red")
-```
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
 
+
+
 ```{r Execucio amb 200 mail i 100 iteracions}
-head(results)
+
+#head(results)
+
+# De moment la millor opció.
+
+#scatter3D(valores$phi, valores$k, valores$trcv, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+
+#d = ggplot(valores,aes(phi, k, fill=trcv))  + ggtitle("Plot of 100 values") + xlab("PHI") + ylab("K") d + geom_point(alpha = 0.3, colour="purple", size = 3)
+
+#firstValues <- head(valores, 30)
+
+
+#ggplot(data = valores, aes(x = phi, y = k)) + geom_tile(aes(fill = trcv)) 
+
+#grid.arrange(p1,p2,ncol=2)
+#heatmap(data.matrix(valores))
+
+
+#radius <- sqrt(valores$trcv/pi)
+#symbols(valores$phi, valores$k, circles = radius, inches = 0.1, fg = "white", bg = "red", main = "Sized by NumVar3", alpha = 0.1)
+
+#plot(valores$tcr~sort(valores$k), type="l")
+#line(valores$tcr~sort(valores$phi), col="red")
 
 ```
+
+
 
 ## Referències  
 
