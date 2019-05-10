@@ -2,26 +2,109 @@
 title: "spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Carreguem les dades per a l'execució del gràfic.
-results = read.csv("/home/marc/projects/spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("/home/marc/Projects/spamizer/analisys/20000m-500n-SF.csv")
 ```
 
-## Estudi de les variables PHI i K
+
+// TODO : Posar el projecte al github.
+
+
+\newpage 
+
+# Naive Bayes
+
+En aquest apartat s'especifica com s'adapta el mètode de naive bayes al filtratge de correu. 
+
+## Naive Bayes. 
+
+// TODO : S'ha de parlar de tot el que es fa a dins del mètode que tenim implementat al codi. 
+
+## Assumpcions.
+
+// TODO : Comentar tot el que es dona per sentat al utilitzar aquest mètode, com per exemple que la màquina està ben entrenada ... 
+
+## Punts forts i febles del mètode de Naive Bayes.
+
+// TODO : 
+
+# Applicació.
+
+En aquest apartat s'es
+
+## Tecnologies escollides.
+
+Comentar també la comparació de l'ús de base de dades en memòria. 
+
+## Manual de l'aplicació.
+
+## Utilització.
+
+# Implementació. 
+
+## Lectura de fitxers. 
+
+## Mètode de selecció.
+
+### Adaptació del mètode K-fold cross-validation.
+
+En comptes de realitzar la divisió ... 
+
+## Filtre i abstracció del filtratge.
+
+### Stanford Core NLP.
+
+### Custom Filter.
+
+## Entrenament. 
+
+## Validació.
+
+// TODO : Explicar la nostre adaptació del mètode hill climbing utilitzat. 
+
+## Compute (Application, adaptació del mètode Hill Climbing).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Fase Experimental.
+
+// TODO : ... Pensar l'estructura encara. 
+
+## Estudi de les variables PHI i K.
 
 El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge.
 
-# TODO : Explicar filtres. Stanford. 
+## Anàlisi de la PHI i la K.
 
-# TODO : Explicar kfold. 
-
-## Anàlisi de la PHI i la K
-
-### PHI 
+### PHI
 
 Si tenim en compte el què representa ela valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabiltat per que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que per que un correu sigui considerat spam ha de ser 2 cops superior a la probabiltiat de que sigui ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació. 
 
@@ -54,27 +137,33 @@ scatterplot3d(x=results$PHI, y=results$K, z=tcr)
 library(ggplot2)
 library(colorspace)
 library(gridExtra)
+
 # Generar la matriz
 valores <- data.frame(results$PHI, results$K, tcr)
 names(valores) <- c("phi", "k", "trcv")
 head(valores)
 
-ordenats <- valores[order(-valores$trcv), ]
+valores <- valores[order(-valores$trcv), ]
 
 # Pintar
 # p <- ggplot(head(ordenats, 20), aes(phi, k, fill=trcv)) 
 # p + geom_tile()
 
-
-
-d = ggplot(ordenats,aes(phi, k, fill=trcv))  +
+d = ggplot(valores,aes(phi, k, fill=trcv))  +
   ggtitle("Plot of 100 values") +
   xlab("PHI") +
   ylab("K")
-p1 = d + geom_point()
-p2 = d + geom_point(alpha = 0.01, colour="purple")
+d + geom_point(alpha = 0.1, colour="purple")
+
+
+
 grid.arrange(p1,p2,ncol=2)
 heatmap(data.matrix(valores))
+
+
+radius <- sqrt(valores$trcv/pi)
+symbols(valores$phi, valores$k, circles = radius, inches = 0.25, fg = "white", 
+    bg = "red", main = "Sized by NumVar3")
 
 #plot(valores$tcr~sort(valores$k), type="l")
 #line(valores$tcr~sort(valores$phi), col="red")
@@ -84,9 +173,7 @@ En el següent gràfic la grandària dels punts estipula quant de gran és l'err
 
 ```{r Execucio amb 200 mail i 100 iteracions}
 head(results)
-radius <- sqrt(valores$trcv/pi)
-symbols(valores$phi, valores$k, circles = radius, inches = 0.25, fg = "white", 
-    bg = "red", main = "Sized by NumVar3")
+
 ```
 
 ## Referències  
