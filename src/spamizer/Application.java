@@ -221,11 +221,13 @@ public class Application  {
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
                 // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
-                phi = ThreadLocalRandom.current().nextDouble(1,5);
-                //phi = ThreadLocalRandom.current().nextDouble(2.1030,2.1035);
+                //phi = ThreadLocalRandom.current().nextDouble(1.7,2.3);
+                phi = ThreadLocalRandom.current().nextDouble(1.8,2.8);
                 // EL pes que li donem a una paraula que no existeix.
-                //k = ThreadLocalRandom.current().nextDouble(0, 3);
-                k = ThreadLocalRandom.current().nextDouble(0.00000001, 3);
+                k = ThreadLocalRandom.current().nextDouble(0.20, 0.30);
+                //k = ThreadLocalRandom.current().nextDouble(0.00000001, 0.5);
+
+
 
                 System.out.println("Kfold Started ... ");
                 //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
@@ -242,7 +244,7 @@ public class Application  {
                 Validator validator = new Validator(new NaiveBayes(), result);
 
                 validator.train(HAM, selector.getHam(), filter);//StanfordCoreNLPFilter.getInstance());
-                System.out.println("Trained HAM in " +Application.millisToString( validator.getExecutionMillis()));
+                System.out.println("Trained HAM in " + Application.millisToString(validator.getExecutionMillis()));
                 validator.train(Database.Table.SPAM, selector.getSpam(), filter);//StanfordCoreNLPFilter.getInstance());
                 System.out.println("Trained SPAM in " + Application.millisToString(validator.getExecutionMillis()));
                 validator.validate(selector.getUnknown(), k, phi);
@@ -253,6 +255,7 @@ public class Application  {
 
                 System.out.println(result.mountString(count));
                 MemDB.getInstance().clearDB();
+
             }
             catch (Exception e){
                 e.printStackTrace();

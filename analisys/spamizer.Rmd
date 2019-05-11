@@ -19,8 +19,33 @@ library("plot3D")
 
 # Carreguem les dades per a l'execució del gràfic.
 results = read.csv("/Users/marcsanchez/projects/spamizer/analisys/20000m-500n-SF.csv")
+resultsP1723K005 = read.csv("/Users/marcsanchez/projects/spamizer/analisys/2000m-1000n-phi-1.7-2.3-k-0-0.5.csv")
 ```
 
+## Treballem amb la variable K 
+
+Mesurem la mitjana que en aquest cas hauria de caure sobre entre 0 i 3 ja que els valors aleatòris estan generats a partir d'aquest màxim i mínim : 
+
+```{r Variable k}
+median(results$K)
+```
+
+A partir d'aquí mirem la desviació de la variable i la variança. 
+
+```{r K var and s^2}
+var(results$K)
+sd(results$K)
+```
+
+
+
+# Vull mirar si les variables phi i k estan correlacionades. 
+
+```{r Correlation phi & k}
+
+
+
+```
 
 // TODO : Posar el projecte al github.
 
@@ -126,29 +151,14 @@ tcr <- base/werr
 
 # Generar una matriu que permeti representar els resultats en funció de k i phi
 values <- data.frame(results$PHI, results$K, tcr)
-names(values) <- c("phi", "k", "trcv")
+names(values) <- c("phi", "k", "tcr")
 head(values)
 
 # Ordenem els valors
-values <- values[order(-values$trcv), ]
+values <- values[order(-values$tcr), ]
 head(values,20)
+
 ```
-
-## Estudi de les variables PHI i K.
-
-El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge.
-
-```{r tcr Matrix}
-scatter3D(values$phi, values$k, values$trcv, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-```
-
-Per tenir una idea de on queden encabits exactament els valors podem rotar el gràfic fins a aconseguir que es vegin on cauen més o menys. 
-
-```{r 3D tcr Matrix Rotated}
-scatter3D(values$phi, values$k, values$trcv, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-```
-
-// TODO : Extreure conclusions. 
 
 ## Anàlisi de la PHI i la K.
 
@@ -166,8 +176,158 @@ Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no 
 
 Limitarem els valors de k en un rang de (0 - 3]. 
 
-#### Exemple de funció K 
+### Supòsit? 
 
+**Ens plantegem la hipòtesi de si existeixen valors per phi i per k que facin que el filtre treballi millor.**
+
+No té sentit mirar les formes dels valors de phi i k de manera independent per què son valors generats aleatòriament, els seus histogrames es presenten de la següent manera. 
+
+```{r hist k and phi}
+h1 <- hist(results$K)
+h2 <- hist(results$PHI)
+```
+
+El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició. 
+
+Veiem els diagrames de dispersió de les dues variables en funció del TCR.
+
+```{r K and PHI dispersion diagram }
+
+plot(results$K, tcr, main="K Dispersion diagram", 
+   xlab="k", ylab="Total Cost Ratio", pch=19)
+
+plot(results$PHI, tcr, main="PHI Dispersion diagram", 
+   xlab="phi", ylab="Total Cost Ratio", pch=19)
+
+```
+
+Segons el coeficient de correlació lineal de Pearson la variable phi i el tcr sembla que concentrin la seva relació lineal en una línia recta i constant en un valor d'entre 1 i 5 per el tcr. Podem parlar més o menys que la variable phi li passa el mateix. 
+
+No hem d'oblidar peró que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel que la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr, tanmatex aixó no serà possible degut a que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**. 
+
+### Cerca d'un model per la variable TCR
+
+Podem mirar quina forma té la variable TCR segons les execucions generades. Veiem que el total cost ratio concentra per valors aleatòris el seu pes entre els valors 2 - 7.
+
+```{r TCR histogram}
+hist(head(tcr, 20))
+
+# Mitjana per el valor del tcr per phi i per k amb rang entre [1,5] i (0-3].
+median(tcr)
+```
+
+El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge. En una primera iteració amb prop de 1500 execucions utilitzant sense lemmatitzar amb un nombre total de 20000 correus i generant una discriminació d'entre un 5% i un 15% per a la validació ens trobem el següent gràfic. 
+
+```{r tcr Matrix}
+scatter3D(values$phi, values$k, values$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+```
+
+Per tenir una idea de on queden encabits exactament els valors podem rotar el gràfic fins a aconseguir que es vegin on cauen més o menys. 
+
+```{r 3D tcr Matrix Rotated}
+scatter3D(values$phi, values$k, values$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+```
+
+Veiem que amb uns valors aproximats d'entre 0 i 1 per k i entre 1.7 i 3.5 de phi, s'hi concentren els que tenen el tcr més alt. Per tant generem una altre iteració d'uns 1000 valors restringint aquest rang per phi i k en el quadrant on apareixien més aparicions dels valors de phi i de k concretament phi entre [1.7,2.3] i k entre (0,0.30] i tornant a visualitzar el resultat. 
+
+```{r tcr Matrix Limited Values}
+# Generem el tcr per els nous valors.
+# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
+basel <- resultsP1723K005$NSPAM / (50 * resultsP1723K005$NHAM + resultsP1723K005$NSPAM)
+# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001 -> per que no sigui 0
+werrl <- (50 * resultsP1723K005$FP + resultsP1723K005$FN) / (50 * resultsP1723K005$NHAM + resultsP1723K005$NSPAM) + 0.000001
+# TCR : BASE / WERR
+tcrl <- basel/werrl
+
+valueslimited <- data.frame(resultsP1723K005$PHI, resultsP1723K005$K, tcrl)
+names(valueslimited) <- c("phi", "k", "tcr")
+
+# Ordenem els valors
+valueslimited <- valueslimited[order(-valueslimited$tcr), ]
+head(valueslimited,20)
+```
+
+```{r tcr limited median}
+median(tcrl)
+```
+
+Veiem que la mitjana ha augmentat respecte l'anterior peró poc, altres indicadors que podem fer servir son per exemple el valor màxim trobat o fins i tot la mitjana dels 50 valors més alts.
+
+A continuació comparem els valors per les dos rangs i observerm els histogrames dels 50 valors millors per les dues distribucions de resultats per veure si ens han aparegut valors  més bons restringit el rang. 
+
+```{r range comparation}
+median(head(values$tcr, 10))
+median(head(valueslimited$tcr, 10))
+```
+
+Tenint en compte que les dades limitades son de 500 elements i les dades que tenen el rang més ampli son de 1500 i veient com es mantenen els valors més alts mirem de concretar més els resultats i si es pot ajustar més el rang dels valors generats per phi i k mitjançant els gràfics següents : 
+
+```{r Agrouping data into a data frame}
+scatter3D(resultsP1723K005$PHI, resultsP1723K005$K, tcrl, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+scatter3D(resultsP1723K005$PHI, resultsP1723K005$K, tcrl, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+```
+
+## Recol·lecció dels millors valors 
+
+Per ara sabem que ajustant el rang una mostra de 500 valors es comporta de manera similar que una mostra de 1500 valors ambdós generats aleatòriament tant per phi com per k, aixó ens fa pensar que aquest ajustament s'està comportant millor que el rang més ampli i que en part pot ser que haguem trobat indicis d'un màxim local de la relació de les dues variables. 
+
+Per seguir recollirem els millors valors de les dues execucions anteriors i mirarem de centrar-los en un sol dataset per treballar-lo. Considerarem que els millors valors per nosaltres son a partir del tcr 25. 
+
+```{r Best values}
+bestvals <- rbind(values[values$tcr > 25, ], valueslimited[valueslimited$tcr > 25, ])
+bestvals <- bestvals[order(-bestvals$tcr), ]
+```
+
+Ara presentem l'histograma de les aparicions per phi i per k, intentant cercar encara aquest màxim local que creiem que existeix en aquesta franja. 
+
+```{r hist phi and k}
+hist(bestvals$k)
+hist(bestvals$phi)
+```
+
+Veient els resultats obtinguts i observant les aparicions i els valors de phi i k sobre el dataset bestvals s'ha decidit llençar una 3a tanda focalitzant els rangs per k i phi als valors d'entre [0.20,0.30] per k i de [1.8,2.8] per phi. 
+
+### Focalització del valor de k. 
+
+Carreguem els resultats.
+
+```{r load 3rd Iteration}
+resultsP1828K0203 = read.csv("/Users/marcsanchez/projects/spamizer/analisys/20000m-500n-phi-18-28-k-020-030.csv")
+```
+
+Realitzem el mateix procediment que amb els valors anteriors. Cerquem el TCR i recollim els millors valors dins del dataframe de bestvalues. 
+
+```{r 3rd Iteration}
+# Generem el tcr per els nous valors.
+# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
+base3 <- resultsP1828K0203$NSPAM / (50 * resultsP1828K0203$NHAM + resultsP1828K0203$NSPAM)
+# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001 -> per que no sigui 0
+werr3 <- (50 * resultsP1828K0203$FP + resultsP1828K0203$FN) / (50 * resultsP1828K0203$NHAM + resultsP1828K0203$NSPAM) + 0.000001
+# TCR : BASE / WERR
+tcr3 <- base3/werr3
+
+# Observem la mitjana dels nous valors
+median(tcr3)
+
+valuesfocalk <- data.frame(resultsP1828K0203$PHI, resultsP1828K0203$K, tcr3)
+names(valuesfocalk) <- c("phi", "k", "tcr")
+
+# Ordenem els valors
+valuesfocalk <- valuesfocalk[order(-valuesfocalk$tcr), ]
+head(valuesfocalk,20)
+
+bestvals <- rbind(bestvals, valuesfocalk[valuesfocalk$tcr > 25, ])
+bestvals <- bestvals[order(-bestvals$tcr),]
+
+scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+
+```
+
+
+
+
+#### Exemple de funció K
 
 
 En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
@@ -180,20 +340,20 @@ En el següent gràfic la grandària dels punts estipula quant de gran és l'err
 
 # De moment la millor opció.
 
-#scatter3D(valores$phi, valores$k, valores$trcv, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+#scatter3D(valores$phi, valores$k, valores$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
 
-#d = ggplot(valores,aes(phi, k, fill=trcv))  + ggtitle("Plot of 100 values") + xlab("PHI") + ylab("K") d + geom_point(alpha = 0.3, colour="purple", size = 3)
+#d = ggplot(valores,aes(phi, k, fill=tcr))  + ggtitle("Plot of 100 values") + xlab("PHI") + ylab("K") d + geom_point(alpha = 0.3, colour="purple", size = 3)
 
 #firstValues <- head(valores, 30)
 
 
-#ggplot(data = valores, aes(x = phi, y = k)) + geom_tile(aes(fill = trcv)) 
+#ggplot(data = valores, aes(x = phi, y = k)) + geom_tile(aes(fill = tcr)) 
 
 #grid.arrange(p1,p2,ncol=2)
 #heatmap(data.matrix(valores))
 
 
-#radius <- sqrt(valores$trcv/pi)
+#radius <- sqrt(valores$tcr/pi)
 #symbols(valores$phi, valores$k, circles = radius, inches = 0.1, fg = "white", bg = "red", main = "Sized by NumVar3", alpha = 0.1)
 
 #plot(valores$tcr~sort(valores$k), type="l")
