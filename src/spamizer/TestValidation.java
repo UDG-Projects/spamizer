@@ -76,7 +76,7 @@ public class TestValidation {
             System.out.println("Prova Validator ");
             Validator validator = new Validator(new NaiveBayes());
             List<Mail> mails = new ArrayList<>();
-            mails.add(new Mail("TODAY IS SECRET",false));
+            mails.add(new Mail("TODAY IS SECRET",false, new CustomFilter()));
             validator.validate(mails,1,1);
 
             //Thread.sleep(1000);

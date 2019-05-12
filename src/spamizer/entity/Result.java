@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Result {
 
-    private int spamNumber, hamNumber, validateNumber;
+    private double spamNumber, hamNumber, validateNumber;
     private double phi, k;
-    private int tp, fp, tn, fn;
+    private double tp, fp, tn, fn;
     private long totalMillis;
 
 
@@ -29,6 +29,9 @@ public class Result {
             exceptionsResult+=e.getStackTrace();
             exceptionsResult+="\n\n";
         }
+
+        double base = (spamNumber / (50 * hamNumber + spamNumber));
+        double error = ((50 * fp + fn) / (50 * hamNumber + spamNumber) + 0.000001);
         return "---------------------------------------------------------" + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Execution number  : " + count + "\n" +
@@ -37,7 +40,8 @@ public class Result {
                 " Unknwon number    : " + validateNumber + "\n" +
                 " PHI               : " + phi + "\n" +
                 " K                 : " + k + "\n" +
-                " Accuracy          : " + (validateNumber - fp - fn) / (double)validateNumber + "\n" +
+                " Accuracy          : " + (validateNumber - fp - fn) / validateNumber + "\n" +
+                " Total Cost Ratio  : " + base / error  + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
                 " Missatge HAM classificat com a SPAM : " + fp + "\n" +
@@ -48,24 +52,13 @@ public class Result {
                 exceptionsResult.toString();
     }
 
-    public int getSpamNumber() {
-        return spamNumber;
-    }
 
     public void setSpamNumber(int spamNumber) {
         this.spamNumber = spamNumber;
     }
 
-    public int getHamNumber() {
-        return hamNumber;
-    }
-
     public void setHamNumber(int hamNumber) {
         this.hamNumber = hamNumber;
-    }
-
-    public int getValidateNumber() {
-        return validateNumber;
     }
 
     public void setValidateNumber(int validateNumber) {
@@ -88,32 +81,25 @@ public class Result {
         this.k = k;
     }
 
-    public int getTp() {
-        return tp;
-    }
-
     public void setTp(int tp) {
         this.tp = tp;
     }
 
-    public int getFp() {
-        return fp;
+    public void setSpamNumber(double spamNumber) {
+        this.spamNumber = spamNumber;
+    }
+
+    public void setHamNumber(double hamNumber) {
+        this.hamNumber = hamNumber;
     }
 
     public void setFp(int fp) {
         this.fp = fp;
     }
 
-    public int getTn() {
-        return tn;
-    }
 
     public void setTn(int tn) {
         this.tn = tn;
-    }
-
-    public int getFn() {
-        return fn;
     }
 
     public void setFn(int fn) {
@@ -131,5 +117,13 @@ public class Result {
 
     public void addException(Exception e){
         exceptions.add(e);
+    }
+
+    public double getHamNumber() {
+        return hamNumber;
+    }
+
+    public double getSpamNumber() {
+        return spamNumber;
     }
 }

@@ -14,12 +14,12 @@ public class Mail {
     private Filter filter;
     private Boolean isSpam;
 
-    public Mail(String body, boolean isSpam) { //,String subject,){
+    /*public Mail(String body, boolean isSpam) { //,String subject,){
        // this.subject = subject;
         this.body = body;
         this.isSpam = isSpam;
         this.filter = StanfordCoreNLPFilter.getInstance();
-    }
+    }*/
 
     public Mail(String body, boolean isSpam, Filter filter) { //,String subject,){){
         //this.subject = subject;

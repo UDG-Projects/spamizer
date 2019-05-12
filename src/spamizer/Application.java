@@ -34,6 +34,12 @@ import static spamizer.entity.Database.Table.HAM;
  */
 public class Application  {
 
+
+    /**
+     * -n 10 -c "/Users/marcsanchez/Desktop/emailsENRON/SPAM" "/Users/marcsanchez/Desktop/emailsENRON/HAM"
+     * -s -t "/Users/marcsanchez/Desktop/emailsENRON/SPAM"
+     */
+
     public static int MIN_PERC = 5;
     public static int MAX_PERC = 15;
 
@@ -105,8 +111,7 @@ public class Application  {
 
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                //new CustomFilter());
-                                StanfordCoreNLPFilter.getInstance());
+                                filter);
                         System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
 
                         System.out.println(MemDB.getInstance().select(Database.Table.HAM));
@@ -117,7 +122,7 @@ public class Application  {
 
                         trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                                 new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                StanfordCoreNLPFilter.getInstance());
+                                filter);
                         System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                     }
                 }
@@ -126,13 +131,13 @@ public class Application  {
                     String directoryHam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[1];
                     trainer.train(Database.Table.SPAM,
                             new DirectoryMailReader(directorySpam),
-                            StanfordCoreNLPFilter.getInstance());
+                            filter);
 
                     System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
 
                     trainer.train(HAM,
                             new DirectoryMailReader(directoryHam),
-                            StanfordCoreNLPFilter.getInstance());
+                            filter);
 
                     System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                 }
@@ -221,12 +226,13 @@ public class Application  {
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
                 // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
-                //phi = ThreadLocalRandom.current().nextDouble(1.7,2.3);
-                phi = ThreadLocalRandom.current().nextDouble(1.8,2.8);
+                phi = ThreadLocalRandom.current().nextDouble(1,6);
+                //phi = ThreadLocalRandom.current().nextDouble(2.6,2.8);
                 // EL pes que li donem a una paraula que no existeix.
-                k = ThreadLocalRandom.current().nextDouble(0.20, 0.30);
-                //k = ThreadLocalRandom.current().nextDouble(0.00000001, 0.5);
-
+                //k = ThreadLocalRandom.current().nextDouble(0.20, 0.30);
+                k = ThreadLocalRandom.current().nextDouble(0.00000001, 4);
+                //k = 0.236267;
+                //phi = 1.838786;
 
 
                 System.out.println("Kfold Started ... ");
@@ -243,9 +249,9 @@ public class Application  {
 
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.train(HAM, selector.getHam(), filter);//StanfordCoreNLPFilter.getInstance());
+                validator.train(HAM, selector.getHam(), filter);
                 System.out.println("Trained HAM in " + Application.millisToString(validator.getExecutionMillis()));
-                validator.train(Database.Table.SPAM, selector.getSpam(), filter);//StanfordCoreNLPFilter.getInstance());
+                validator.train(Database.Table.SPAM, selector.getSpam(), filter);
                 System.out.println("Trained SPAM in " + Application.millisToString(validator.getExecutionMillis()));
                 validator.validate(selector.getUnknown(), k, phi);
                 System.out.println("Validation done in " + Application.millisToString(validator.getExecutionMillis()));
