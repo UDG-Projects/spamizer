@@ -4,11 +4,12 @@ import spamizer.entity.Result;
 import spamizer.exceptions.BadPercentageException;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
+import spamizer.interfaces.Selector;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class KFoldCrossValidationSelection {
+public class KFoldCrossValidationSelection implements Selector {
 
     private Set<Mail> unknown;
     private int percentage;
@@ -43,6 +44,7 @@ public class KFoldCrossValidationSelection {
      * Selecciona aleatòriament els correus de la font de dades spam
      * @return Una collecció amb els correus considerats spam
      */
+    @Override
     public Collection<Mail> getSpam(){
         Collection<Mail> mails =getFilteredByPercentage(spamReader.read(true, filter));
         this.result.setSpamNumber(mails.size());
@@ -53,6 +55,7 @@ public class KFoldCrossValidationSelection {
      * Selecciona aleatòriament els correus de la font de dades ham
      * @return Una collecció amb els correus considerats ham
      */
+    @Override
     public Collection<Mail> getHam(){
         Collection<Mail> mails = getFilteredByPercentage(hamReader.read(false, filter));
         this.result.setHamNumber(mails.size());
@@ -64,6 +67,7 @@ public class KFoldCrossValidationSelection {
      * POST : LLista de correus que no s'han filtrat.
      * @return un llistat aleatori de correus que no han sigut filtrats.
      */
+    @Override
     public Collection<Mail> getUnknown(){
         // En cas que no s'hagi accedit a cap dels dos mètodes forcem per que hi accedeixi.
         if(unknown.size() == 0){

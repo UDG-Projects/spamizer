@@ -22,6 +22,7 @@ import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
+import spamizer.interfaces.Selector;
 
 import javax.xml.crypto.Data;
 import java.sql.SQLException;
@@ -226,25 +227,25 @@ public class Application  {
                 // TODO : S'ha de fer el generador de phi i k amb high climbing.
 
                 // El nombre de vegades el pes que ha de tenir un correu ham per que sigui considerat spam
-                phi = ThreadLocalRandom.current().nextDouble(1,6);
+                phi = ThreadLocalRandom.current().nextDouble(1.5,3);
                 //phi = ThreadLocalRandom.current().nextDouble(2.6,2.8);
                 // EL pes que li donem a una paraula que no existeix.
                 //k = ThreadLocalRandom.current().nextDouble(0.20, 0.30);
-                k = ThreadLocalRandom.current().nextDouble(0.00000001, 4);
+                k = ThreadLocalRandom.current().nextDouble(0.2, 0.6);
                 //k = 0.236267;
                 //phi = 1.838786;
 
 
                 System.out.println("Kfold Started ... ");
-                //KFoldCrossValidationSelection selection = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result);
-                KFoldCrossValidationSelection selector = new KFoldCrossValidationSelection(
+                Selector selector = new FixedSelector(spamReader, hamReader, 10, result, filter);
+                /*Selector selector = new KFoldCrossValidationSelection(
                         spamReader,
                         hamReader,
                         percentage,
                         random,
                         result,
                         filter
-                );
+                );*/
                 System.out.println("Kfold finished ... ");
 
                 Validator validator = new Validator(new NaiveBayes(), result);

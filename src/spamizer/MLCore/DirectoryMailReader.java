@@ -31,6 +31,7 @@ public class DirectoryMailReader implements Reader {
     public Collection<Mail> read(boolean isSpam, Filter filter)
     {
         List<Mail> mails = new ArrayList<Mail>();
+
         File folder = new File(folderPath);
         //File[] listOfFiles = folder.listFiles();
 
@@ -42,7 +43,7 @@ public class DirectoryMailReader implements Reader {
         //for (int i = 0; i < listOfFiles.length; i++) {
         while(it.hasNext()){
             File f = it.next();
-            if (f.isFile()) {
+            if (f.isFile() && !f.getName().equals(".DS_Store")) {
                 File file = null;
                 FileReader fileReader = null;
                 BufferedReader br = null;
@@ -51,15 +52,8 @@ public class DirectoryMailReader implements Reader {
 
                     String data = new String(Files.readAllBytes(Paths.get(folderPath + file)),  "US-ASCII");
                     String lowerData = toLowerCase(data).replaceAll("cc|to|from", "");
-                    Mail m = new Mail(lowerData, isSpam, new CustomFilter());
+                    Mail m = new Mail(f.getName(), lowerData, isSpam, new CustomFilter());
                     mails.add(m);
-                    /*String subject = "";
-                    if(lowerData.indexOf("subject:")!=-1){
-                        subject = (lowerData.substring(lowerData.indexOf("subject:"), lowerData.indexOf("\n"))).replace("subject:","");
-                        lowerData=lowerData.replace("subject:","");
-                    }
-                    String body = lowerData.replace(subject,"");*///.replaceAll("([^A-Za-z0-9_@-])", " ");;
-
                 }
                 catch(Exception e){
                     e.printStackTrace();

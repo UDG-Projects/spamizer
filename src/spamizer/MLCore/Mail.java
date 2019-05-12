@@ -7,22 +7,17 @@ import java.util.HashMap;
 /**
  * El filtre per defecte que assignem a la classe Mail, és l'StandfordCoreNLPFilter
  */
-public class Mail {
+public class Mail implements Comparable<Mail> {
 
     //private String subject;
+    private String fileName;
     private String body;
     private Filter filter;
     private Boolean isSpam;
 
-    /*public Mail(String body, boolean isSpam) { //,String subject,){
-       // this.subject = subject;
-        this.body = body;
-        this.isSpam = isSpam;
-        this.filter = StanfordCoreNLPFilter.getInstance();
-    }*/
 
-    public Mail(String body, boolean isSpam, Filter filter) { //,String subject,){){
-        //this.subject = subject;
+    public Mail(String fileName, String body, boolean isSpam, Filter filter) { //,String subject,){){
+        this.fileName = fileName;
         this.body = body;
         this.isSpam = isSpam;
         this.filter = filter;
@@ -64,5 +59,14 @@ public class Mail {
 
     public Boolean getSpam() {
         return isSpam;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    @Override
+    public int compareTo(Mail o) {
+        return this.fileName.compareTo(o.fileName);
     }
 }

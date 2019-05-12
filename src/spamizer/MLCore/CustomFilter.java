@@ -17,7 +17,7 @@ public class CustomFilter implements Filter {
         cleaned = cleaned.replaceAll("from[ |:]?[ :]?", "");
         cleaned = cleaned.replaceAll("to[ |:]?[ :]?", "");
         cleaned = cleaned.replaceAll("re[ |:]?[ :]?", "");
-        cleaned = cleaned.replaceAll("[\\n\\r,\\.;\\/-=_/]"," ");
+        cleaned = cleaned.replaceAll("[\\n\\r,;]"," ");
         cleaned = cleaned.toLowerCase();
         String[] parts = cleaned.split(" ");
         HashMap<String, Integer> mails = new HashMap<>();
