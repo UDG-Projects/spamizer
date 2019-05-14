@@ -8,6 +8,7 @@ import spamizer.entity.Database;
 import spamizer.entity.MemDB;
 import spamizer.entity.LocalDB;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class TestValidation {
             validator.validate(mails,1,1);
 
             //Thread.sleep(1000);
-            LocalDB.getInstance().closeDB();
+            //LocalDB.getInstance().closeDB();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,6 +91,8 @@ public class TestValidation {
             System.out.println("Happy coding!");
             e.printStackTrace();
 
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -12,6 +12,7 @@ import spamizer.entity.MemDB;
 import spamizer.entity.Result;
 import spamizer.exceptions.BadArgumentsException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -88,7 +89,7 @@ public class Application  {
 
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
                 // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
-                System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
+                /*System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
                 LocalDB localDb = LocalDB.getInstance();
                 MemDB memDb = MemDB.getInstance();
 
@@ -99,7 +100,7 @@ public class Application  {
                 memDb.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
 
                 System.out.println("## TODO : Carregada la informació en memòria : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
-
+                */
             }
 
 
@@ -158,7 +159,7 @@ public class Application  {
 
             // Persistim els canvis a la base de dades local sí o sí
             if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
-                System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+                /*System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
 
                 MemDB memory = MemDB.getInstance();
                 LocalDB file = LocalDB.getInstance();
@@ -173,6 +174,8 @@ public class Application  {
 
                 Pair<Integer, Integer> messagesCounters = memory.selectMessages();
                 file.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
+
+                */
             }
         }
 
@@ -278,20 +281,22 @@ public class Application  {
         try {
 
             // TODO: Ens assegurem que la bd no està ocupada abans de començar l'execució.
-            LocalDB.getInstance().select(HAM);
+            HashMap<String, Integer> values = LocalDB.getInstance().select(Database.Table.HAM);
+            MemDB.getInstance().insertOrUpdate(Database.Table.HAM,values);
+            LocalDB.getInstance().insertOrUpdate(Database.Table.SPAM,MemDB.getInstance().select(Database.Table.HAM));
 
             Instant start = Instant.now();
 
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
-            start(options);
+            //start(options);
 
-            LocalDB.getInstance().closeDB();
+            //LocalDB.getInstance().closeDB();
 
             Instant end = Instant.now();
             System.out.println("Final de l'execució, total de temps transcorregut : " + ChronoUnit.MILLIS.between(start, end));
 
-        } catch (CustomException e) {
+        } /*catch (CustomException e) {
             System.err.println(e.getCustomMessage());
             System.err.println("------------------------------------------------------------------------------");
             System.err.println(e.getMessage());
@@ -299,7 +304,7 @@ public class Application  {
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("spamizer", applicationOptions.getOptions());
-        } catch (ParseException e) {
+        }*/ catch (ParseException e) {
             System.err.println("Something went wrong parsing arguments.");
             System.err.println("------------------------------------------------------------------------------");
             System.err.println(e.getMessage());
@@ -315,6 +320,11 @@ public class Application  {
         } catch (ClassNotFoundException e) {
             System.err.println("------------------------------------------------------------------------------");
             System.err.println("HA PETAT L'SQL!!");
+            System.err.println("------------------------------------------------------------------------------");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("------------------------------------------------------------------------------");
+            System.err.println("NO ES POT LLEGIR O ESCRIURE AL FITXER!! ");
             System.err.println("------------------------------------------------------------------------------");
             e.printStackTrace();
         }

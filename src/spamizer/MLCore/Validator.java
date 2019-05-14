@@ -76,7 +76,7 @@ public class Validator extends Trainer {
         result.setFp(fp);
         result.setTn(tn);
         result.setFn(fn);
-        LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn,totalHam,totalSpam);
+        //LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn,totalHam,totalSpam);
     }
 
     private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam) throws SQLException {
