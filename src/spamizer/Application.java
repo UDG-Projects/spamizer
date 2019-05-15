@@ -15,7 +15,7 @@ import spamizer.exceptions.BadArgumentsException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +27,6 @@ import spamizer.interfaces.Selector;
 
 import javax.xml.crypto.Data;
 import java.sql.SQLException;
-import java.util.Random;
 
 import static spamizer.entity.Database.Table.HAM;
 
@@ -81,10 +80,10 @@ public class Application  {
                     options.hasOption(ApplicationOptions.OPTION_SPAM))
                 throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
 
-            if ((options.hasOption(ApplicationOptions.OPTION_VALIDATION) &&
+            /*if ((options.hasOption(ApplicationOptions.OPTION_VALIDATION) &&
                     !options.hasOption(ApplicationOptions.OPTION_HAM) &&
                     !options.hasOption(ApplicationOptions.OPTION_SPAM)))
-                throw new BadArgumentsException("The Validation -v option must include [-h | -s] parameters.");
+                throw new BadArgumentsException("The Validation -v option must include [-h | -s] parameters.");*/
 
 
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
@@ -148,11 +147,24 @@ public class Application  {
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
 
-                String validateDir = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
+                String validateDirSpam = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
+                String validateDirHam = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[1];
+
+
+
                 System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
                 Validator validator = new Validator(new NaiveBayes(), result);
 
-                validator.validate(new DirectoryMailReader(validateDir).read(options.hasOption(ApplicationOptions.OPTION_SPAM), filter),1,1);
+                Collection<Mail> ham = new DirectoryMailReader(validateDirHam).read(false, filter);
+                Collection<Mail> spam = new DirectoryMailReader(validateDirSpam).read(true, filter);
+
+                Collection<Mail> toValidate = new ArrayList<>(ham);
+                ((ArrayList<Mail>) toValidate).addAll(spam);
+
+                result.setValidateNumber(toValidate.size());
+
+                validator.validate(toValidate,0.23626700,1.838786);
+                System.out.println(result);
                 System.out.println("Validation finished in " + Application.millisToString(validator.getExecutionMillis()));
 
             }

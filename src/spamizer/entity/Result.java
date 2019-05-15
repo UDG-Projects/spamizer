@@ -30,8 +30,8 @@ public class Result {
             exceptionsResult+="\n\n";
         }
 
-        double base = (spamNumber / (50 * hamNumber + spamNumber));
-        double error = ((50 * fp + fn) / (50 * hamNumber + spamNumber) + 0.000001);
+        //double base = (spamNumber / (50 * hamNumber + spamNumber));
+        //double error = ((50 * fp + fn) / (50 * hamNumber + spamNumber) + 0.000001);
         return "---------------------------------------------------------" + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Execution number  : " + count + "\n" +
@@ -41,7 +41,7 @@ public class Result {
                 " PHI               : " + phi + "\n" +
                 " K                 : " + k + "\n" +
                 " Accuracy          : " + (validateNumber - fp - fn) / validateNumber + "\n" +
-                " Total Cost Ratio  : " + base / error  + "\n" +
+                " Total Cost Ratio  : " + spamNumber / ((50 * fp) + fn + 0.000001) +  //base / error  + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
                 " Missatge HAM classificat com a SPAM : " + fp + "\n" +
