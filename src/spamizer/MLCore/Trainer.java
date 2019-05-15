@@ -1,8 +1,8 @@
 package spamizer.MLCore;
 
-import spamizer.entity.Database;
 import spamizer.entity.Mail;
 import spamizer.entity.MemDB;
+import spamizer.entity.TableEnumeration;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
@@ -18,17 +18,29 @@ public class Trainer {
     protected Instant start;
     protected Instant end;
 
-    public Trainer() throws SQLException, ClassNotFoundException {
+
+    public Trainer() {
         memoryDataBase = MemDB.getInstance();
     }
 
-    public void train (Database.Table table, Reader reader, Filter filter)  {
-
-        Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table, filter);
-        train(table, mailsFiltrats,filter);
+    /**
+     * Creates an instant of trainer object
+     * @param table Defines class for mail training [HAM or SPAM]
+     * @param reader Object used to read from source
+     * @param filter Text Cleaner to delete characters not used to spam filter
+     */
+    public void train (TableEnumeration.Table table, Reader reader, Filter filter)  {
+        Collection<Mail> filteredMails = reader.read(TableEnumeration.Table.SPAM == table, filter);
+        train(table, filteredMails,filter);
     }
 
-    public void train(Database.Table table, Collection<Mail> mails, Filter filter) {
+    /**
+     * Trainer process to insert all mails into memory database
+     * @param table Defines class for mail training [HAM or SPAM]
+     * @param mails To be inserted
+     * @param filter To clean mails
+     */
+    public void train(TableEnumeration.Table table, Collection<Mail> mails, Filter filter) {
         start = Instant.now();
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 0;
@@ -42,11 +54,11 @@ public class Trainer {
                 mapinsertMailFiltered.putAll(m.getBodyMail());
             }
             if(counter % 500 == 0 && counter > 0) {
-                System.out.println("Readed and lemmatized " + counter + " messages.");
+                System.out.println("Readed and filtered " + counter + " messages.");
             }
             counter++;
         }
-        if(table.equals(Database.Table.HAM))
+        if(table.equals(TableEnumeration.Table.HAM))
             memoryDataBase.updateCounters(counter,0);
         else {
             memoryDataBase.updateCounters(0,counter);

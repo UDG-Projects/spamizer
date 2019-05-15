@@ -40,7 +40,7 @@ public class Result {
                 " Unknwon number    : " + validateNumber + "\n" +
                 " PHI               : " + phi + "\n" +
                 " K                 : " + k + "\n" +
-                " Accuracy          : " + (validateNumber - fp - fn) / validateNumber + "\n" +
+                " Accuracy          : " + ((validateNumber - fp - fn) / validateNumber) * 100 + " %\n" +
                 " Total Cost Ratio  : " + spamNumber / ((50 * fp) + fn + 0.000001) + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +

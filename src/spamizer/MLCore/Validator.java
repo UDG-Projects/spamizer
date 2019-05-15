@@ -1,12 +1,11 @@
 package spamizer.MLCore;
 
-import spamizer.entity.Database.Table;
+import spamizer.entity.TableEnumeration.Table;
 
 import spamizer.entity.Mail;
 import spamizer.entity.Result;
 import spamizer.interfaces.Method;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,17 +15,28 @@ public class Validator extends Trainer {
     private Method classifcationMethod;
     private Result result;
 
-    public Validator(Method classifcationMethod, Result result) throws SQLException, ClassNotFoundException {
+    /**
+     * Creates an instance of Trainer and validator object
+     * @param classifcationMethod Method used to eval if mails are spam or ham
+     * @param result Global application results
+     */
+    public Validator(Method classifcationMethod, Result result) {
         this(classifcationMethod);
         this.result = result;
     }
 
-    public Validator(Method classifcationMethod) throws SQLException, ClassNotFoundException {
+    public Validator(Method classifcationMethod) {
         super();
         this.classifcationMethod = classifcationMethod;
     }
 
-    public void validate(Collection<Mail> testMail, double k, double phi) throws SQLException, ClassNotFoundException {
+    /**
+     * Validates testMail content with k and phi constants, updates the result variable.
+     * @param testMail Collection of mails to validate
+     * @param k Constant
+     * @param phi Constant
+     */
+    public void validate(Collection<Mail> testMail, double k, double phi) {
         start = Instant.now();
         int tp=0, tn=0, fp=0, fn=0;
         int totalHam=0;
@@ -60,10 +70,6 @@ public class Validator extends Trainer {
                         fn++; //Missatge SPAM classificat com a HAM
                 }
             }
-            catch (SQLException sqlEx){
-                System.err.println("No s'ha pogut fer el calcul de SPAM --------------------");
-                sqlEx.printStackTrace();
-            }
             catch (Exception e){
                 e.printStackTrace();
             }
@@ -78,7 +84,7 @@ public class Validator extends Trainer {
         result.setFn(fn);
     }
 
-    private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam) throws SQLException {
+    private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam)  {
         Table table = Table.HAM;
         if (isSpam)
             table= Table.SPAM;

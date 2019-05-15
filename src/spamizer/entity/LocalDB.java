@@ -88,14 +88,14 @@ public class LocalDB { //extends Database {
     }
 
 
-    public void delete(Database.Table table) {
-        if(table.equals(Database.Table.HAM)){
+    public void delete(TableEnumeration.Table table) {
+        if(table.equals(TableEnumeration.Table.HAM)){
             ham_table.delete();
         }
-        else if(table.equals(Database.Table.SPAM)) {
+        else if(table.equals(TableEnumeration.Table.SPAM)) {
             spam_table.delete();
         }
-        else if(table.equals(Database.Table.MESSAGE)){
+        else if(table.equals(TableEnumeration.Table.MESSAGE)){
             message.delete();
         }
         else{
@@ -104,9 +104,9 @@ public class LocalDB { //extends Database {
     }
 
 
-    public HashMap<String, Integer> select(Database.Table table) throws IOException {
+    public HashMap<String, Integer> select(TableEnumeration.Table table) throws IOException {
         List<String> lines  = null;
-        if(table.equals(Database.Table.HAM)){
+        if(table.equals(TableEnumeration.Table.HAM)){
             if(ham_table.exists())
                 lines = Files.readAllLines(Paths.get(ham_table.getPath()));
             else
@@ -125,9 +125,11 @@ public class LocalDB { //extends Database {
         HashMap<String, Integer> times = new HashMap<>();
         for(String line : lines){
             String[] parts = line.split(",");
-            String first = parts[0];
-            int second = Integer.valueOf(parts[1]);
-            times.put(first, second);
+            if(parts.length == 2) {
+                String first = parts[0];
+                int second = Integer.valueOf(parts[1]);
+                times.put(first, second);
+            }
         }
         return times;
     }
@@ -158,9 +160,9 @@ public class LocalDB { //extends Database {
         append(insert, message);
     }
 
-    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) throws IOException {
+    public void insertOrUpdate(TableEnumeration.Table table, HashMap<String, Integer> appearances) throws IOException {
 
-        if(table.equals(Database.Table.HAM)){
+        if(table.equals(TableEnumeration.Table.HAM)){
             createIfNotExists(ham_table);
         }
         else {
@@ -182,7 +184,7 @@ public class LocalDB { //extends Database {
             insert += element.getKey() + "," + element.getValue() + "\n";
         }
 
-        if(table.equals(Database.Table.HAM)){
+        if(table.equals(TableEnumeration.Table.HAM)){
             append(insert, ham_table);
         }
         else{

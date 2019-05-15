@@ -36,7 +36,7 @@ public class MemDB {
 
     private MemDB(){}
 
-    public static MemDB getInstance() throws SQLException, ClassNotFoundException {
+    public static MemDB getInstance() {
         if(memDB == null) {
             memDB = new MemDB();
             memDB.wordsHam = new HashMap<>();
@@ -52,9 +52,9 @@ public class MemDB {
         this.memDB=null;
     }
 
-    public void insertOrUpdate(Database.Table table, HashMap<String, Integer> appearances) {
+    public void insertOrUpdate(TableEnumeration.Table table, HashMap<String, Integer> appearances) {
         vocabulary.addAll(appearances.keySet());
-        if(table.equals(Database.Table.HAM)){
+        if(table.equals(TableEnumeration.Table.HAM)){
             appearances.forEach(
                     (key, value) -> wordsHam.merge( key, value, (v1, v2) -> v1+v2));
         }
@@ -84,9 +84,9 @@ public class MemDB {
 
     }
 
-    public int getCountAlphabet(Database.Table table) {
+    public int getCountAlphabet(TableEnumeration.Table table) {
         int count = vocabulary.size();
-        if(table.equals(Database.Table.HAM)){
+        if(table.equals(TableEnumeration.Table.HAM)){
             for(Map.Entry<String, Integer> word : wordsHam.entrySet()){
                 count += word.getValue();
             }
@@ -100,11 +100,11 @@ public class MemDB {
     }
 
 
-    public double calculateProbability(List<String> words, Database.Table table, double k, int totalWords) throws SQLException {
+    public double calculateProbability(List<String> words, TableEnumeration.Table table, double k, int totalWords){
         double counter = 0;
         for(String s : words){
             int times = 0;
-            if(table.equals(Database.Table.HAM)){
+            if(table.equals(TableEnumeration.Table.HAM)){
                 if(wordsHam.containsKey(s)){
                     times = wordsHam.get(s);
                 }
@@ -119,8 +119,8 @@ public class MemDB {
         return counter;
     }
 
-    public HashMap<String, Integer> select(Database.Table table) throws SQLException {
-        if(Database.Table.SPAM.equals(table))
+    public HashMap<String, Integer> select(TableEnumeration.Table table) {
+        if(TableEnumeration.Table.SPAM.equals(table))
             return wordsSpam;
         else
             return wordsHam;
