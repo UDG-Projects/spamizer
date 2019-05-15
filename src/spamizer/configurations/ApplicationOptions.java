@@ -36,6 +36,7 @@ public class ApplicationOptions {
         Option validation = new Option(OPTION_VALIDATION, true, "Directory where validation mails in txt are stored. " +
                 "This procedure will validate mail inside validationDir with database loaded by default or stored inside memory."+
                                                                         " [-h | -s] -v <validationDir> . ");
+        validation.setArgs(Option.UNLIMITED_VALUES);
         options.addOption(validation);
         options.addOption(new Option(OPTION_PERSIST,  "Set the persistance of the memory database to a local database"));
 
