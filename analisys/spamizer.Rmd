@@ -56,33 +56,6 @@ loadFormattedData <- function(x){
 
 ```
 
-## Treballem amb la variable K 
-
-Mesurem la mitjana que en aquest cas hauria de caure sobre entre 0 i 3 ja que els valors aleatòris estan generats a partir d'aquest màxim i mínim : 
-
-```{r Variable k}
-
-
-#median(results$K)
-```
-
-A partir d'aquí mirem la desviació de la variable i la variança. 
-
-```{r K var and s^2}
-#var(results$K)
-#sd(results$K)
-```
-
-
-
-# Vull mirar si les variables phi i k estan correlacionades. 
-
-```{r Correlation phi & k}
-
-
-
-```
-
 // TODO : Posar el projecte al github.
 
 
