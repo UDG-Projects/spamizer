@@ -1,5 +1,6 @@
-package spamizer.MLCore;
+package spamizer.selectors;
 
+import spamizer.entity.Mail;
 import spamizer.entity.Result;
 import spamizer.exceptions.BadPercentageException;
 import spamizer.interfaces.Filter;
@@ -7,7 +8,6 @@ import spamizer.interfaces.Reader;
 import spamizer.interfaces.Selector;
 
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class KFoldCrossValidationSelection implements Selector {
 

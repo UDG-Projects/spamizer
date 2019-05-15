@@ -1,6 +1,6 @@
 package spamizer.interfaces;
 
-import spamizer.MLCore.Mail;
+import spamizer.entity.Mail;
 
 import java.util.Collection;
 

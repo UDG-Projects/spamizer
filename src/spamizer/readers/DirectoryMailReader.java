@@ -1,5 +1,7 @@
-package spamizer.MLCore;
+package spamizer.readers;
 
+import spamizer.entity.Mail;
+import spamizer.filters.CustomFilter;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
@@ -10,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static jdk.nashorn.internal.objects.NativeString.toLowerCase;
 
 public class DirectoryMailReader implements Reader {

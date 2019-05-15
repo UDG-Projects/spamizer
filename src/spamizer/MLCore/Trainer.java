@@ -1,11 +1,11 @@
 package spamizer.MLCore;
 
 import spamizer.entity.Database;
+import spamizer.entity.Mail;
 import spamizer.entity.MemDB;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,13 +22,13 @@ public class Trainer {
         memoryDataBase = MemDB.getInstance();
     }
 
-    public void train (Database.Table table, Reader reader, Filter filter) throws SQLException {
+    public void train (Database.Table table, Reader reader, Filter filter)  {
 
         Collection<Mail> mailsFiltrats = reader.read(Database.Table.SPAM == table, filter);
         train(table, mailsFiltrats,filter);
     }
 
-    public void train(Database.Table table, Collection<Mail> mails, Filter filter) throws SQLException {
+    public void train(Database.Table table, Collection<Mail> mails, Filter filter) {
         start = Instant.now();
         HashMap<String,Integer> mapinsertMailFiltered = new HashMap<>();
         int counter = 0;

@@ -1,4 +1,4 @@
-package spamizer.MLCore;
+package spamizer.entity;
 
 import spamizer.interfaces.Filter;
 

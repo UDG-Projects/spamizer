@@ -1,4 +1,4 @@
-package spamizer.MLCore;
+package spamizer.filters;
 
 
 import edu.stanford.nlp.ling.CoreAnnotations;

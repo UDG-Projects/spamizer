@@ -41,7 +41,7 @@ public class Result {
                 " PHI               : " + phi + "\n" +
                 " K                 : " + k + "\n" +
                 " Accuracy          : " + (validateNumber - fp - fn) / validateNumber + "\n" +
-                " Total Cost Ratio  : " + spamNumber / ((50 * fp) + fn + 0.000001) +  //base / error  + "\n" +
+                " Total Cost Ratio  : " + spamNumber / ((50 * fp) + fn + 0.000001) + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
                 " Missatge HAM classificat com a SPAM : " + fp + "\n" +
@@ -114,6 +114,21 @@ public class Result {
         this.totalMillis = totalMillis;
     }
 
+    public double getTp() {
+        return tp;
+    }
+
+    public double getFp() {
+        return fp;
+    }
+
+    public double getTn() {
+        return tn;
+    }
+
+    public double getFn() {
+        return fn;
+    }
 
     public void addException(Exception e){
         exceptions.add(e);

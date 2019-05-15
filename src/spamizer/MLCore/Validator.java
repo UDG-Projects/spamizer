@@ -2,7 +2,7 @@ package spamizer.MLCore;
 
 import spamizer.entity.Database.Table;
 
-import spamizer.entity.LocalDB;
+import spamizer.entity.Mail;
 import spamizer.entity.Result;
 import spamizer.interfaces.Method;
 
@@ -69,14 +69,13 @@ public class Validator extends Trainer {
             }
         }
         end = Instant.now();
-        //Un cop finalitzada la cassificacio inserir resultats
+        //Un cop finalitzada la cassificacio inserir resultats al resultat global.
         result.setPhi(phi);
         result.setK(k);
         result.setTp(tp);
         result.setFp(fp);
         result.setTn(tn);
         result.setFn(fn);
-        //LocalDB.getInstance().insertResult(phi,k,tp,tn,fp,fn,totalHam,totalSpam);
     }
 
     private void insertClassificatedMail(HashMap<String,Integer> words, boolean isSpam) throws SQLException {

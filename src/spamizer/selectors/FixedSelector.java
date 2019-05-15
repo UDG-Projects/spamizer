@@ -1,5 +1,6 @@
-package spamizer.MLCore;
+package spamizer.selectors;
 
+import spamizer.entity.Mail;
 import spamizer.entity.Result;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;

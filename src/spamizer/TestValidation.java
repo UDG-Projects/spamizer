@@ -1,7 +1,7 @@
 package spamizer;
 
-import spamizer.MLCore.CustomFilter;
-import spamizer.MLCore.Mail;
+import spamizer.filters.CustomFilter;
+import spamizer.entity.Mail;
 import spamizer.MLCore.NaiveBayes;
 import spamizer.MLCore.Validator;
 import spamizer.entity.Database;

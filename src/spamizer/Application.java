@@ -6,10 +6,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 import spamizer.MLCore.*;
 import spamizer.configurations.ApplicationOptions;
-import spamizer.entity.Database;
-import spamizer.entity.LocalDB;
-import spamizer.entity.MemDB;
-import spamizer.entity.Result;
+import spamizer.entity.*;
 import spamizer.exceptions.BadArgumentsException;
 
 import java.io.IOException;
@@ -17,15 +14,17 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
+import spamizer.exceptions.NoMessageNumberException;
+import spamizer.filters.CustomFilter;
 import spamizer.interfaces.Filter;
 import spamizer.interfaces.Reader;
 import spamizer.interfaces.Selector;
+import spamizer.readers.DirectoryMailReader;
+import spamizer.selectors.FixedSelector;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 
 import static spamizer.entity.Database.Table.HAM;
@@ -39,6 +38,7 @@ public class Application  {
     /**
      * -n 10 -c "/Users/marcsanchez/Desktop/emailsENRON/SPAM" "/Users/marcsanchez/Desktop/emailsENRON/HAM"
      * -s -t "/Users/marcsanchez/Desktop/emailsENRON/SPAM"
+     * -p -t "/Users/marcsanchez/Desktop/emailsENRON/SPAM" "/Users/marcsanchez/Desktop/emailsENRON/HAM" -v "/Users/marcsanchez/Downloads/emailscampionat/SPAM"  "/Users/marcsanchez/Downloads/emailscampionat/HAM"
      */
 
     public static int MIN_PERC = 5;
@@ -46,7 +46,6 @@ public class Application  {
 
     public static Random random;
     public static Result result;
-
     public static Filter filter;
 
     /**
@@ -58,7 +57,7 @@ public class Application  {
      * 3- Validem si s'afegeix la opció.
      * 4- Persistim la bd en memòria a un fitxer local si s'afegeix la opció.
      */
-    public static void start(CommandLine options) throws BadArgumentsException, SQLException, ClassNotFoundException, BadPercentageException {
+    public static void start(CommandLine options) throws BadArgumentsException, SQLException, ClassNotFoundException, BadPercentageException, IOException, NoMessageNumberException {
 
         // TODO : No està implementat encara la lpògica per el mètode "-c" càlcul de phi i k i el paràmetre -n
         if(options.hasOption(ApplicationOptions.OPTION_COMPUTE)){
@@ -80,114 +79,95 @@ public class Application  {
                     options.hasOption(ApplicationOptions.OPTION_SPAM))
                 throw new BadArgumentsException("To train database from Directory files only one value for ham or spam must be included [-h | -s].");
 
-            /*if ((options.hasOption(ApplicationOptions.OPTION_VALIDATION) &&
-                    !options.hasOption(ApplicationOptions.OPTION_HAM) &&
-                    !options.hasOption(ApplicationOptions.OPTION_SPAM)))
-                throw new BadArgumentsException("The Validation -v option must include [-h | -s] parameters.");*/
-
-
             if(options.hasOption(ApplicationOptions.OPTION_DATABASE)) {
-                // En aquest cas com que la base de dades que estem carregant des d'un fitxer ja conté totes les taules no cal que distingim entre ham o spam
-                /*System.out.println("## TODO : Actualitzem la bd amb una altre bd anomenada : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
+
+                System.out.println("## Loading memory databse from database directory");
                 LocalDB localDb = LocalDB.getInstance();
                 MemDB memDb = MemDB.getInstance();
 
                 memDb.insertOrUpdate(Database.Table.SPAM, localDb.select(Database.Table.SPAM));
-                memDb.insertOrUpdate(HAM, localDb.select(HAM));
+                memDb.insertOrUpdate(Database.Table.HAM, localDb.select(HAM));
 
                 Pair<Integer, Integer> messagesCounters = localDb.selectMessages();
                 memDb.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
 
-                System.out.println("## TODO : Carregada la informació en memòria : " + options.getOptionValue(ApplicationOptions.OPTION_DATABASE));
-                */
+                System.out.println("## Loaded data from localDB to memoryDB");
+
             }
 
 
             if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
                 Trainer trainer = new Trainer();
-                if(options.getOptionValues(ApplicationOptions.OPTION_TRAINING).length == 1) {
 
-                    if (options.hasOption(ApplicationOptions.OPTION_HAM)) {
-                        System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
+                if (options.hasOption(ApplicationOptions.OPTION_HAM) || !(options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))) {
+                    System.out.println("## Training memory DB HAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és ham");
 
-                        trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
-                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                filter);
-                        System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
-
-                        System.out.println(MemDB.getInstance().select(Database.Table.HAM));
-
-                    } else {
-
-                        System.out.println("## TODO : Actualitzem la bd amb un directori de mails anomenat : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
-
-                        trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
-                                new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
-                                filter);
-                        System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
-                    }
-                }
-                else {
-                    String directorySpam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[0];
-                    String directoryHam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING)[1];
-                    trainer.train(Database.Table.SPAM,
-                            new DirectoryMailReader(directorySpam),
+                    trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
+                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                             filter);
-
                     System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
-
-                    trainer.train(HAM,
-                            new DirectoryMailReader(directoryHam),
-                            filter);
-
-                    System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                 }
 
+                if (options.hasOption(ApplicationOptions.OPTION_SPAM) || !(options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))){
+                    System.out.println("## Training memory DB SPAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" sabent que és spam");
+
+                    trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
+                            new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
+                            filter);
+                    System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
+
+                }
             }
 
             if(options.hasOption(ApplicationOptions.OPTION_VALIDATION)){
 
+                // GEtting values from parameters
                 String validateDirSpam = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[0];
                 String validateDirHam = options.getOptionValues(ApplicationOptions.OPTION_VALIDATION)[1];
 
+                System.out.println("## Validating directories : " + validateDirHam + " , " + validateDirSpam);
 
-
-                System.out.println("## TODO : Llencem el procés de validació amb el directori ." + options.getOptionValue(ApplicationOptions.OPTION_VALIDATION));
+                // Creating validator instance
                 Validator validator = new Validator(new NaiveBayes(), result);
-
+                // Reading files from directories
                 Collection<Mail> ham = new DirectoryMailReader(validateDirHam).read(false, filter);
                 Collection<Mail> spam = new DirectoryMailReader(validateDirSpam).read(true, filter);
 
                 Collection<Mail> toValidate = new ArrayList<>(ham);
                 ((ArrayList<Mail>) toValidate).addAll(spam);
 
+                // Adding values to result structure class
                 result.setValidateNumber(toValidate.size());
 
+                // Validating
                 validator.validate(toValidate,0.23626700,1.838786);
+
+                // Printing execution
                 System.out.println(result);
-                System.out.println("Validation finished in " + Application.millisToString(validator.getExecutionMillis()));
+                System.out.println("## Validation finished in " + Application.millisToString(validator.getExecutionMillis()));
+
+                LocalDB.getInstance().insertResult(result);
 
             }
 
             // Persistim els canvis a la base de dades local sí o sí
             if(options.hasOption(ApplicationOptions.OPTION_PERSIST)){
-                /*System.out.println("## TODO : Peristim la base de dades final al fitxer :" + options.getOptionValue(ApplicationOptions.OPTION_PERSIST));
+                System.out.println("## Updating local database files");
 
                 MemDB memory = MemDB.getInstance();
                 LocalDB file = LocalDB.getInstance();
 
                 // Eliminem les entrades en local i inserim la base de dades en local.
-                file.delete(HAM);
+                file.delete(Database.Table.HAM);
                 file.delete(Database.Table.SPAM);
                 file.delete(Database.Table.MESSAGE);
 
-                file.insertOrUpdate(HAM, memory.select(HAM));
+                file.insertOrUpdate(Database.Table.HAM, memory.select(HAM));
                 file.insertOrUpdate(Database.Table.SPAM, memory.select(Database.Table.SPAM));
 
                 Pair<Integer, Integer> messagesCounters = memory.selectMessages();
                 file.insertCounters(messagesCounters.getKey(), messagesCounters.getValue());
 
-                */
             }
         }
 
@@ -286,29 +266,26 @@ public class Application  {
     }
 
     public static void main(String [] args) {
+
+        // TODO: This can be considered parameters. At the moment is all hardcoded.
         random = new Random();
         result = new Result();
         filter = new CustomFilter();
+
         ApplicationOptions applicationOptions = new ApplicationOptions();
         try {
 
-            // TODO: Ens assegurem que la bd no està ocupada abans de començar l'execució.
-            HashMap<String, Integer> values = LocalDB.getInstance().select(Database.Table.HAM);
-            MemDB.getInstance().insertOrUpdate(Database.Table.HAM,values);
-            LocalDB.getInstance().insertOrUpdate(Database.Table.SPAM,MemDB.getInstance().select(Database.Table.HAM));
-
             Instant start = Instant.now();
-
+            // Getting parameters
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
-            //start(options);
-
-            //LocalDB.getInstance().closeDB();
-
+            // Start program
+            start(options);
+            // Compute time.
             Instant end = Instant.now();
             System.out.println("Final de l'execució, total de temps transcorregut : " + ChronoUnit.MILLIS.between(start, end));
 
-        } /*catch (CustomException e) {
+        } catch (CustomException e) {
             System.err.println(e.getCustomMessage());
             System.err.println("------------------------------------------------------------------------------");
             System.err.println(e.getMessage());
@@ -316,7 +293,7 @@ public class Application  {
             System.err.println("------------------------------------------------------------------------------");
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("spamizer", applicationOptions.getOptions());
-        }*/ catch (ParseException e) {
+        } catch (ParseException e) {
             System.err.println("Something went wrong parsing arguments.");
             System.err.println("------------------------------------------------------------------------------");
             System.err.println(e.getMessage());
@@ -342,6 +319,8 @@ public class Application  {
         }
 
     }
+
+
     /**
      * DEBUG METHOD
      * @return
