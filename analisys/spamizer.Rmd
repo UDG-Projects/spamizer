@@ -3,9 +3,9 @@ title: "spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 \newpage
@@ -262,16 +262,16 @@ Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no 
 
 par(mfrow=c(2,2))
 plot(m$k, m$tcr, main="k vs Total Cost Ratio", 
-   xlab="phi", ylab="Total Cost Ratio", pch=19)
+   xlab="k", ylab="Total Cost Ratio", pch=19)
 
 plot(m$k, m$accuracy, main="k VS Accuracy", 
-   xlab="phi", ylab="Accuracy", pch=19)
+   xlab="k", ylab="Accuracy", pch=19)
 
 plot(m$k, m$fp, main="k VS False positives", 
-   xlab="phi", ylab="False Positives", pch=19)
+   xlab="k", ylab="False Positives", pch=19)
 
 plot(m$k, m$fn, main="k VS False negatives", 
-   xlab="phi", ylab="False negatives", pch=19)
+   xlab="k", ylab="False negatives", pch=19)
 
 par(mfrow=c(1,1))
 ```
@@ -282,16 +282,16 @@ Utiitzant el mateix supòsit que en la variable phi observem doncs :
 - Amb els valors de k més petits l'accuracy ha augmenta, a mesura que es fa crèixer el valor de k més disminueix l'accuracy. 
 - Veiem que no impacte molt aquest valor en el dels falços positius. 
 - Per altra banda veiem que té una relació directe amb el comportament dels falços negatius. 
-
 Limitarem els valors de k en un rang de (0 - 1]. 
 
 ### Conlusions conjuntes entre phi i k
 
-No té sentit mirar les formes dels valors de phi i k de manera independent per què son valors generats aleatòriament, els seus histogrames es presenten de la següent manera. 
+No té sentit mirar les formes dels valors de phi i k de manera independent per què son valors generats aleatòriament. El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició. 
 
-El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició. 
+Si fem gràfics en 3D dels valors de k i phi en funció del tcr directament sobre la població d'execucions que tenim podem veure coses interessants. 
 
 ```{r scatter}
+
 par(mfrow=c(1,2))
 scatter3D(v$phi, v$k, v$tcr, phi = 0, theta=0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
 scatter3D(v$phi, v$k, v$tcr, phi = 0, theta=90, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
@@ -301,116 +301,11 @@ scatter3D(v$phi, v$k, v$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detail
 scatter3D(v$phi, v$k, v$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
 ```
 
+En els anteriors gràfics es pot distingir perfectament el rang d'actuació dels valors més alts per tcr. De la mateixa manera que s'ha extret les conclusions sobre una mostra pensant que la mostra seria prou representativa si observem sobre el total veiem que es confirmen les conclusions que hem anat exposant. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Segons el coeficient de correlació lineal de Pearson la variable phi i el tcr sembla que concentrin la seva relació lineal en una línia recta i constant en un valor d'entre 1 i 5 per el tcr. Podem parlar més o menys que la variable phi li passa el mateix. 
+Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és per on es mou el tant buscat màxim global de la funció conjunta. Evidentment no hem formulat una hipòtesi concreta i no l'hem pogut verificar ja que no hem ajustat el nostre model a cap mostra peró utilitzant el coeficient de correlació de Pearson sobre els gràfics mostrats per phi i per k en les seccions anteriors podem intuïr el comportament de les variables. 
 
 No hem d'oblidar peró que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel que la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr, tanmatex aixó no serà possible degut a que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**. 
-
-### Cerca d'un model per la variable TCR
-
-Podem mirar quina forma té la variable TCR segons les execucions generades. Veiem que el total cost ratio concentra per valors aleatòris el seu pes entre els valors 2 - 7.
-
-```{r TCR histogram}
-# Histograma de tcr
-hist(head(tcr, 20))
-
-# Mitjana per el valor del tcr per phi i per k amb rang entre [1,5] i (0-3].
-median(tcr)
-```
-
-El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge. En una primera iteració amb prop de 1500 execucions utilitzant sense lemmatitzar amb un nombre total de 20000 correus i generant una discriminació d'entre un 5% i un 15% per a la validació ens trobem el següent gràfic. 
-
-Veiem que amb uns valors aproximats d'entre 0 i 1 per k i entre 1.7 i 3.5 de phi, s'hi concentren els que tenen el tcr més alt. Per tant generem una altre iteració d'uns 1000 valors restringint aquest rang per phi i k en el quadrant on apareixien més aparicions dels valors de phi i de k concretament phi entre [1.7,2.3] i k entre (0,0.30] i tornant a visualitzar el resultat. 
-
-Veiem que la mitjana ha augmentat respecte l'anterior peró poc, altres indicadors que podem fer servir son per exemple el valor màxim trobat o fins i tot la mitjana dels 50 valors més alts.
-
-A continuació comparem els valors per les dos rangs i observerm els histogrames dels 50 valors millors per les dues distribucions de resultats per veure si ens han aparegut valors  més bons restringit el rang. 
-
-Tenint en compte que les dades limitades son de 500 elements i les dades que tenen el rang més ampli son de 1500 i veient com es mantenen els valors més alts mirem de concretar més els resultats i si es pot ajustar més el rang dels valors generats per phi i k mitjançant els gràfics següents : 
-
-```{r Agrouping data into a data frame}
-#scatter3D(resultsP1723K005$PHI, resultsP1723K005$K, tcrl, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-#scatter3D(resultsP1723K005$PHI, resultsP1723K005$K, tcrl, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-```
-
-## Recol·lecció dels millors valors 
-
-Per ara sabem que ajustant el rang una mostra de 500 valors es comporta de manera similar que una mostra de 1500 valors ambdós generats aleatòriament tant per phi com per k, aixó ens fa pensar que aquest ajustament s'està comportant millor que el rang més ampli i que en part pot ser que haguem trobat indicis d'un màxim local de la relació de les dues variables. 
-
-Per seguir recollirem els millors valors de les dues execucions anteriors i mirarem de centrar-los en un sol dataset per treballar-lo. Considerarem que els millors valors per nosaltres son a partir del tcr 25. 
-
-```{r Best values}
-#bestvals <- rbind(values[values$tcr > 25, ], valueslimited[valueslimited$tcr > 25, ])
-#bestvals <- bestvals[order(-bestvals$tcr), ]
-```
-
-Ara presentem l'histograma de les aparicions per phi i per k, intentant cercar encara aquest màxim local que creiem que existeix en aquesta franja. 
-
-```{r hist phi and k}
-#hist(bestvals$k)
-#hist(bestvals$phi)
-```
-
-Veient els resultats obtinguts i observant les aparicions i els valors de phi i k sobre el dataset bestvals s'ha decidit llençar una 3a tanda focalitzant els rangs per k i phi als valors d'entre [0.20,0.30] per k i de [1.8,2.8] per phi. 
-
-### Focalització del valor de k. 
-
-Carreguem els resultats.
-
-Realitzem el mateix procediment que amb els valors anteriors. Cerquem el TCR i recollim els millors valors dins del dataframe de bestvalues. 
-
-A partir d'aquest moment amb totes les dades més bones que tenim fins ara, és a dir amb els màxims amb els que treballem per phi i per k, si fem la mitjana de k i mirem el millor valor per tcr podem veure : 
-
-Que la mitjana delsk millors valors per k és el mateix valor que el màxim tcr trobat. Per tant fixem el valor de k en : 0.236267. 
-
-
-
-#### Exemple de funció K
-
-
-En el següent gràfic la grandària dels punts estipula quant de gran és l'error no desitjat, és a dir, quan un correu considerat **HAM es filtra com SPAM**. Als eixos hi podem veure els valors de phi i k utiltizats per a la validació. El percentatge de correus utilitzats sobre els 200 correus totals és d'entre 5% i 15% i la selecció d'aquest valor és aleatòria. 
-
-
-
-```{r Execucio amb 200 mail i 100 iteracions}
-
-#head(results)
-
-# De moment la millor opció.
-
-#scatter3D(valores$phi, valores$k, valores$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-
-#d = ggplot(valores,aes(phi, k, fill=tcr))  + ggtitle("Plot of 100 values") + xlab("PHI") + ylab("K") d + geom_point(alpha = 0.3, colour="purple", size = 3)
-
-#firstValues <- head(valores, 30)
-
-
-#ggplot(data = valores, aes(x = phi, y = k)) + geom_tile(aes(fill = tcr)) 
-
-#grid.arrange(p1,p2,ncol=2)
-#heatmap(data.matrix(valores))
-
-
-#radius <- sqrt(valores$tcr/pi)
-#symbols(valores$phi, valores$k, circles = radius, inches = 0.1, fg = "white", bg = "red", main = "Sized by NumVar3", alpha = 0.1)
-
-#plot(valores$tcr~sort(valores$k), type="l")
-#line(valores$tcr~sort(valores$phi), col="red")
-
-```
-
 
 
 ## Referències  
