@@ -8,14 +8,11 @@ import spamizer.MLCore.*;
 import spamizer.configurations.ApplicationOptions;
 import spamizer.entity.*;
 import spamizer.exceptions.BadArgumentsException;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
-import spamizer.exceptions.BadPercentageException;
 import spamizer.exceptions.CustomException;
 import spamizer.exceptions.NoMessageNumberException;
 import spamizer.filters.CustomFilter;
@@ -24,8 +21,6 @@ import spamizer.interfaces.Reader;
 import spamizer.interfaces.Selector;
 import spamizer.readers.DirectoryMailReader;
 import spamizer.selectors.FixedSelector;
-
-import java.sql.SQLException;
 
 /**
  * Application Spamizer
@@ -101,23 +96,49 @@ public class Application  {
             if(options.hasOption(ApplicationOptions.OPTION_TRAINING)) {
                 Trainer trainer = new Trainer();
 
-                if (options.hasOption(ApplicationOptions.OPTION_HAM) || !(options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))) {
+                if (options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM)) {
+
                     System.out.println("## Training memory DB HAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" knowing that is ham");
 
                     trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_HAM),
                             new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                             filter);
+                    result.setHamNumber(MemDB.getInstance().getHamMessageNumber());
+
                     System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
                 }
 
-                if (options.hasOption(ApplicationOptions.OPTION_SPAM) || !(options.hasOption(ApplicationOptions.OPTION_HAM) && !options.hasOption(ApplicationOptions.OPTION_SPAM))){
+                if (options.hasOption(ApplicationOptions.OPTION_SPAM) && !options.hasOption(ApplicationOptions.OPTION_HAM)){
                     System.out.println("## Training memory DB SPAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" knowing that is spam");
 
                     trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
                             new DirectoryMailReader(options.getOptionValue(ApplicationOptions.OPTION_TRAINING)),
                             filter);
+
+                    result.setSpamNumber(MemDB.getInstance().getSpamMessageNumber());
                     System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
 
+                }
+                else {
+                    System.out.println("## Training memory DB HAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" knowing that is ham");
+                    String[] dirsParam = options.getOptionValues(ApplicationOptions.OPTION_TRAINING);
+                    trainer.train(
+                            TableEnumeration.Table.HAM,
+                            new DirectoryMailReader(dirsParam[1]),
+                            filter
+                    );
+                    result.setHamNumber(MemDB.getInstance().getHamMessageNumber());
+                    System.out.println("Trained HAM in " + Application.millisToString(trainer.getExecutionMillis()));
+
+
+                    System.out.println("## Training memory DB SPAM table with folder : \"" + options.getOptionValue(ApplicationOptions.OPTION_TRAINING) + "\" knowing that is spam");
+
+                    trainer.train(ApplicationOptions.getTableFromParameter(ApplicationOptions.OPTION_SPAM),
+                            new DirectoryMailReader(dirsParam[0]),
+                            filter);
+
+                    result.setSpamNumber(MemDB.getInstance().getSpamMessageNumber());
+                    System.out.println("Trained SPAM in " + Application.millisToString(trainer.getExecutionMillis()));
                 }
             }
 

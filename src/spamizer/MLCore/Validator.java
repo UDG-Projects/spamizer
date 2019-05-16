@@ -41,6 +41,8 @@ public class Validator extends Trainer {
         int tp=0, tn=0, fp=0, fn=0;
         int totalHam=0;
         int totalSpam=0;
+        result.setPhi(phi);
+        result.setK(k);
         for(Mail m: testMail){
             try {
                 HashMap<String, Integer> words = m.getBodyMail();
@@ -76,8 +78,7 @@ public class Validator extends Trainer {
         }
         end = Instant.now();
         //Un cop finalitzada la cassificacio inserir resultats al resultat global.
-        result.setPhi(phi);
-        result.setK(k);
+
         result.setTp(tp);
         result.setFp(fp);
         result.setTn(tn);
