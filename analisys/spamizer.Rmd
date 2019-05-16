@@ -180,7 +180,7 @@ En comptes de realitzar la divisió ...
 
 Amb el Total cost ratio podem extreure un valor que pondera amb més força el valor de les aparicions dels falços positius. El que es busca amb el Tcr és el valor màxim possibles. Per fer-ho hem realitzat vàries execucions i hem preparat una série de conclusions per intentar esbrinar les funcions phi i k que millor s'acosten al nostre problema mitjançant el càlcul del tcr. 
 
-### Veiem com es genera la columna TCR
+### Veiem com es pot generar la columna TCR
 
 ```{r tcr}
 results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
@@ -205,26 +205,7 @@ head(values,20)
 
 ## Anàlisi de la PHI i la K.
 
-### PHI
-
-Si tenim en compte el què representa ela valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabiltat per que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que per que un correu sigui considerat spam ha de ser 2 cops superior a la probabiltiat de que sigui ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació. 
-
-El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. 
-
-### K 
-
-Quan apliquem el suavitzat hem de tenir en compte que donats el bag of words de ham i el de spam, què passa si la paraula no existeix? doncs que el valor de les multiplicacions serà 0 i farà que si una paraula no existeix aquesta paraula ens determini si un correu és ham o és spam. 
-
-Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no és present. Aquest valor no pot ser 0 peró pot ser proper a zero. Si fos zero es provocaria el mateix cas que l'esmentat anteriorment. Tanmateix no té sentit aplicar un valor molt gran a la k ja que si ho fem aquest valor provocaria que les paraules que no existeixen fossin puntuades molt altes i que les aparicions no computessin tant. 
-
-Limitarem els valors de k en un rang de (0 - 3]. 
-
-### Supòsit? 
-
-<<<<<<< HEAD
-**Ens plantegem la hipòtesi de si existeixen valors per phi i per k que facin que el filtre treballi millor.**
-=======
-Carreguem les diferents simulacions i les carreguem en un dataframe per poder processar les dades, utilitzem la funció loadFormattedData declarada a l'aratat de funcions del document. 
+Carreguem les diferents simulacions en un dataframe per poder processar les dades, utilitzem la funció loadFormattedData declarada a l'aratat de funcions del document. Aquesta funció ens afegeix les columnes calculades per l'accuracy i el tcr.  
 
 ```{r Loading data}
 b1 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/m20000-n9500-SF-P-16-k-03.csv")
@@ -235,32 +216,103 @@ b4 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/2000m-1000
 v <- rbind(b1, b2, b3, b4)
 v <- v[order(-v$tcr), ]
 head(v)
-
-scatter3D(b4$phi, b4$k, b4$tcr, phi = 0, theta=0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
-scatter3D(b4$phi, b4$k, b4$tcr, phi = 0, theta=90, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
 ```
->>>>>>> master
+
+### PHI
+
+Si tenim en compte el què representa el valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabiltat per que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que per que un correu sigui considerat spam la seva probabilitat ha de ser 2 cops superior a la probabiltiat de que sigui ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació. 
+
+El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. Aquest paràmetre se'l pot considerar més influent que el valor de k ja que el valor de phi està directament lligat al nombre de falsos positius i de falsos negatius. En canvi el valor de k representa un coeficient molt baix a aplicar a totes les paraules. 
+
+Veiem els següents diagrames de dispersió donada una mostra de 500 punts sobre el total de les execucions.
+
+```{r phi dispersion diagram}
+m <- v[sample(nrow(v), size = 500), ]
+
+par(mfrow=c(2,2))
+plot(m$phi, m$tcr, main="PHI vs Total Cost Ratio", 
+   xlab="phi", ylab="Total Cost Ratio", pch=19)
+
+plot(m$phi, m$accuracy, main="PHI VS Accuracy", 
+   xlab="phi", ylab="Accuracy", pch=19)
+
+plot(m$phi, m$fp, main="PHI VS False positives", 
+   xlab="phi", ylab="False Positives", pch=19)
+
+plot(m$phi, m$fn, main="PHI VS False negatives", 
+   xlab="phi", ylab="False negatives", pch=19)
+par(mfrow=c(1,1))
+
+```
+
+En l'anterior grid podem veure diferents comparacions del comportament de la variable phi sobre una mostra de 500 elements dins del conjunt total de les execucions. Dels gràfics anteriors podem extreure certes conclusions a vista tenint en compte que durant les execucions no s'ha fixat en cap moment ni un ordre de lectura de correus, ni un valor per k ni un valor per phi i els correus per validar eren seleccionats aleatòriament. De totes maneres disposem d'un número molt elevat i amb molta varietat de resultats. 
+
+- Es pot veure que la mitjana del tcr queda entre 1 i 6. 
+- Es pot veure com a més valor de phi, més disminueix el nombre de fp (lentament). 
+- Es pot veure com a més valor de phi més augmenta el nombre de fn (més pronunciat).
+- Es pot veure com l'accuracy es entre el 97 i 99 peró que si el valor de phi augmenta llavors l'accuracy baixa 4 punts.
+
+### K 
+
+Quan apliquem el suavitzat hem de tenir en compte què passa si donats el bag of words de ham i el de spam una paraula no existeix. En la nostre fòrmul aquest valor ens podria proporcionar multiplicacions per 0 i farà que si una paraula no existeix aquesta paraula ja ens determini si un correu és ham o és spam. 
+
+Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no és present. Aquest valor no pot ser 0 peró pot ser proper a zero. Si fos zero es provocaria el mateix cas que l'esmentat anteriorment. Tanmateix no té sentit aplicar un valor molt gran a la k ja que si ho fem aquest valor provocaria que les paraules que no existeixen fossin puntuades molt altes i se li treuria valor de còmput a les aparicions.
+
+```{r K dispersion diagram }
+
+par(mfrow=c(2,2))
+plot(m$k, m$tcr, main="k vs Total Cost Ratio", 
+   xlab="phi", ylab="Total Cost Ratio", pch=19)
+
+plot(m$k, m$accuracy, main="k VS Accuracy", 
+   xlab="phi", ylab="Accuracy", pch=19)
+
+plot(m$k, m$fp, main="k VS False positives", 
+   xlab="phi", ylab="False Positives", pch=19)
+
+plot(m$k, m$fn, main="k VS False negatives", 
+   xlab="phi", ylab="False negatives", pch=19)
+
+par(mfrow=c(1,1))
+```
+
+Utiitzant el mateix supòsit que en la variable phi observem doncs : 
+
+- Amb els valors de k per el tcr passa quelcom molt similar als valors de phi.
+- Amb els valors de k més petits l'accuracy ha augmenta, a mesura que es fa crèixer el valor de k més disminueix l'accuracy. 
+- Veiem que no impacte molt aquest valor en el dels falços positius. 
+- Per altra banda veiem que té una relació directe amb el comportament dels falços negatius. 
+
+Limitarem els valors de k en un rang de (0 - 1]. 
+
+### Conlusions conjuntes entre phi i k
 
 No té sentit mirar les formes dels valors de phi i k de manera independent per què son valors generats aleatòriament, els seus histogrames es presenten de la següent manera. 
 
-```{r hist k and phi}
-h1 <- hist(results$K)
-h2 <- hist(results$PHI)
-```
-
 El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició. 
 
-Veiem els diagrames de dispersió de les dues variables en funció del TCR.
+```{r scatter}
+par(mfrow=c(1,2))
+scatter3D(v$phi, v$k, v$tcr, phi = 0, theta=0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
+scatter3D(v$phi, v$k, v$tcr, phi = 0, theta=90, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5, xlab="PHI", ylab="K", zlab="TCR")
 
-```{r K and PHI dispersion diagram }
-
-plot(results$K, tcr, main="K Dispersion diagram", 
-   xlab="k", ylab="Total Cost Ratio", pch=19)
-
-plot(results$PHI, tcr, main="PHI Dispersion diagram", 
-   xlab="phi", ylab="Total Cost Ratio", pch=19)
-
+par(mfrow=c(1,2))
+scatter3D(v$phi, v$k, v$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
+scatter3D(v$phi, v$k, v$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Segons el coeficient de correlació lineal de Pearson la variable phi i el tcr sembla que concentrin la seva relació lineal en una línia recta i constant en un valor d'entre 1 i 5 per el tcr. Podem parlar més o menys que la variable phi li passa el mateix. 
 
@@ -271,70 +323,20 @@ No hem d'oblidar peró que el valor del tcr s'ha tret directament de l'execució
 Podem mirar quina forma té la variable TCR segons les execucions generades. Veiem que el total cost ratio concentra per valors aleatòris el seu pes entre els valors 2 - 7.
 
 ```{r TCR histogram}
-<<<<<<< HEAD
+# Histograma de tcr
 hist(head(tcr, 20))
 
 # Mitjana per el valor del tcr per phi i per k amb rang entre [1,5] i (0-3].
 median(tcr)
-=======
-#hist(head(d1$tcr, 20))
-
-# Mitjana per el valor del tcr per phi i per k amb rang entre [1,5] i (0-3].
-#median(d1$tcr)
->>>>>>> master
 ```
 
 El que es pretén és realitzar un estudi de quan les variables phi i k considerades com a constants en l'execució del programa es comporten de manera adient per el filtratge. En una primera iteració amb prop de 1500 execucions utilitzant sense lemmatitzar amb un nombre total de 20000 correus i generant una discriminació d'entre un 5% i un 15% per a la validació ens trobem el següent gràfic. 
 
-```{r tcr Matrix}
-<<<<<<< HEAD
-scatter3D(values$phi, values$k, values$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-=======
-#scatter3D(d1$phi, d1$k, d1$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
->>>>>>> master
-```
-
-Per tenir una idea de on queden encabits exactament els valors podem rotar el gràfic fins a aconseguir que es vegin on cauen més o menys. 
-
-```{r 3D tcr Matrix Rotated}
-<<<<<<< HEAD
-scatter3D(values$phi, values$k, values$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-=======
-#scatter3D(d1$phi, d1$k, d1$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
->>>>>>> master
-```
-
 Veiem que amb uns valors aproximats d'entre 0 i 1 per k i entre 1.7 i 3.5 de phi, s'hi concentren els que tenen el tcr més alt. Per tant generem una altre iteració d'uns 1000 valors restringint aquest rang per phi i k en el quadrant on apareixien més aparicions dels valors de phi i de k concretament phi entre [1.7,2.3] i k entre (0,0.30] i tornant a visualitzar el resultat. 
-
-```{r tcr Matrix Limited Values}
-# Generem el tcr per els nous valors.
-# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
-#basel <- resultsP1723K005$NSPAM / (50 * resultsP1723K005$NHAM + resultsP1723K005$NSPAM)
-# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001 -> per que no sigui 0
-#werrl <- (50 * resultsP1723K005$FP + resultsP1723K005$FN) / (50 * resultsP1723K005$NHAM + #resultsP1723K005$NSPAM) + 0.000001
-# TCR : BASE / WERR
-#tcrl <- basel/werrl
-
-#valueslimited <- data.frame(resultsP1723K005$PHI, resultsP1723K005$K, tcrl)
-#names(valueslimited) <- c("phi", "k", "tcr")
-
-# Ordenem els valors
-#valueslimited <- valueslimited[order(-valueslimited$tcr), ]
-#head(valueslimited,20)
-```
-
-```{r tcr limited median}
-#median(tcrl)
-```
 
 Veiem que la mitjana ha augmentat respecte l'anterior peró poc, altres indicadors que podem fer servir son per exemple el valor màxim trobat o fins i tot la mitjana dels 50 valors més alts.
 
 A continuació comparem els valors per les dos rangs i observerm els histogrames dels 50 valors millors per les dues distribucions de resultats per veure si ens han aparegut valors  més bons restringit el rang. 
-
-```{r range comparation}
-#median(head(values$tcr, 10))
-#median(head(valueslimited$tcr, 10))
-```
 
 Tenint en compte que les dades limitades son de 500 elements i les dades que tenen el rang més ampli son de 1500 i veient com es mantenen els valors més alts mirem de concretar més els resultats i si es pot ajustar més el rang dels valors generats per phi i k mitjançant els gràfics següents : 
 
@@ -367,59 +369,9 @@ Veient els resultats obtinguts i observant les aparicions i els valors de phi i 
 
 Carreguem els resultats.
 
-```{r load 3rd Iteration}
-<<<<<<< HEAD
-resultsP1828K0203 = read.csv("/Users/marcsanchez/projects/spamizer/analisys/20000m-500n-phi-18-28-k-020-030.csv")
-=======
-#resultsP1828K0203 = read.csv("/home/marc/projects/spamizer/analisys/20000m-500n-phi-18-28-k-020-030.csv")
->>>>>>> master
-```
-
 Realitzem el mateix procediment que amb els valors anteriors. Cerquem el TCR i recollim els millors valors dins del dataframe de bestvalues. 
 
-```{r 3rd Iteration}
-# Generem el tcr per els nous valors.
-# BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
-#base3 <- resultsP1828K0203$NSPAM / (50 * resultsP1828K0203$NHAM + resultsP1828K0203$NSPAM)
-# WERR: (50 * FP + FN)/(50 * NHAM + NSPAM) + 0.000001 -> per que no sigui 0
-<<<<<<< HEAD
-werr3 <- (50 * resultsP1828K0203$FP + resultsP1828K0203$FN) / (50 * resultsP1828K0203$NHAM + resultsP1828K0203$NSPAM) + 0.000001
-# TCR : BASE / WERR50*
-tcr3 <- base3/werr3
-=======
-#werr3 <- (50 * resultsP1828K0203$FP + resultsP1828K0203$FN) / (50 * resultsP1828K0203$NHAM + resultsP1828K0203$NSPAM) + 0.000001
-# TCR : BASE / WERR
-#tcr3 <- base3/werr3
->>>>>>> master
-
-# Observem la mitjana dels nous valors
-#median(tcr3)
-
-#valuesfocalk <- data.frame(resultsP1828K0203$PHI, resultsP1828K0203$K, tcr3)
-#names(valuesfocalk) <- c("phi", "k", "tcr")
-
-# Ordenem els valors
-#valuesfocalk <- valuesfocalk[order(-valuesfocalk$tcr), ]
-#head(valuesfocalk,20)
-
-#bestvals <- rbind(bestvals, valuesfocalk[valuesfocalk$tcr > 25, ])
-#bestvals <- bestvals[order(-bestvals$tcr),]
-
-<<<<<<< HEAD
-scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-```
-=======
-#scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
-#scatter3D(bestvals$phi, bestvals$k, bestvals$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
->>>>>>> master
-
 A partir d'aquest moment amb totes les dades més bones que tenim fins ara, és a dir amb els màxims amb els que treballem per phi i per k, si fem la mitjana de k i mirem el millor valor per tcr podem veure : 
-
-```{r K Best Median}
-median(bestvals$k)
-head(bestvals$k,1)
-```
 
 Que la mitjana delsk millors valors per k és el mateix valor que el màxim tcr trobat. Per tant fixem el valor de k en : 0.236267. 
 
