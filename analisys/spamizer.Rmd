@@ -87,9 +87,23 @@ En aquest apartat s'es
 
 ## Tecnologies escollides.
 
-Comentar també la comparació de l'ús de base de dades en memòria. 
+L'aplicació està feta en java en un format de comanda c. Per veure com s'executa l'aplicació es pot consultar l'apartat manual de l'aplicació. La idea és generar un paquet jar i que rebi paràmetres. 
+
+S'han aplicat patrons de disseny de software tals com el patró strategy i el patró singleton. El patró strategy s'aplica en general a totes les possibles operacions que poden ser canviades en temps d'execució mentre que el patró singleton s'aplica als accessos a les bases de dades. 
+
+L'aplicació conté 2 bases de dades on s'hi desa la informació relativa al filtre. Una base de dades en memòria i una base de dades desada en local en un o varis fitxers. 
+
+Degut al nombre de dades que es processen a casa execució s'han replantejat les tecnologies escollides. 
+
+### Versió 1 
+
+La primera versió de l'aplicació i després de consultar diferents projectes relacionats amb el machine learning es va plantejar mitjançant bases de dades SQL, concretament una base de dades feta amb HSQLDB en memòria i una base de dades també HSQLSB desada en un fitxer. 
+
+Degut a la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL. Per aquest motiu hi va haver un canvi de rumb i s'ha acabat fent una versió 2 del filtre d'spam "spamizer". 
 
 ## Manual de l'aplicació.
+
+La versió 2 corregeix la lentitud de l'accés a les dades utiltizant un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam son contadors i el l'alphabet es representa amb un Set<String>, és a dir, amb un conjunt de paraules. 
 
 ```{r app_manual}
 # usage: spamizer
@@ -122,23 +136,61 @@ Comentar també la comparació de l'ús de base de dades en memòria.
 
 ## Utilització.
 
-# Implementació. 
+# Implementació
+
+En aquest apartat s'expliquen els blocs amb els que s'ha dividit la part d'enginyeria del software aplicada a aquesta pràctica, en concret els següents apartats mostren els patrons strategy. 
 
 ## Lectura de fitxers. 
 
+La interfície reader proporciona la obligació d'implementar el mètode que permet llegir i extreure textos d'una font de dades. 
+
+De la mateixa manera s'ha generat el DirectoryMailReader que implementa la interfície Reader i que és la classe que gestiona l'accés a un directori en concret per extreure'n un llistat de correus. 
+
 ## Mètode de selecció.
+
+La interficie Selector és la que és implementada permetent canviar el mètode de selecció en temps d'execució i fent fàcil la incorporació de nous mètodes de selecció. 
+
+Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues colleccions de correus és capaç d'extreure un subconjunt per spam i un subconjunt per ham deixant un tercer subconjunt com a correus per validar. Son objectes correu i per tant com a objecte correu ja s'incorpora un camp booleà que estipula si el correu és spam o ham i que s'utilitza al final de la validació per comptabilitzar el nombre de correus classificats com a tp, fp, tn i fn.
 
 ### Adaptació del mètode K-fold cross-validation.
 
-En comptes de realitzar la divisió ... 
+El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. donada aquesta divisió aquest mateix mètode va rotant entrenant la bd amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar. 
+
+En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per que ens vam basar en ell pe definir el nostre mètode de selecció. 
+
+Aquest consisteix en discrepar de la lectura de un percentatge de correus (en el nostre cas entre el 5% i el 15% generat aleatòriament) del total de cada directori i posar-lo en una altre col·lecció anomenada unknown. Aquesta col·lecció serà utilitzada per a la validació mentre que la resta s'utilitzen per training. Val a dir que la selecció es fa mitjançant la generació d'un nombre aleatori, si el nombre és inferior a el % generat el classifiquem com a unknown, en cavi si és superior o igual el classifiquem com spam o ham en funció del directori que s'estigui processant. 
+
+### Fixed Selection
+
+La selecció fixada ha sigut implementada per a poder calcular més acotadament els valors de phi i k. La selecció fixada sempre processa els mateixos correus amb el mateix ordre i dicrepa dels mateixos. D'aquesta manera podem generar execucions idèntiques amb valors diferents de le constants phi i k. Ens és molt útil per estudiar el seu comportament. 
 
 ## Filtre i abstracció del filtratge.
 
+La interfície Filter permet generitzar el filtratge de text procedent de cada correu electrònic fent que es pugui canviar de filtre en temps d'execució o fins i tot fer fàcil la seva escalabilitat permetent que se'n puguin afegir de nous només implementant aquesta interfície. 
+
 ### Stanford Core NLP.
+
+La gent d'standford ens proporciona una gran llibreria per al processament de textos. Veure la referència [2]. La llibreria s'anomenta Stanford Core NLP lib. Dins d'ella s'implementa un mètode de "tokenització", és a dir generació de tokens per paraules que permeten estructurar el text i realitzar diferents comprovacions, com ara : 
+
+- Saber la categoria gramatical de la paraula (Nom, verb, determinant...) 
+- Posicionament de les paraules dins de paràgrafs, frases, expressions... 
+- Permet la **Lematització de les paraules**, és a dir cercar l'arrel de les mateixes. 
+- Anàlisi de sentiments de les expressions dient si una frase és positiva, negativa ... 
+- Extreure subjecte, verb i predicats... 
+
+Entre altres.
+
+Ens hagués agradat explotar més aquesta llibreria peró el temps per a la realització de la pràctica i el seu mateix objectiu ens allunyava de la possibilitat d'estudiar-la més a fons, concretament el nostre filtre basat en StanfordCoreNLP realitza una discriminació de totes les paraules que no son noms, verbs, adjectius, adverbis i lemmatitza tot el que li passen. 
+
+Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria. 
 
 ### Custom Filter.
 
+Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els "\n" i "\r". 
+
 ## Entrenament. 
+
+
 
 ## Validació.
 
@@ -170,11 +222,7 @@ En comptes de realitzar la divisió ...
 
 # Fase Experimental.
 
-// TODO : ... Pensar l'estructura encara. 
-
-## Evaluació dels FP i dels FN en funció de K i PHI
-
-// TODO : 
+En aquesta fase es presenten una série de gràfics i un anàlisi (no confirmat) sobre totes les execucions que s'han anat realitzant. 
 
 ## Càlcul del TCR (Total Cost Ratio)
 
@@ -310,4 +358,5 @@ No hem d'oblidar peró que el valor del tcr s'ha tret directament de l'execució
 
 ## Referències  
 
-- [R graphics](https://bl.ocks.org/patilv/raw/7360425/)
+1. [R graphics](https://bl.ocks.org/patilv/raw/7360425/)
+2. [Stanford lib](https://stanfordnlp.github.io/CoreNLP/)
