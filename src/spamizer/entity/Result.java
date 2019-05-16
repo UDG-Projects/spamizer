@@ -97,7 +97,6 @@ public class Result {
         this.fp = fp;
     }
 
-
     public void setTn(int tn) {
         this.tn = tn;
     }

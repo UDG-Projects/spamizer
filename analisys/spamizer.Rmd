@@ -91,6 +91,35 @@ Comentar també la comparació de l'ús de base de dades en memòria.
 
 ## Manual de l'aplicació.
 
+```{r app_manual}
+# usage: spamizer
+#  -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
+#             Receives 2 parameters, A directory with spam mails and a
+#             directory with ham mails. A calculation for values phi and k
+#             will be done using a selection for the mails set. By default
+#             the selection will be random based on k-fold cross-validation
+#             and the heuristic method used to calculate phi and k values
+#             will be random
+#  -d         Flag that indicates that data must be loaded from local
+#             database, this database is allocated inside project dir named
+#             db made by csv files
+#  -h         Set training mails as ham, adding this argument -s must not be
+#             present
+#  -n <arg>   The number of iterations for -c mode execution.
+#  -p         Set the persistance of the memory database to a local database
+#  -s         Set training mails as spam, adding this argument -h must not
+#             be present
+#  -t <arg>   Directories where training mails in txt are stored, this or
+#             database argument must be present you can set a maximum of 2
+#             directories in this several order : -t <spamDir> <hamDir>. If
+#             only one dir is set the parameter -h or -s must be included
+#  -v <arg>   Directory where validation mails in txt are stored. This
+#             procedure will validate mail inside validationDir with
+#             database loaded by default or stored inside memory. [-h | -s]
+#             -v <validationDir> .
+            
+```
+
 ## Utilització.
 
 # Implementació. 
@@ -154,10 +183,7 @@ Amb el Total cost ratio podem extreure un valor que pondera amb més força el v
 ### Veiem com es genera la columna TCR
 
 ```{r tcr}
-<<<<<<< HEAD
-=======
 results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
->>>>>>> master
 #Calculem els tcr dels valors 
 # BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
 base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)
