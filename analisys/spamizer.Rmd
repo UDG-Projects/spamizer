@@ -208,10 +208,10 @@ head(values,20)
 Carreguem les diferents simulacions en un dataframe per poder processar les dades, utilitzem la funció loadFormattedData declarada a l'aratat de funcions del document. Aquesta funció ens afegeix les columnes calculades per l'accuracy i el tcr.  
 
 ```{r Loading data}
-b1 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/m20000-n9500-SF-P-16-k-03.csv")
-b2 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/m20000-n10000-P-15-K-03.csv")
-b3 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
-b4 = loadFormattedData("/Users/marcsanchez/Projects/spamizer/analisys/2000m-1000n-phi-1.7-2.3-k-0-0.5.csv")
+b1 = loadFormattedData("./m20000-n9500-SF-P-16-k-03.csv")
+b2 = loadFormattedData("./m20000-n10000-P-15-K-03.csv")
+b3 = loadFormattedData("./20000m-500n-SF.csv")
+b4 = loadFormattedData("./2000m-1000n-phi-1.7-2.3-k-0-0.5.csv")
 
 v <- rbind(b1, b2, b3, b4)
 v <- v[order(-v$tcr), ]
