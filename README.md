@@ -32,6 +32,17 @@ La llibreria commons cli s'utilitza per a la lectura dels paràmetres des del ma
 
 Si no es troba la llibreria al directori arrel s'ha de descarregar de la [pàgina oficial d'apache](https://commons.apache.org/proper/commons-cli/download_cli.cgi). Només ens interessa el fitxer commons-cli-1.4.jar.
 
+## Compilar el jar
+
+Per compilar el jar des de idea hem de seguir els seguents passos.
+
++ Anar a File >> Project Structure >> Artifacts
++ Afegir un nou artifact del del simbol + >> JAR >> From modules with dependencies...
++ Seleccionar la classe Main del projecte : Application
++ Deixar la opcio Extract to the target Jar >> OK
++ Acceptar i sortir de Project Structure
++ Al menu Build >> Build Artifact >> "nom del nou artifact" >> Build
+
 ## Instruccions per a l'execució 
 
 Per executar el programa mitjançant un paquet jar ens trobarem les següents opcions : 
