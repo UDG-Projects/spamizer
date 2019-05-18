@@ -1,5 +1,5 @@
 ---
-title: "spamizer"
+title: "main.java.spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
 output:
@@ -23,7 +23,7 @@ library(colorspace)
 library("plot3D")
 
 # Carreguem les dades per a l'execució del gràfic.
-#resultsP1723K005 = read.csv("/home/marc/projects/spamizer/analisys/2000m-1000n-phi-1.7-2.3-k-0-0.5.csv")
+#resultsP1723K005 = read.csv("/home/marc/projects/main.java.spamizer/analisys/2000m-1000n-phi-1.7-2.3-k-0-0.5.csv")
 ```
 
 
@@ -92,7 +92,7 @@ Comentar també la comparació de l'ús de base de dades en memòria.
 ## Manual de l'aplicació.
 
 ```{r app_manual}
-# usage: spamizer
+# usage: main.java.spamizer
 #  -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
 #             Receives 2 parameters, A directory with spam mails and a
 #             directory with ham mails. A calculation for values phi and k
@@ -144,7 +144,7 @@ En comptes de realitzar la divisió ...
 
 // TODO : Explicar la nostre adaptació del mètode hill climbing utilitzat. 
 
-## Compute (Application, adaptació del mètode Hill Climbing).
+## Compute (main.java.Application, adaptació del mètode Hill Climbing).
 
 
 
@@ -183,7 +183,7 @@ Amb el Total cost ratio podem extreure un valor que pondera amb més força el v
 ### Veiem com es pot generar la columna TCR
 
 ```{r tcr}
-results = read.csv("/Users/marcsanchez/Projects/spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("/Users/marcsanchez/Projects/main.java.spamizer/analisys/20000m-500n-SF.csv")
 #Calculem els tcr dels valors 
 # BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
 base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)

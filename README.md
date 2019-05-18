@@ -2,7 +2,7 @@
 
 ## Configuració projecte a idea
 
-Per poder donar-li al play només has d'afegir una configuració nova (botó esquerra del play), prèmer el signe + i afegir una Application. Un cop fet aquest pas només s'ha de dir quina és la classe que conté el main i deixar que intellijidea faci màgia.
+Per poder donar-li al play només has d'afegir una configuració nova (botó esquerra del play), prèmer el signe + i afegir una main.java.Application. Un cop fet aquest pas només s'ha de dir quina és la classe que conté el main i deixar que intellijidea faci màgia.
 
 ## Base de dades
 
@@ -37,7 +37,7 @@ Si no es troba la llibreria al directori arrel s'ha de descarregar de la [pàgin
 Per executar el programa mitjançant un paquet jar ens trobarem les següents opcions : 
 
 ```{java}
-usage: spamizer
+usage: main.java.spamizer
  -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
             Receives 2 parameters, A directory with spam mails and a
             directory with ham mails. A calculation for values phi and k
