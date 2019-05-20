@@ -87,23 +87,23 @@ En aquest apartat s'es
 
 ## Tecnologies escollides.
 
-L'aplicació està feta en java en un format de comanda c. Per veure com s'executa l'aplicació es pot consultar l'apartat manual de l'aplicació. La idea és generar un paquet jar i que rebi paràmetres. 
+L'aplicació està feta en java en un format de comanda c. Per veure com s'executa l'aplicació es pot consultar l'apartat manual de l'aplicació. La idea és generar un paquet jar i que rebi paràmetres.
 
-S'han aplicat patrons de disseny de software tals com el patró strategy i el patró singleton. El patró strategy s'aplica en general a totes les possibles operacions que poden ser canviades en temps d'execució mentre que el patró singleton s'aplica als accessos a les bases de dades. 
+S'han aplicat patrons de disseny de software tals com el patró strategy i el patró singleton. El patró strategy s'aplica en general a totes les possibles operacions que poden ser canviades en temps d'execució mentre que el patró singleton s'aplica als accessos a les bases de dades.
 
-L'aplicació conté 2 bases de dades on s'hi desa la informació relativa al filtre. Una base de dades en memòria i una base de dades desada en local en un o varis fitxers. 
+L'aplicació conté 2 bases de dades on es desa la informació relativa al filtre. Una base de dades en memòria i una base de dades desada en local en un o diversos fitxers.
 
-Degut al nombre de dades que es processen a casa execució s'han replantejat les tecnologies escollides. 
+A causa del nombre de dades que es processen a casa execució s'han replantejat les tecnologies escollides.
 
 ### Versió 1 
 
-La primera versió de l'aplicació i després de consultar diferents projectes relacionats amb el machine learning es va plantejar mitjançant bases de dades SQL, concretament una base de dades feta amb HSQLDB en memòria i una base de dades també HSQLSB desada en un fitxer. 
+La primera versió de l'aplicació i després de consultar diferents projectes relacionats amb el machine learning es va plantejar mitjançant bases de dades SQL, concretament una base de dades feta amb HSQLDB en memòria i una base de dades també HSQLSB desada en un fitxer.
 
-Degut a la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL. Per aquest motiu hi va haver un canvi de rumb i s'ha acabat fent una versió 2 del filtre d'spam "spamizer". 
+Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL. Per aquest motiu hi va haver un canvi de rumb i s'ha acabat fent una versió 2 del filtre d'spam "spamizer".
 
 ## Manual de l'aplicació.
 
-La versió 2 corregeix la lentitud de l'accés a les dades utiltizant un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam son contadors i el l'alphabet es representa amb un Set<String>, és a dir, amb un conjunt de paraules. 
+La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam són comptadors i l'alphabet es representa amb un Set, és a dir, amb un conjunt de paraules.
 
 ```{r app_manual}
 # usage: main.java.spamizer
@@ -138,51 +138,51 @@ La versió 2 corregeix la lentitud de l'accés a les dades utiltizant un mapa cl
 
 # Implementació
 
-En aquest apartat s'expliquen els blocs amb els que s'ha dividit la part d'enginyeria del software aplicada a aquesta pràctica, en concret els següents apartats mostren els patrons strategy. 
+En aquest apartat s'expliquen els blocs amb què s'ha dividit la part d'enginyeria del software aplicada a aquesta pràctica, en concret els següents apartats mostren els patrons strategy.
 
 ## Lectura de fitxers. 
 
-La interfície reader proporciona la obligació d'implementar el mètode que permet llegir i extreure textos d'una font de dades. 
+La interfície reader proporciona l'obligació d'implementar el mètode que permet llegir i extreure textos d'una font de dades.
 
-De la mateixa manera s'ha generat el DirectoryMailReader que implementa la interfície Reader i que és la classe que gestiona l'accés a un directori en concret per extreure'n un llistat de correus. 
+De la mateixa manera s'ha generat el DirectoryMailReader que implementa la interfície Reader i que és la classe que gestiona l'accés a un directori en concret per extreure'n un llistat de correus.
 
 ## Mètode de selecció.
 
-La interficie Selector és la que és implementada permetent canviar el mètode de selecció en temps d'execució i fent fàcil la incorporació de nous mètodes de selecció. 
+La interfície Selector és la que és implementada permetent canviar el mètode de selecció en temps d'execució i fent fàcil la incorporació de nous mètodes de selecció.
 
-Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues colleccions de correus és capaç d'extreure un subconjunt per spam i un subconjunt per ham deixant un tercer subconjunt com a correus per validar. Son objectes correu i per tant com a objecte correu ja s'incorpora un camp booleà que estipula si el correu és spam o ham i que s'utilitza al final de la validació per comptabilitzar el nombre de correus classificats com a tp, fp, tn i fn.
+Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues col·leccions de correus és capaç d'extreure un subconjunt per spam i un subconjunt per ham deixant un tercer subconjunt com a correus per validar. Són objectes correu i per tant com a objecte correu ja s'incorpora un camp booleà que estipula si el correu és spam o ham i que s'utilitza al final de la validació per comptabilitzar el nombre de correus classificats com a tp, fp, tn i fn.
 
 ### Adaptació del mètode K-fold cross-validation.
 
-El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. donada aquesta divisió aquest mateix mètode va rotant entrenant la bd amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar. 
+El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. Donada aquesta divisió el mateix mètode va rotant entrenant la BD amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar.
 
-En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per que ens vam basar en ell pe definir el nostre mètode de selecció. 
+En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per què ens vam basar en ell per definir el nostre mètode de selecció.
 
-Aquest consisteix en discrepar de la lectura de un percentatge de correus (en el nostre cas entre el 5% i el 15% generat aleatòriament) del total de cada directori i posar-lo en una altre col·lecció anomenada unknown. Aquesta col·lecció serà utilitzada per a la validació mentre que la resta s'utilitzen per training. Val a dir que la selecció es fa mitjançant la generació d'un nombre aleatori, si el nombre és inferior a el % generat el classifiquem com a unknown, en cavi si és superior o igual el classifiquem com spam o ham en funció del directori que s'estigui processant. 
+Aquest consisteix en discriminar de la lectura un percentatge de correus (en el nostre cas entre el 5% i el 15% generat aleatòriament) del total de cada directori i posar-lo en una altra col·lecció anomenada unknown. Aquesta col·lecció serà utilitzada per a la validació mentre que la resta s'utilitzen per training. Val a dir que la selecció es fa mitjançant la generació d'un nombre aleatori, si el nombre és inferior al % generat el classifiquem com a unknown, en canvi si és superior o igual el classifiquem com spam o ham en funció del directori que s'estigui processant.
 
 ### Fixed Selection
 
-La selecció fixada ha sigut implementada per a poder calcular més acotadament els valors de phi i k. La selecció fixada sempre processa els mateixos correus amb el mateix ordre i dicrepa dels mateixos. D'aquesta manera podem generar execucions idèntiques amb valors diferents de le constants phi i k. Ens és molt útil per estudiar el seu comportament. 
+La selecció fixada ha sigut implementada per a poder calcular més acotadament els valors de phi i k. La selecció fixada sempre processa els mateixos correus amb el mateix ordre i discrimina els mateixos. D'aquesta manera podem generar execucions idèntiques amb valors diferents de les constants phi i k. Ens és molt útil per estudiar el seu comportament.
 
 ## Filtre i abstracció del filtratge.
 
-La interfície Filter permet generitzar el filtratge de text procedent de cada correu electrònic fent que es pugui canviar de filtre en temps d'execució o fins i tot fer fàcil la seva escalabilitat permetent que se'n puguin afegir de nous només implementant aquesta interfície. 
+La interfície Filter permet generalitzar el filtratge de text procedent de cada correu electrònic. Fent que es pugui canviar de filtre en temps d'execució. També millora l'escalabilitat permetent que se'n puguin afegir de nous només implementant aquesta interfície.
 
 ### Stanford Core NLP.
 
-La gent d'standford ens proporciona una gran llibreria per al processament de textos. Veure la referència [2]. La llibreria s'anomenta Stanford Core NLP lib. Dins d'ella s'implementa un mètode de "tokenització", és a dir generació de tokens per paraules que permeten estructurar el text i realitzar diferents comprovacions, com ara : 
+La gent de Stanford ens proporciona una gran llibreria per al processament de textos. Veure la referència [2]. La llibreria s'anomena Stanford Core NLP lib. Dins d'ella s'implementa un mètode de "tokenització", és a dir generació de tokens per paraules que permeten estructurar el text i realitzar diferents comprovacions, com ara:
 
-- Saber la categoria gramatical de la paraula (Nom, verb, determinant...) 
-- Posicionament de les paraules dins de paràgrafs, frases, expressions... 
-- Permet la **Lematització de les paraules**, és a dir cercar l'arrel de les mateixes. 
-- Anàlisi de sentiments de les expressions dient si una frase és positiva, negativa ... 
-- Extreure subjecte, verb i predicats... 
+- Saber la categoria gramatical de la paraula (Nom, verb, determinant...)
+- Posicionament de les paraules dins de paràgrafs, frases, expressions...
+- Permet la **Lematització de les paraules**, és a dir cercar l'arrel d'aquestes.
+- Anàlisi de sentiments de les expressions dient si una frase és positiva, negativa ...
+- Extreure subjecte, verb i predicats...
 
 Entre altres.
 
-Ens hagués agradat explotar més aquesta llibreria peró el temps per a la realització de la pràctica i el seu mateix objectiu ens allunyava de la possibilitat d'estudiar-la més a fons, concretament el nostre filtre basat en StanfordCoreNLP realitza una discriminació de totes les paraules que no son noms, verbs, adjectius, adverbis i lemmatitza tot el que li passen. 
+Ens hauria agradat explotar més aquesta llibreria però el temps per a la realització de la pràctica i el seu mateix objectiu ens allunyava de la possibilitat d'estudiar-la més a fons, concretament el nostre filtre basat en StanfordCoreNLP realitza una discriminació de totes les paraules que no són noms, verbs, adjectius, adverbis i lematitza tot el que li passen.
 
-Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria. 
+Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria.
 
 ### Custom Filter.
 
@@ -222,11 +222,11 @@ Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada par
 
 # Fase Experimental.
 
-En aquesta fase es presenten una série de gràfics i un anàlisi (no confirmat) sobre totes les execucions que s'han anat realitzant. 
+En aquesta fase es presenten una sèrie de gràfics i una anàlisi (no confirmat) sobre totes les execucions que s'han anat realitzant.
 
 ## Càlcul del TCR (Total Cost Ratio)
 
-Amb el Total cost ratio podem extreure un valor que pondera amb més força el valor de les aparicions dels falços positius. El que es busca amb el Tcr és el valor màxim possibles. Per fer-ho hem realitzat vàries execucions i hem preparat una série de conclusions per intentar esbrinar les funcions phi i k que millor s'acosten al nostre problema mitjançant el càlcul del tcr. 
+Amb el Total cost ratio podem extreure un valor que pondera amb més força el valor de les aparicions dels falsos positius. El que es busca amb el TCR és el valor màxim possible. Per fer-ho hem realitzat diverses execucions i hem preparat una sèrie de conclusions per intentar esbrinar les funcions phi i k que millor s'ajusten al nostre problema mitjançant el càlcul del TCR.
 
 ### Veiem com es pot generar la columna TCR
 
@@ -253,7 +253,7 @@ head(values,20)
 
 ## Anàlisi de la PHI i la K.
 
-Carreguem les diferents simulacions en un dataframe per poder processar les dades, utilitzem la funció loadFormattedData declarada a l'aratat de funcions del document. Aquesta funció ens afegeix les columnes calculades per l'accuracy i el tcr.  
+Carreguem les diferents simulacions en un dataframe per poder processar les dades. Utilitzem la funció loadFormattedData declarada a l'apartat de funcions del document. Aquesta funció ens afegeix les columnes calculades per l'accuracy i el TCR.
 
 ```{r Loading data}
 b1 = loadFormattedData("./m20000-n9500-SF-P-16-k-03.csv")
@@ -268,9 +268,9 @@ head(v)
 
 ### PHI
 
-Si tenim en compte el què representa el valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabiltat per que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que per que un correu sigui considerat spam la seva probabilitat ha de ser 2 cops superior a la probabiltiat de que sigui ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació. 
+Analitzant el què representen els valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabilitat que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que un correu només serà considerat spam si la seva probabilitat és 2 cops superior a la probabilitat de ser ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació.
 
-El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. Aquest paràmetre se'l pot considerar més influent que el valor de k ja que el valor de phi està directament lligat al nombre de falsos positius i de falsos negatius. En canvi el valor de k representa un coeficient molt baix a aplicar a totes les paraules. 
+El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. Aquest paràmetre se'l pot considerar més influent que el valor de k, ja que el valor de phi està directament lligat al nombre de falsos positius i de falsos negatius. En canvi el valor de k representa un coeficient molt baix a aplicar a totes les paraules.
 
 Veiem els següents diagrames de dispersió donada una mostra de 500 punts sobre el total de les execucions.
 
@@ -293,18 +293,18 @@ par(mfrow=c(1,1))
 
 ```
 
-En l'anterior grid podem veure diferents comparacions del comportament de la variable phi sobre una mostra de 500 elements dins del conjunt total de les execucions. Dels gràfics anteriors podem extreure certes conclusions a vista tenint en compte que durant les execucions no s'ha fixat en cap moment ni un ordre de lectura de correus, ni un valor per k ni un valor per phi i els correus per validar eren seleccionats aleatòriament. De totes maneres disposem d'un número molt elevat i amb molta varietat de resultats. 
+En l'anterior grid podem veure diferents comparacions del comportament de la variable phi sobre una mostra de 500 elements dins del conjunt total de les execucions. Dels gràfics anteriors podem extreure certes conclusions a vista, tenint en compte que durant les execucions no s'ha fixat en cap moment ni un ordre de lectura de correus, ni un valor per k, ni un valor per phi i els correus per validar eren seleccionats aleatòriament. De totes maneres disposem d'un número molt elevat i amb molta varietat de resultats.
 
-- Es pot veure que la mitjana del tcr queda entre 1 i 6. 
-- Es pot veure com a més valor de phi, més disminueix el nombre de fp (lentament). 
+- Es pot veure que la mitjana del tcr queda entre 1 i 6.
+- Es pot veure com a més valor de phi, més disminueix el nombre de fp (lentament).
 - Es pot veure com a més valor de phi més augmenta el nombre de fn (més pronunciat).
-- Es pot veure com l'accuracy es entre el 97 i 99 peró que si el valor de phi augmenta llavors l'accuracy baixa 4 punts.
+- Es pot veure com l'accuracy és entre el 97 i 99 però que si el valor de phi augmenta llavors l'accuracy baixa 4 punts.
 
 ### K 
 
-Quan apliquem el suavitzat hem de tenir en compte què passa si donats el bag of words de ham i el de spam una paraula no existeix. En la nostre fòrmul aquest valor ens podria proporcionar multiplicacions per 0 i farà que si una paraula no existeix aquesta paraula ja ens determini si un correu és ham o és spam. 
+Quan apliquem el suavitzat hem de tenir en compte què passa si donats el bag of words de ham i el de spam una paraula no existeix. En la nostra fórmula aquest valor ens podria proporcionar multiplicacions per 0. Si una paraula no existís en algun dels conjunts, ens podria portar una classificació errònia.
 
-Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no és present. Aquest valor no pot ser 0 peró pot ser proper a zero. Si fos zero es provocaria el mateix cas que l'esmentat anteriorment. Tanmateix no té sentit aplicar un valor molt gran a la k ja que si ho fem aquest valor provocaria que les paraules que no existeixen fossin puntuades molt altes i se li treuria valor de còmput a les aparicions.
+Per tant la k estipula el valor que se li assigna a una paraula quan aquesta no és present. Aquest valor no pot ser 0, però pot ser proper a zero. Si fos zero, la probailitat calculada també seria zero i per tant no podriem classificar correctament. Tanmateix no té sentit aplicar un valor molt gran a la k, ja que si ho féssim, aquest valor provocaria que les paraules que no existeixen fossin puntuades molt altes i es trauria valor de còmput a les aparicions.
 
 ```{r K dispersion diagram }
 
@@ -324,19 +324,19 @@ plot(m$k, m$fn, main="k VS False negatives",
 par(mfrow=c(1,1))
 ```
 
-Utiitzant el mateix supòsit que en la variable phi observem doncs : 
+Utilitzant el mateix supòsit que en la variable phi observem doncs:
 
-- Amb els valors de k per el tcr passa quelcom molt similar als valors de phi.
-- Amb els valors de k més petits l'accuracy ha augmenta, a mesura que es fa crèixer el valor de k més disminueix l'accuracy. 
-- Veiem que no impacte molt aquest valor en el dels falços positius. 
-- Per altra banda veiem que té una relació directe amb el comportament dels falços negatius. 
-Limitarem els valors de k en un rang de (0 - 1]. 
+- Amb els valors de k pel tcr passa quelcom molt similar als valors de phi.
+- Amb els valors de k més petits l'accuracy augmenta, a mesura que es fa créixer el valor de k més disminueix l'accuracy.
+- Veiem que k no impacta molt en els falsos positius.
+- Per altra banda veiem que té una relació directa amb el comportament dels falsos negatius.
+Limitarem els valors de k en un rang de (0 - 1].
 
 ### Conlusions conjuntes entre phi i k
 
-No té sentit mirar les formes dels valors de phi i k de manera independent per què son valors generats aleatòriament. El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició. 
+No té sentit mirar les formes dels valors de phi i k de manera independent per què són valors generats aleatòriament. El que sí que té sentit és observar si les variables es poden descriure conjuntament amb el nombre de FP o FN i finalment si es poden comprovar mitjançant el total cost ratio. La variable phi està directament lligada amb els valors FP i FN per definició.
 
-Si fem gràfics en 3D dels valors de k i phi en funció del tcr directament sobre la població d'execucions que tenim podem veure coses interessants. 
+Si fem gràfics en 3D dels valors de k i phi en funció del tcr directament sobre la població d'execucions que tenim podem veure coses interessants.
 
 ```{r scatter}
 
@@ -349,12 +349,11 @@ scatter3D(v$phi, v$k, v$tcr, phi = 0, bty = "g",  type = "h", ticktype = "detail
 scatter3D(v$phi, v$k, v$tcr, phi = 90, theta = 0.5, bty = "g",  type = "h", ticktype = "detailed", pch = 19, cex = 0.5)
 ```
 
-En els anteriors gràfics es pot distingir perfectament el rang d'actuació dels valors més alts per tcr. De la mateixa manera que s'ha extret les conclusions sobre una mostra pensant que la mostra seria prou representativa si observem sobre el total veiem que es confirmen les conclusions que hem anat exposant. 
+En els anteriors gràfics es pot distingir perfectament el rang d'actuació dels valors més alts per tcr. De la mateixa manera que s'ha extret les conclusions sobre una mostra, pensant que la mostra seria prou representativa, si observem sobre el total veiem que es confirmen les conclusions que hem anat exposant.
 
-Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és per on es mou el tant buscat màxim global de la funció conjunta. Evidentment no hem formulat una hipòtesi concreta i no l'hem pogut verificar ja que no hem ajustat el nostre model a cap mostra peró utilitzant el coeficient de correlació de Pearson sobre els gràfics mostrats per phi i per k en les seccions anteriors podem intuïr el comportament de les variables. 
+Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és per on es mou el tan buscat màxim global de la funció conjunta. Evidentment no hem formulat una hipòtesi concreta i no l'hem pogut verificar, ja que no hem ajustat el nostre model a cap mostra, però utilitzant el coeficient de correlació de Pearson sobre els gràfics mostrats per phi i per k en les seccions anteriors, podem intuir el comportament de les variables.
 
-No hem d'oblidar peró que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel que la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr, tanmatex aixó no serà possible degut a que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**. 
-
+No hem d'oblidar però que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel qual la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr. Tanmateix això no serà possible pel fet que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**.
 
 ## Referències  
 
