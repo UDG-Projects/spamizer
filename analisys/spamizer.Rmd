@@ -75,11 +75,35 @@ En aquest apartat s'especifica com s'adapta el mètode de naive bayes al filtrat
 
 ## Assumpcions.
 
-// TODO : Comentar tot el que es dona per sentat al utilitzar aquest mètode, com per exemple que la màquina està ben entrenada ... 
+El mètode de Naive Bayes assumeix que les característiques dels elements que analitza són independents entre si.
+
+En el cas de processament de textos assumeix que cada una de les paraules d'un mateix bloc són independents de la resta.
+Això òbviament no és cert. Les frases es construeixen a partir d'una gramàtica i tenen una semàntica que relaciona cada una de les paraules que conté amb les altres. Per tant el fet de trobar X paraula al costat de Y és degut a una dependència entre elles.
+
+Si consideréssim les dependències entre els elements, segurament només podríem classificar exemples idèntics als que ja tenim classificats, per tant seria totalment inútil.
+
+D'altra banda si considerem que les característiques són independents fa que puguem comptabilitzar més cops elements que de forma conjunta (depenent) només comptabilitzaríem 1 sol cop.
+
+En l'exemple dels correus:
+
+- Si tenim en compte que les paraules d'una frase són depenents, trobar 1 frase que només surti a ham ens incrementa la probabilitat que el missatge sigui ham
+- Si pel contrari assumim la independència entre paraules. Comptabilitzarem cada una de les paraules de la frase, incrementant la probabilitat que sigui ham (aquí es pot veure la ingenuïtat del mètode).
 
 ## Punts forts i febles del mètode de Naive Bayes.
 
-// TODO : 
+Punts forts:
+
+- L'algoritme és prou fàcil de construir i d'entendre.
+- És un algoritme prou ràpid i dóna prou bons resultats.
+- Es pot entrenar amb un conjunt relativament petit d'exemples.
+- En els casos que es compleixi l'assumpció d'independència el mètode funciona millor.
+
+Punts febles:
+
+- L'assumpció d'independència dels exemples pot fer que la classificació no sigui correcte si no té una bona base d'exemples (ben diferenciats)
+- El conjunt d'exemples ben diferenciat és difícil de trobar fora del món acadèmic.
+- Les característiques que no surtin al conjunt d'entrenament no es poden classificar correctament, ja que la probabilitat que assigna el mètode és 0.
+
 
 # Applicació.
 
