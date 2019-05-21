@@ -9,10 +9,10 @@ header-includes:
     - \fancyfoot[CO,CE]{}
     - \fancyfoot[LE,RO]{\thepage}
 output:
-  html_document:
-    df_print: paged
   pdf_document:
     toc: yes
+  html_document:
+    df_print: paged
 ---
 
 \newpage
@@ -69,14 +69,89 @@ loadFormattedData <- function(x){
 
 
 
-
 # Naive Bayes
 
 En aquest apartat s'especifica com s'adapta el mètode de naive bayes al filtratge de correu. 
 
-## Naive Bayes. 
+Descripció del codi amb el qual implementem el mètode Naive Bayes.
 
-// TODO : S'ha de parlar de tot el que es fa a dins del mètode que tenim implementat al codi. 
+Codi implementat:
+
+```{r eval=FALSE}
+
+ public boolean isSpam(MemDB memDB, Collection<String> message, double k, double phi)  {
+        double spamProbability=0;
+        double hamProbability=0;
+
+        int hamAlphabet = memDB.getCountAlphabet(TableEnumeration.Table.HAM);
+        int spamAlphabet = memDB.getCountAlphabet(TableEnumeration.Table.SPAM);
+
+        List<String> words = new ArrayList<>(message);
+        hamProbability = memDB.calculateProbability(words, TableEnumeration.Table.HAM,k,hamAlphabet);
+        spamProbability = memDB.calculateProbability(words, TableEnumeration.Table.SPAM,k,spamAlphabet);
+
+        double pTotalSpam = memDB.getMessageProbabylity(MemDB.Column.SPAM,k);
+        double pTotalHam = memDB.getMessageProbabylity(MemDB.Column.HAM,k);
+
+        //Tenim la probatilitat sumada de cada una de les paraules del missatge en forma de logaritme
+        //sumem les probatilitats de que els missatges siguin spam o ham en forma de logaritme
+        hamProbability += pTotalHam;
+        spamProbability += pTotalSpam;
+
+        //comparem les probabilitats obtingudes aplicant el parametre phi.
+        return (spamProbability) > ((hamProbability)+ Math.log(phi));
+
+
+    }
+```
+
+Descripció pas a pas de les variables i funcions implementades.
+
+Primer de tot el que fem és declarar dues variables que ens serviràn per guardar tan la suma de probabilitats de cada paraula de que sigui spam o ham.
+
+```{r eval=FALSE}
+  double spamProbability=0;
+  double hamProbability=0;
+```
+
+Aquí el que fem és declarar dos enters que ens guarden el total de paraules que tenim registrades en la base de dades en memòria com a spam i com a ham.
+
+```{r eval=FALSE}
+  int hamAlphabet = memDB.getCountAlphabet(TableEnumeration.Table.HAM);
+  int spamAlphabet = memDB.getCountAlphabet(TableEnumeration.Table.SPAM);
+```
+
+Assignem els valors a les probabilitats de ham i spam. Sumem la probabilitat de cadascuna de les paraules del missatge de que siguin ham o spam.
+
+```{r eval=FALSE}
+  List<String> words = new ArrayList<>(message);
+  hamProbability = memDB.calculateProbability(words, TableEnumeration.Table.HAM,k,hamAlphabet);
+  spamProbability = memDB.calculateProbability(words, TableEnumeration.Table.SPAM,k,spamAlphabet);
+```
+
+Declarem dos variables que contindran els valors de la probabilitat total de que un missatge sigui spam o sigui ham.
+
+```{r eval=FALSE}
+  double pTotalSpam = memDB.getMessageProbabylity(MemDB.Column.SPAM,k);
+  double pTotalHam = memDB.getMessageProbabylity(MemDB.Column.HAM,k);
+```
+
+Tan la suma de probabilitats de cada paraula del missatge com la probabilitat del missatge de ser spam o ham, estàn logarimitzades, i per tant el que fem al final és sumar aquestes dades.
+
+```{r eval=FALSE}
+//Tenim la probatilitat sumada de cada una de les paraules del missatge en forma de logaritme
+//sumem les probatilitats de que els missatges siguin spam o ham en forma de logaritme
+  hamProbability += pTotalHam;
+  spamProbability += pTotalSpam;
+```
+
+Finalment apliquem la fórmula amb phi quen ens permet donar importància al fet de  no classificar missatges Ham com a Spam, per tant com que volem estar segurs d'això fem el següent:
+mirem que per classificar un missatge com a Spam, la probabilitat de ser spam ha de ser més gran que phi vegades la probabilitat de que sigui ham.
+
+```{r eval=FALSE}
+(spamProbability) > ((hamProbability)+ Math.log(phi));
+```
+
 
 ## Assumpcions.
 
@@ -441,6 +516,53 @@ En els anteriors gràfics es pot distingir perfectament el rang d'actuació dels
 Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és per on es mou el tan buscat màxim global de la funció conjunta. Evidentment no hem formulat una hipòtesi concreta i no l'hem pogut verificar, ja que no hem ajustat el nostre model a cap mostra, però utilitzant el coeficient de correlació de Pearson sobre els gràfics mostrats per phi i per k en les seccions anteriors, podem intuir el comportament de les variables.
 
 No hem d'oblidar però que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel qual la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr. Tanmateix això no serà possible pel fet que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**.
+
+## Què passa quan lemmatitzem.
+
+Com hem citat abans, l'ús de la llibreria Stanford Core NLP, ens permet distingir tipus de paraules, trobar l'arrel de les mateixes, etc. N'hem volgut fer un anàlisi tan temporal com en eficàcia, i aquestes són les conclusion a les que hem pogut arribar:
+
+Si ens basem en el temps, hem vist que el fet d'utilitzar el filtre amb la llibreria Stanford Core NLP, augmenta consedrablement, parlem de l'ordre de 100 vegades més lent que si no utilitzem un filtratge de paraules.
+
+
+També podem veure que parlant d'eficàcia, l'utilització de la llibreria Stanford Core NLP, ens dóna resultats amb valors d'accuracy inferiors al 90%. Podem veure un exemple d'execució amb 22.613 ,missatges:
+
+```{r eval=FALSE}
+---------------------------------------------------------
+ Execution number  : 2
+ Spam number???       : 10678.0
+ Ham number        : 11935.0
+ Unknown number???    : 2712.0
+ PHI               : 2.239505399350125
+ K                 : 0.3731320998425923
+ Accuracy          : 86.09882005899705 %
+ Tcr               : 3.517241369980792
+---------------------------------------------------------
+ Missatge HAM classificat correctament com a HAM: 1386.0
+ Missatge HAM classificat com a SPAM : 0.0
+ Missatge SPAM classificat correctament com spam : 949.0
+ Missatge SPAM classificat com a HAM : 377.0
+---------------------------------------------------------
+```
+
+Comparant amb un exemple d'execució sense filtre, que ens sol donar valors d'accuracy entre un 97% i 99%, un exemple d'execució seria:
+
+```{r eval=FALSE}
+---------------------------------------------------------
+ Execution number  : 3
+ Spam number       : 2989.0
+ Ham number        : 3390.0
+ Unknwon number    : 376.0
+ PHI               : 1.917704909263815
+ K                 : 0.5433680794849531
+ Accuracy          : 98.67021276595744 %
+ Total Cost Ratio  : 34.999993000001396
+---------------------------------------------------------
+ Missatge HAM classificat correctament com a HAM : 201.0
+ Missatge HAM classificat com a SPAM : 0.0
+ Missatge SPAM classificat correctament com spam : 170.0
+ Missatge SPAM classificat com a HAM : 5.0
+---------------------------------------------------------
+```
 
 
 ## Comparativa amb un altre programa
