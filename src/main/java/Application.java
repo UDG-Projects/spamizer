@@ -170,8 +170,8 @@ public class Application  {
                 // double k = 0.23626700;
                 // double phi = 1.838786;
 
-                double k = ThreadLocalRandom.current().nextDouble(0.2, 0.6);
-                double phi = ThreadLocalRandom.current().nextDouble(1.5,3);
+                double k = ThreadLocalRandom.current().nextDouble(0.0000001, 1);
+                double phi = ThreadLocalRandom.current().nextDouble(1,5);
 
                 // Validating
                 validator.validate(toValidate,k,phi);
