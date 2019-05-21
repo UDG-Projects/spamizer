@@ -2,19 +2,21 @@
 title: "Spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
+header-includes:
+    - \usepackage{fancyhdr}
+    - \pagestyle{fancy}
+    - \fancyhead[CO,CE]{}
+    - \fancyfoot[CO,CE]{}
+    - \fancyfoot[LE,RO]{\thepage}
 output:
-  pdf_document: default
+  pdf_document: 
+    toc: yes
   html_document:
     df_print: paged
+    template: eisvogel
 ---
 
-[Spamizer on Github](https://github.com/UDG-Projects/spamizer)
-
-
-
 \newpage
-
-
 
 
 ```{r setup, include=FALSE}
@@ -113,7 +115,9 @@ Punts febles:
 
 # Applicació.
 
-S'ha preparat el programa per que sigui una instrucció en java i per que el seu us sigui mitjançant un java -jar. 
+S'ha preparat el programa per que sigui una instrucció en java i per que el seu us sigui mitjançant un java -jar.
+
+Consulteu el [github del projecte](https://github.com/UDG-Projects/spamizer/).
 
 ## Tecnologies escollides.
 
@@ -208,7 +212,9 @@ La selecció fixada ha sigut implementada per a poder calcular més acotadament 
 Per utiltizar aquesta opció de selecció es fa servir el paràmetre -o. 
 
 ```{r eval=FALSE}
--o -n 1 -c  -a "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+java -jar spamizer.jar -o -n 1 -c
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
 ```
 
 D'aquesta manera s'ordenaran els correus mitjançant el nom del fitxer i es podran repetir les insercions, serveix per poder fixar els paràmetres de phi i k i veure com responen. 
@@ -236,7 +242,9 @@ Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria.
 Per utilitzar el filtre lematitzador d'stanford s'ha d'especificar a la instrucció mitjançant el paràmetre "-l".
 
 ```{r eval=FALSE}
-java -jar spamizer.jar -l -n 1 -c  -a "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+java -jar spamizer.jar -l -n 1 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
 ```
 
 ### Custom Filter.
@@ -254,7 +262,9 @@ L'entrenament es pot efectuar de dues maneres, mitjançant la instrucció amb el
 A la fase d'entrenament s'emplenen els bag of words i es realitza el comptatge en memòria de les paraules que s'han inserit tant per spam com per ham. Per realitzar una fase d'entrenament i desar l'entrenament per posteriors execucions es pot fer mitjançant la següent combinació. 
 
 ```{r eval=FALSE}
-java -jar spamizer.jar -p -t "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+java -jar spamizer.jar -p -t 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
 ```
 
 La opció -p serveix com a opció persist. Llegirà la base de dades local que tinguem emplenada amb les execucions anteriors i farà un merge amb l'entrenament que tingui realitzat en memòria. En cas que no hi hagi una base de dades local la generarà amb fitxers csv. 
@@ -280,7 +290,9 @@ Mitjançant el paràmetre -c proporcionant valors per el paràmetre -n i directo
 Un exemple d'execució seria : 
 
 ```{r eval=FALSE}
-java -jar spamizer.jar -n 10 -c "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+java -jar spamizer.jar -n 10 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
 ```
 
 Que realitza 10 iteracions amb 10 filtratges diferents i 10 execucions totalment diferents. 
@@ -293,7 +305,9 @@ Per defecte s'utilitza una selecció que n'anomenem Custom K-Fold cross-Validati
 
 
 ```{r eval=FALSE}
-java -jar spamizer.jar -o -l -n 10 -c "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+java -jar spamizer.jar -o -l -n 10 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
 ```
 
 # Fase Experimental.
