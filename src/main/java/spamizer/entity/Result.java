@@ -41,7 +41,7 @@ public class Result {
                 " PHI               : " + phi + "\n" +
                 " K                 : " + k + "\n" +
                 " Accuracy          : " + ((validateNumber - fp - fn) / validateNumber) * 100 + " %\n" +
-                " Total Cost Ratio  : " + spamNumber / ((50 * fp) + fn + 0.000001) + "\n" +
+                " Total Cost Ratio  : " + (tn + fn) / ((50 * fp) + fn + 0.000001) + "\n" +
                 "---------------------------------------------------------" + "\n" +
                 " Missatge HAM classificat correctament com a HAM : " + tp + "\n" +
                 " Missatge HAM classificat com a SPAM : " + fp + "\n" +
