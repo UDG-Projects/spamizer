@@ -32,6 +32,12 @@ public class LocalDB { //extends Database {
 
         database = new LocalDB();
 
+        File directory = new File("db");
+
+        if(!directory.exists()){
+            directory.mkdir();
+        }
+
         if(System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
             database.ham_table = new File("db\\" + HAM_TABLE_NAME);
             database.spam_table = new File("db\\" + SPAM_TABLE_NAME);
@@ -67,7 +73,7 @@ public class LocalDB { //extends Database {
 
     private void append(String toWrite, File file) throws IOException {
         FileWriter writer = new FileWriter(file, true);
-        writer.append("\n" + toWrite);
+        writer.append(toWrite + "\n");
         writer.close();
     }
 
@@ -147,10 +153,12 @@ public class LocalDB { //extends Database {
 
     public void insertCounters(int ham, int spam) throws IOException {
 
+        if(message.exists())
+            message.delete();
+
         if(!message.exists())
             message.createNewFile();
 
-        message.delete();
         String insert = ham + "," + spam;
         append(insert, message);
     }
@@ -174,16 +182,17 @@ public class LocalDB { //extends Database {
             }
         }
         delete(table);
-        String insert="";
+        StringBuilder builder = new StringBuilder();
+
         for(Map.Entry<String, Integer> element : resultats.entrySet()){
-            insert += element.getKey() + "," + element.getValue() + "\n";
+            builder.append(element.getKey() + "," + element.getValue() + "\n");
         }
 
         if(table.equals(TableEnumeration.Table.HAM)){
-            append(insert, ham_table);
+            append(builder.toString(), ham_table);
         }
         else{
-            append(insert, spam_table);
+            append(builder.toString(), spam_table);
         }
     }
 }

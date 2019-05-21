@@ -267,6 +267,7 @@ public class Application  {
                 Instant end = Instant.now();
                 result.setTotalMillis(ChronoUnit.MILLIS.between(start, end));
 
+                LocalDB.getInstance().insertResult(result);
                 System.out.println(result.mountString(count));
                 MemDB.getInstance().clearDB();
 
@@ -283,7 +284,9 @@ public class Application  {
      */
     public static void main(String [] args) {
 
-        // TODO: This can be considered parameters. At the moment are all hardcoded.
+        /**
+         * This is the initialization by default.
+         */
         random = new Random();
         result = new Result();
         filter = new CustomFilter();

@@ -8,9 +8,13 @@ output:
     df_print: paged
 ---
 
+// TODO : Posar el projecte al github.
+
+
+
 \newpage
 
-// TODO : Posar el projecte al github.
+
 
 
 ```{r setup, include=FALSE}
@@ -103,11 +107,13 @@ Punts febles:
 - L'assumpció d'independència dels exemples pot fer que la classificació no sigui correcte si no té una bona base d'exemples (ben diferenciats)
 - El conjunt d'exemples ben diferenciat és difícil de trobar fora del món acadèmic.
 - Les característiques que no surtin al conjunt d'entrenament no es poden classificar correctament, ja que la probabilitat que assigna el mètode és 0.
+- Si s'entrena malament la màquina, la màquina acaba enganyant. 
+- Si hi ha molta diferència en nombre d'elements entre els diferents bag of words podem trobar inconsistències en els resultats.
 
 
 # Applicació.
 
-En aquest apartat s'es
+// TODO: 
 
 ## Tecnologies escollides.
 
@@ -123,7 +129,9 @@ A causa del nombre de dades que es processen a casa execució s'han replantejat 
 
 La primera versió de l'aplicació i després de consultar diferents projectes relacionats amb el machine learning es va plantejar mitjançant bases de dades SQL, concretament una base de dades feta amb HSQLDB en memòria i una base de dades també HSQLSB desada en un fitxer.
 
-Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL. Per aquest motiu hi va haver un canvi de rumb i s'ha acabat fent una versió 2 del filtre d'spam "spamizer".
+### Versió 2
+
+Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL, s'ha implementat una segona versió mitjançant hashsets i mitjançant fitxers .csv (Comma separated values).
 
 ## Manual de l'aplicació.
 
@@ -159,6 +167,9 @@ La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa cla
 ```
 
 ## Utilització.
+
+// TODO : Com utilitzar el jar i exemples d'execució. 
+
 
 # Implementació
 
