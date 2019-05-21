@@ -13,7 +13,6 @@ output:
     toc: yes
   html_document:
     df_print: paged
-    template: eisvogel
 ---
 
 \newpage
@@ -443,122 +442,7 @@ Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és p
 
 No hem d'oblidar però que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel qual la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr. Tanmateix això no serà possible pel fet que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**.
 
-
-## Comparativa amb un altre programa
-
-Analitzats els nostres resultats, passem a veure una comparativa amb un altre filtre de spam. Utilitzarem Mallet seguint les indicacions de la pràctica.
-
-
-MALLET [3] és un paquet basat en Java per al processament estadístic del llenguatge natural, classificació de documents, agrupació, modelització de temes, extracció d'informació i altres aplicacions d'aprenentatge automàtic al text.
-
-Entre d'altres, inclou métodes com Naïve Bayes per a la classificació de documents.
-
-### Com funciona Mallet
-
-Mallet té moltes modaltats però només ens centrarem en aquelles que inclouen el processament necessari per realitzar una validacio de filtre de spam (classificacio de documents).
-
-De forma similar al nostre programa, mallet funciona en mode de comanda des d'un terminal. Hem d'indicar quins son els directoris on hi ha els documents a classificar, i després mitjançant opcions parametritzades, indicarli quin serà el mètode de classificació utilitzat.
-
-Carregar els directoris:
-
-```{r eval=FALSE}
-
-bin\mallet import-dir --input "emailsENRON\SPAM" "emailsENRON\HAM" --output data.mallet
-
-```
-
-- Opció imput: Quan fem import-dir hem d'indicar quins son els directoris on hi ha els documents a carregar (s'en poden indcar vàris).
-- Opcio output: Fitxer on es guardarà el resultat de la carrega de dades (aquest fitxe ja conte els tokens processats)
-
-Executar validació amb Naïve Bayes:
-
-```{r eval = FALSE}
-bin\mallet train-classifier --input data.mallet --trainer NaiveBayes --training-portion 0.9 --num-trials 10
-```
-
-- Opció input: Indica quin es el fitxer d'entrada on hi ha les dades per el proces de classificació (en aquest cas ha d'estar carregat i processat previament)
-- Opció trainer: Indica quin tipus de validació s'utilitzara (s'en pot indicar més d'un)
-- Opció training-portion: Indica quin percentatge de documents s'utilitzarà d'entrenament i validació. En aquest cas la relació és (90:10)
-- Opció num-trials: Indica quantes iteracions de d'entrenament-validació s'executaran.
-
-Si mirem l'apartat d'implementació, podem comprovar que les dues aplicacions funcionen de forma similar, siguent mallet més complet i amb alters funcionalitats que no entren en el context de la pràctica.
-
-Per exemple la noste opció d'entrenament -t amb persistència -p seria similar al import-dir --input --output.
-
-El mètode de particionat es simialar el que tenim també. S'indica una proporcio de documents d'entrenament (0.9), la resta serà pel conjunt de validació. En el nostre cas, com s'ha comentat en l'apartat d'implementació, és un percentatge variable.
-Mallet també permet la utilització del mètode k-fold-cross-validation, en comptes del particionat aleatori.
-
-```{r eval = FALSE}
-bin\mallet train-classifier --input data.mallet --trainer NaiveBayes --cross-validation 10
-```
-
-### Resultats
-
-Per que els resultats siguin similars, utilitzem el mètode de particionat aleatori per fer la comparació.
-
-Aquests són alguns dels resultats obtinguts (No calcula el TCR, s'afageix manualment al final de cada resultat):
-
-```{r eval = FALSE}
--------------------- Trial 1  --------------------
-
-Trial 1 Training NaiveBayesTrainer with 17999 instances
-Trial 1 Training NaiveBayesTrainer finished
-Trial 1 Trainer NaiveBayesTrainer training data accuracy= 0.9869992777376521
-Trial 1 Trainer NaiveBayesTrainer Test Data Confusion Matrix
-Confusion Matrix, row=true, column=predicted  accuracy=0.98
-   label   0   1  |total
-  0 SPAM 981  30  |1011
-  1  HAM  10 979  |989
-
-Trial 1 Trainer NaiveBayesTrainer test data accuracy= 0.98
-TCR: 1,907547
-
--------------------- Trial 2  --------------------
-
-Trial 2 Training NaiveBayesTrainer with 17999 instances
-Trial 2 Training NaiveBayesTrainer finished
-Trial 2 Trainer NaiveBayesTrainer training data accuracy= 0.9872215123062392
-Trial 2 Trainer NaiveBayesTrainer Test Data Confusion Matrix
-Confusion Matrix, row=true, column=predicted  accuracy=0.981
-   label   0   1  |total
-  0 SPAM 966  32  |998
-  1  HAM   6 996  |1002
-
-Trial 2 Trainer NaiveBayesTrainer test data accuracy= 0.981
-TCR: 3,006024
-...
-
--------------------- Trial 6  --------------------
-
-Trial 6 Training NaiveBayesTrainer with 17999 instances
-Trial 6 Training NaiveBayesTrainer finished
-Trial 6 Trainer NaiveBayesTrainer training data accuracy= 0.9866103672426246
-Trial 6 Trainer NaiveBayesTrainer Test Data Confusion Matrix
-Confusion Matrix, row=true, column=predicted  accuracy=0.9825
-   label   0   1  |total
-  0 SPAM 974  34  |1008
-  1  HAM   1 991  |992
-
-Trial 6 Trainer NaiveBayesTrainer test data accuracy= 0.9825
-TCR: 12
-
-
-```
-
-
-Com es pot observar els resultats dels dos filtres son molt similars. Tots dos tenen una mitjana d'accracy del 98-99%.
-Pel que fa al TCR veiem que també son força similars, tinguent en compte que només hem fet 10 iteracions. En el millor dels casos de 10 execucions ha tret 1 sol fals positiu.
-
-Les notres execucions mostren un TCR de fins 57 amb accuracy del 99%, desprès de fer moltissimes execucions per afinar un valor de phi i k.
-Mallet no mostra aquests valors per tant no podem comparar-los.
-
-
-Si tenim en compte la diferencia de nombre d'execucions i l'afinament dels paràmetres, comparant els dos programes podem dir que hem fet un bon classificador amb Naïve Bayes prou acurat.
-
-
 ## Referències  
 
 1. [R graphics](https://bl.ocks.org/patilv/raw/7360425/)
 2. [Stanford lib](https://stanfordnlp.github.io/CoreNLP/)
-3. [Mallet](http://mallet.cs.umass.edu/index.php)
-
