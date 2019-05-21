@@ -1,20 +1,21 @@
 ---
-title: "main.java.spamizer"
+title: "Spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
+header-includes:
+    - \usepackage{fancyhdr}
+    - \pagestyle{fancy}
+    - \fancyhead[CO,CE]{}
+    - \fancyfoot[CO,CE]{}
+    - \fancyfoot[LE,RO]{\thepage}
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+  pdf_document:
+    toc: yes
 ---
 
-// TODO : Posar el projecte al github.
-
-
-
 \newpage
-
-
 
 
 ```{r setup, include=FALSE}
@@ -190,7 +191,9 @@ Punts febles:
 
 # Applicació.
 
-// TODO: 
+S'ha preparat el programa per que sigui una instrucció en java i per que el seu us sigui mitjançant un java -jar.
+
+Consulteu el [github del projecte](https://github.com/UDG-Projects/spamizer/).
 
 ## Tecnologies escollides.
 
@@ -208,47 +211,51 @@ La primera versió de l'aplicació i després de consultar diferents projectes r
 
 ### Versió 2
 
-Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL, s'ha implementat una segona versió mitjançant hashsets i mitjançant fitxers .csv (Comma separated values).
-
-## Manual de l'aplicació.
+Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL, s'ha implementat una segona versió mitjançant hashmaps i mitjançant fitxers .csv (Comma separated values).
 
 La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam són comptadors i l'alphabet es representa amb un Set, és a dir, amb un conjunt de paraules.
 
-```{r app_manual}
-# usage: main.java.spamizer
-#  -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
-#             Receives 2 parameters, A directory with spam mails and a
-#             directory with ham mails. A calculation for values phi and k
-#             will be done using a selection for the mails set. By default
-#             the selection will be random based on k-fold cross-validation
-#             and the heuristic method used to calculate phi and k values
-#             will be random
-#  -d         Flag that indicates that data must be loaded from local
-#             database, this database is allocated inside project dir named
-#             db made by csv files
-#  -h         Set training mails as ham, adding this argument -s must not be
-#             present
-#  -n <arg>   The number of iterations for -c mode execution.
-#  -p         Set the persistance of the memory database to a local database
-#  -s         Set training mails as spam, adding this argument -h must not
-#             be present
-#  -t <arg>   Directories where training mails in txt are stored, this or
-#             database argument must be present you can set a maximum of 2
-#             directories in this several order : -t <spamDir> <hamDir>. If
-#             only one dir is set the parameter -h or -s must be included
-#  -v <arg>   Directory where validation mails in txt are stored. This
-#             procedure will validate mail inside validationDir with
-#             database loaded by default or stored inside memory. [-h | -s]
-#             -v <validationDir> .
-            
+## Manual de l'aplicació.
+
+L'aplicació és un programa en java executable amb la instrucció java -jar. El seu manual es llista a continuació :
+
+```{r eval=FALSE}
+
+usage: main/java/spamizer
+ -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
+            Receives 2 parameters, A directory with spam mails and a
+            directory with ham mails. A calculation for values phi and k
+            will be done using a selection for the mails set. By default
+            the selection will be random based on k-fold cross-validation
+            and the heuristic method used to calculate phi and k values
+            will be random
+ -d         Flag that indicates that data must be loaded from local
+            database, this database is allocated inside project dir named
+            db made by csv files
+ -h         Set training mails as ham, adding this argument -s must not be
+            present
+ -l         Uses Stanford core lib as lemmatizer for all, training and
+            validation.
+ -n <arg>   The number of iterations for -c mode execution.
+ -o         Uses a ordered method to select and insert mails, using this
+            option you can insert same mails ordre for all
+            executions.Custom K-fold cross-validation by default.
+ -p         Set the persistance of the memory database to a local database
+ -s         Set training mails as spam, adding this argument -h must not
+            be present
+ -t <arg>   Directories where training mails in txt are stored, this or
+            database argument must be present you can set a maximum of 2
+            directories in this several order : -t <spamDir> <hamDir>. If
+            only one dir is set the parameter -h or -s must be included
+ -v <arg>   Directory where validation mails in txt are stored. This
+            procedure will validate mail inside validationDir with
+            database loaded by default or stored inside memory. [-h | -s]
+            -v <validationDir> .
+
 ```
 
-## Utilització.
 
-// TODO : Com utilitzar el jar i exemples d'execució. 
-
-
-# Implementació
+# Implementació i exemples d'execució.
 
 En aquest apartat s'expliquen els blocs amb què s'ha dividit la part d'enginyeria del software aplicada a aquesta pràctica, en concret els següents apartats mostren els patrons strategy.
 
@@ -266,6 +273,8 @@ Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues co
 
 ### Adaptació del mètode K-fold cross-validation.
 
+S'utiltiza aquest mètode de selecció per defecte. Si no se li especifica la opció -o utilitza aquest. 
+
 El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. Donada aquesta divisió el mateix mètode va rotant, entrenant la BD amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar.
 
 En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per què ens vam basar en ell per definir el nostre mètode de selecció.
@@ -275,6 +284,16 @@ Aquest consisteix en discriminar de la lectura un percentatge de correus (en el 
 ### Fixed Selection
 
 La selecció fixada ha sigut implementada per a poder calcular més acotadament els valors de phi i k. La selecció fixada sempre processa els mateixos correus amb el mateix ordre i discrimina els mateixos. D'aquesta manera podem generar execucions idèntiques amb valors diferents de les constants phi i k. Ens és molt útil per estudiar el seu comportament.
+
+Per utiltizar aquesta opció de selecció es fa servir el paràmetre -o. 
+
+```{r eval=FALSE}
+java -jar spamizer.jar -o -n 1 -c
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+D'aquesta manera s'ordenaran els correus mitjançant el nom del fitxer i es podran repetir les insercions, serveix per poder fixar els paràmetres de phi i k i veure com responen. 
 
 ## Filtre i abstracció del filtratge.
 
@@ -296,41 +315,76 @@ Ens hauria agradat explotar més aquesta llibreria però el temps per a la reali
 
 Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria.
 
+Per utilitzar el filtre lematitzador d'stanford s'ha d'especificar a la instrucció mitjançant el paràmetre "-l".
+
+```{r eval=FALSE}
+java -jar spamizer.jar -l -n 1 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
 ### Custom Filter.
 
-Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els "\n" i "\r". 
+És el filtre utilitzat per defecte, si no se li especifica la opció -l fa servir aquest.
+
+Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els salt de línia i retorn de carro. 
 
 ## Entrenament. 
 
+S'implementa a la classe Trainer. 
 
+L'entrenament es pot efectuar de dues maneres, mitjançant la instrucció amb el parèmetre -t o bé amb la intrucció i el paràmetre -c que realitza un entrenament per cada iteració. Més endavant es parla de la fase compute que engloba l'entrenament i la validació. 
+
+A la fase d'entrenament s'emplenen els bag of words i es realitza el comptatge en memòria de les paraules que s'han inserit tant per spam com per ham. Per realitzar una fase d'entrenament i desar l'entrenament per posteriors execucions es pot fer mitjançant la següent combinació. 
+
+```{r eval=FALSE}
+java -jar spamizer.jar -p -t 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+La opció -p serveix com a opció persist. Llegirà la base de dades local que tinguem emplenada amb les execucions anteriors i farà un merge amb l'entrenament que tingui realitzat en memòria. En cas que no hi hagi una base de dades local la generarà amb fitxers csv. 
+
+El paràmetre -t estipula que s'està entrenant i tal i com diu el manual de l'aplicació l'ordre dels directoris importa, sempre va primer el directori spam. 
 
 ## Validació.
 
-// TODO : Explicar la nostre adaptació del mètode hill climbing utilitzat. 
+S'implementa a la classe Validator. 
 
-## Compute (main.java.Application, adaptació del mètode Hill Climbing).
+La classe validator hereda directament de Trainer, per tant un validador també ens pot servir per entrenar, s'ha especificat així per aconseguir alleugerir el codi i per que les fases puguin ser més modulars. 
+
+Aquesta fase estipula l'ús del mètode NaiveBayes per validar si un correu és spam o ham. mitjançant uns contadors sap veure el nombre de True positive, true negative, false positive i false negative resultat de l'avaluació dels diferents correus i actualitza la variable global Results amb les dades de la validació. Per tant aquesta classe a part de fer el training fa el procés de validar els correus llençant el mètode Naive Bayes 
+
+## Compute.
+
+Durant la la fase experimental al desenvolupament ens vam adonar que necessitàvem una manera òptima de poder generar valors de k i de phi. Llavors vam inventar aquest mètode per tractar k i phi com a variables dins d'una execució del nostre filtre. 
+
+El que permet és assignar-li, mitjançant el paràmetre -n un nombre d'execucions, els resultats de les quals es desen a un fitxer csv anomenat results.csv. Aquests son els fitxers que s'utilitzen més endavant per a l'evaluació de la fase experimental. 
+
+Mitjançant el paràmetre -c proporcionant valors per el paràmetre -n i directoris d'spam i de ham, el nostre filtre de correu farà -n iteracions amb -n valors per k i -n valors per phi. Els valors de k i phi seran generats amb k entre 0.0000001 i 1 i phi entre 1 i 5 de manera aleatòria.
+
+Un exemple d'execució seria : 
+
+```{r eval=FALSE}
+java -jar spamizer.jar -n 10 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+Que realitza 10 iteracions amb 10 filtratges diferents i 10 execucions totalment diferents. 
+
+Es pot customitzar l'execució del paràmetre -c mitjançant els paràmetres -o i -l. El paràmetre -o estipula si l'entrenament i la separació dels correus per validar ha de tenir un ordre en concret, en cas que -o aparegui els fitxers s'ordenaran de manera alfabètica pemetent generar la mateixa execució sempre amb diferents valors de k i phi. Molt útil per veure com oscil·len aquests valors. 
+
+El paràmetre -l permet lematitzar la inserció de les paraules i la lectura dels correus a validar mitjançant la llibreria StanfordCoreNLP [2]. 
+
+Per defecte s'utilitza una selecció que n'anomenem Custom K-Fold cross-Validation (ja que no és un k-fold peró la idea va sorgir d'allà) i la informació es filtra amb el filtre Custom, descrit anteriorment.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r eval=FALSE}
+java -jar spamizer.jar -o -l -n 10 -c 
+  "/home/marc/Escriptori/test/all/SPAM_TRAINING" 
+  "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
 
 # Fase Experimental.
 
@@ -379,8 +433,6 @@ head(v)
 ```
 
 ### PHI
-
-Analitzant el què representen els valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabilitat que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que un correu només serà considerat spam si la seva probabilitat és 2 cops superior a la probabilitat de ser ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació.
 
 El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. Aquest paràmetre se'l pot considerar més influent que el valor de k, ja que el valor de phi està directament lligat al nombre de falsos positius i de falsos negatius. En canvi el valor de k representa un coeficient molt baix a aplicar a totes les paraules.
 
@@ -467,7 +519,6 @@ Donat el valor de k entre 0 i 1 i els valors de phi també entre 0.5 i 2.5 és p
 
 No hem d'oblidar però que el valor del tcr s'ha tret directament de l'execució amb les variables phi i k i per tant ens serveix per veure si hi ha algun patró pel qual la funció k o la funció phi de manera independent entre elles poden fer que creixi el valor del tcr. Tanmateix això no serà possible pel fet que el valor del tcr s'extreu tant de la variable phi tant com de la variable k i **S'hauria de fixar o bé la phi o bé la k per poder extreure una conclusió sobre el tema**.
 
-
 ## Qu� passa quan lemmatitzem.
 
 Com hem citat abans, l'�s de la llibreria Stanford Core NLP, ens permet distingir tipus de paraules, trobar l'arrel de les mateixes, etc. N'hem volgut fer un an�lisi tan temporal com en efic�cia, i aquestes s�n les conclusion a les que hem pogut arribar:
@@ -516,12 +567,121 @@ Comparant amb un exemple d'execuci� sense filtre, que ens sol donar valors d'acc
 ```
 
 
+## Comparativa amb un altre programa
+
+Analitzats els nostres resultats, passem a veure una comparativa amb un altre filtre de spam. Utilitzarem Mallet seguint les indicacions de la pràctica.
 
 
+MALLET [3] és un paquet basat en Java per al processament estadístic del llenguatge natural, classificació de documents, agrupació, modelització de temes, extracció d'informació i altres aplicacions d'aprenentatge automàtic al text.
 
+Entre d'altres, inclou métodes com Naïve Bayes per a la classificació de documents.
+
+### Com funciona Mallet
+
+Mallet té moltes modaltats però només ens centrarem en aquelles que inclouen el processament necessari per realitzar una validacio de filtre de spam (classificacio de documents).
+
+De forma similar al nostre programa, mallet funciona en mode de comanda des d'un terminal. Hem d'indicar quins son els directoris on hi ha els documents a classificar, i després mitjançant opcions parametritzades, indicarli quin serà el mètode de classificació utilitzat.
+
+Carregar els directoris:
+
+```{r eval=FALSE}
+
+bin\mallet import-dir --input "emailsENRON\SPAM" "emailsENRON\HAM" --output data.mallet
+
+```
+
+- Opció imput: Quan fem import-dir hem d'indicar quins son els directoris on hi ha els documents a carregar (s'en poden indcar vàris).
+- Opcio output: Fitxer on es guardarà el resultat de la carrega de dades (aquest fitxe ja conte els tokens processats)
+
+Executar validació amb Naïve Bayes:
+
+```{r eval = FALSE}
+bin\mallet train-classifier --input data.mallet --trainer NaiveBayes --training-portion 0.9 --num-trials 10
+```
+
+- Opció input: Indica quin es el fitxer d'entrada on hi ha les dades per el proces de classificació (en aquest cas ha d'estar carregat i processat previament)
+- Opció trainer: Indica quin tipus de validació s'utilitzara (s'en pot indicar més d'un)
+- Opció training-portion: Indica quin percentatge de documents s'utilitzarà d'entrenament i validació. En aquest cas la relació és (90:10)
+- Opció num-trials: Indica quantes iteracions de d'entrenament-validació s'executaran.
+
+Si mirem l'apartat d'implementació, podem comprovar que les dues aplicacions funcionen de forma similar, siguent mallet més complet i amb alters funcionalitats que no entren en el context de la pràctica.
+
+Per exemple la noste opció d'entrenament -t amb persistència -p seria similar al import-dir --input --output.
+
+El mètode de particionat es simialar el que tenim també. S'indica una proporcio de documents d'entrenament (0.9), la resta serà pel conjunt de validació. En el nostre cas, com s'ha comentat en l'apartat d'implementació, és un percentatge variable.
+Mallet també permet la utilització del mètode k-fold-cross-validation, en comptes del particionat aleatori.
+
+```{r eval = FALSE}
+bin\mallet train-classifier --input data.mallet --trainer NaiveBayes --cross-validation 10
+```
+
+### Resultats
+
+Per que els resultats siguin similars, utilitzem el mètode de particionat aleatori per fer la comparació.
+
+Aquests són alguns dels resultats obtinguts (No calcula el TCR, s'afageix manualment al final de cada resultat):
+
+```{r eval = FALSE}
+-------------------- Trial 1  --------------------
+
+Trial 1 Training NaiveBayesTrainer with 17999 instances
+Trial 1 Training NaiveBayesTrainer finished
+Trial 1 Trainer NaiveBayesTrainer training data accuracy= 0.9869992777376521
+Trial 1 Trainer NaiveBayesTrainer Test Data Confusion Matrix
+Confusion Matrix, row=true, column=predicted  accuracy=0.98
+   label   0   1  |total
+  0 SPAM 981  30  |1011
+  1  HAM  10 979  |989
+
+Trial 1 Trainer NaiveBayesTrainer test data accuracy= 0.98
+TCR: 1,907547
+
+-------------------- Trial 2  --------------------
+
+Trial 2 Training NaiveBayesTrainer with 17999 instances
+Trial 2 Training NaiveBayesTrainer finished
+Trial 2 Trainer NaiveBayesTrainer training data accuracy= 0.9872215123062392
+Trial 2 Trainer NaiveBayesTrainer Test Data Confusion Matrix
+Confusion Matrix, row=true, column=predicted  accuracy=0.981
+   label   0   1  |total
+  0 SPAM 966  32  |998
+  1  HAM   6 996  |1002
+
+Trial 2 Trainer NaiveBayesTrainer test data accuracy= 0.981
+TCR: 3,006024
+...
+
+-------------------- Trial 6  --------------------
+
+Trial 6 Training NaiveBayesTrainer with 17999 instances
+Trial 6 Training NaiveBayesTrainer finished
+Trial 6 Trainer NaiveBayesTrainer training data accuracy= 0.9866103672426246
+Trial 6 Trainer NaiveBayesTrainer Test Data Confusion Matrix
+Confusion Matrix, row=true, column=predicted  accuracy=0.9825
+   label   0   1  |total
+  0 SPAM 974  34  |1008
+  1  HAM   1 991  |992
+
+Trial 6 Trainer NaiveBayesTrainer test data accuracy= 0.9825
+TCR: 12
+
+
+```
+
+
+Com es pot observar els resultats dels dos filtres son molt similars. Tots dos tenen una mitjana d'accracy del 98-99%.
+Pel que fa al TCR veiem que també son força similars, tinguent en compte que només hem fet 10 iteracions. En el millor dels casos de 10 execucions ha tret 1 sol fals positiu.
+
+Les notres millors execucions mostren un TCR de fins 57 amb accuracy del 99%, desprès de fer moltissimes execucions per afinar un valor de phi i k.
+Mallet no mostra aquests valors per tant no podem comparar-los.
+
+
+Si tenim en compte la diferència de nombre d'execucions i l'afinament dels paràmetres, comparant els dos programes podem dir que hem fet un bon classificador amb Naïve Bayes.
 
 
 ## Referències  
 
 1. [R graphics](https://bl.ocks.org/patilv/raw/7360425/)
 2. [Stanford lib](https://stanfordnlp.github.io/CoreNLP/)
+3. [Mallet](http://mallet.cs.umass.edu/index.php)
+
