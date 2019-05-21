@@ -73,10 +73,6 @@ loadFormattedData <- function(x){
 
 En aquest apartat s'especifica com s'adapta el mÃ¨tode de naive bayes al filtratge de correu. 
 
-## Naive Bayes. 
-
-// TODO : S'ha de parlar de tot el que es fa a dins del mÃ¨tode que tenim implementat al codi. 
-
 Descripció del codi amb el qual implementem el mètode Naive Bayes.
 
 Codi implementat:
@@ -111,7 +107,7 @@ Codi implementat:
 
 Descripció pas a pas de les variables i funcions implementades.
 
-Primer de tot el que fem és declarar dues variables que ens serviràn per guardar tan la probabilitat total de que un missatge sigui spam o que sigui ham.
+Primer de tot el que fem és declarar dues variables que ens serviràn per guardar tan la suma de probabilitats de cada paraula de que sigui spam o ham.
 
 ```{r eval=FALSE}
   double spamProbability=0;
@@ -125,7 +121,7 @@ Aquí el que fem és declarar dos enters que ens guarden el total de paraules que 
   int spamAlphabet = memDB.getCountAlphabet(TableEnumeration.Table.SPAM);
 ```
 
-Assignem els valors a les probabilitats de Ham i Spam. Sumem la probabilitat de cadascuna de les paraules del missatge de que siguin ham o spam.
+Assignem els valors a les probabilitats de ham i spam. Sumem la probabilitat de cadascuna de les paraules del missatge de que siguin ham o spam.
 
 ```{r eval=FALSE}
   List<String> words = new ArrayList<>(message);
@@ -140,7 +136,7 @@ Declarem dos variables que contindran els valors de la probabilitat total de que
   double pTotalHam = memDB.getMessageProbabylity(MemDB.Column.HAM,k);
 ```
 
-Aquestes tan la suma de probabilitats de cada paraula del missatge com la probabilitat del missatge de ser spam o ham, estàn logarimitzades, i per tant el que fem al final és sumar aquestes dades.
+Tan la suma de probabilitats de cada paraula del missatge com la probabilitat del missatge de ser spam o ham, estàn logarimitzades, i per tant el que fem al final és sumar aquestes dades.
 
 ```{r eval=FALSE}
 //Tenim la probatilitat sumada de cada una de les paraules del missatge en forma de logaritme
