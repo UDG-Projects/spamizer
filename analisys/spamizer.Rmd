@@ -11,8 +11,7 @@ header-includes:
 output:
   html_document:
     df_print: paged
-    template: eisvogel
-  pdf_document: 
+  pdf_document:
     toc: yes
 ---
 
@@ -549,11 +548,11 @@ TCR: 12
 Com es pot observar els resultats dels dos filtres son molt similars. Tots dos tenen una mitjana d'accracy del 98-99%.
 Pel que fa al TCR veiem que també son força similars, tinguent en compte que només hem fet 10 iteracions. En el millor dels casos de 10 execucions ha tret 1 sol fals positiu.
 
-Les notres execucions mostren un TCR de fins 57 amb accuracy del 99%, desprès de fer moltissimes execucions per afinar un valor de phi i k.
+Les notres millors execucions mostren un TCR de fins 57 amb accuracy del 99%, desprès de fer moltissimes execucions per afinar un valor de phi i k.
 Mallet no mostra aquests valors per tant no podem comparar-los.
 
 
-Si tenim en compte la diferencia de nombre d'execucions i l'afinament dels paràmetres, comparant els dos programes podem dir que hem fet un bon classificador amb Naïve Bayes prou acurat.
+Si tenim en compte la diferència de nombre d'execucions i l'afinament dels paràmetres, comparant els dos programes podem dir que hem fet un bon classificador amb Naïve Bayes.
 
 
 ## Referències  
