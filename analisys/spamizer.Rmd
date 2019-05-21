@@ -1,14 +1,14 @@
 ---
-title: "main.java.spamizer"
+title: "Spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
-// TODO : Posar el projecte al github.
+[Spamizer on Github](https://github.com/UDG-Projects/spamizer)
 
 
 
@@ -113,7 +113,7 @@ Punts febles:
 
 # Applicació.
 
-// TODO: 
+S'ha preparat el programa per que sigui una instrucció en java i per que el seu us sigui mitjançant un java -jar. 
 
 ## Tecnologies escollides.
 
@@ -131,11 +131,13 @@ La primera versió de l'aplicació i després de consultar diferents projectes r
 
 ### Versió 2
 
-Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL, s'ha implementat una segona versió mitjançant hashsets i mitjançant fitxers .csv (Comma separated values).
+Per culpa de la gran quantitat de dades que s'havia de processar i localitzant un coll d'ampolla en les operacions de logarimitzar que s'havien de fer sobre les dades extretes dins de les mateixes sentències SQL, s'ha implementat una segona versió mitjançant hashmaps i mitjançant fitxers .csv (Comma separated values).
+
+La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam són comptadors i l'alphabet es representa amb un Set, és a dir, amb un conjunt de paraules.
 
 ## Manual de l'aplicació.
 
-La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam són comptadors i l'alphabet es representa amb un Set, és a dir, amb un conjunt de paraules.
+L'aplicació és un programa en java executable amb la instrucció java -jar. El seu manual es llista a continuació :
 
 ```{r eval=FALSE}
 
@@ -172,12 +174,8 @@ usage: main/java/spamizer
 
 ```
 
-## Utilització.
 
-// TODO : Com utilitzar el jar i exemples d'execució. 
-
-
-# Implementació
+# Implementació i exemples d'execució.
 
 En aquest apartat s'expliquen els blocs amb què s'ha dividit la part d'enginyeria del software aplicada a aquesta pràctica, en concret els següents apartats mostren els patrons strategy.
 
@@ -195,6 +193,8 @@ Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues co
 
 ### Adaptació del mètode K-fold cross-validation.
 
+S'utiltiza aquest mètode de selecció per defecte. Si no se li especifica la opció -o utilitza aquest. 
+
 El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. Donada aquesta divisió el mateix mètode va rotant, entrenant la BD amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar.
 
 En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per què ens vam basar en ell per definir el nostre mètode de selecció.
@@ -204,6 +204,14 @@ Aquest consisteix en discriminar de la lectura un percentatge de correus (en el 
 ### Fixed Selection
 
 La selecció fixada ha sigut implementada per a poder calcular més acotadament els valors de phi i k. La selecció fixada sempre processa els mateixos correus amb el mateix ordre i discrimina els mateixos. D'aquesta manera podem generar execucions idèntiques amb valors diferents de les constants phi i k. Ens és molt útil per estudiar el seu comportament.
+
+Per utiltizar aquesta opció de selecció es fa servir el paràmetre -o. 
+
+```{r eval=FALSE}
+-o -n 1 -c  -a "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+D'aquesta manera s'ordenaran els correus mitjançant el nom del fitxer i es podran repetir les insercions, serveix per poder fixar els paràmetres de phi i k i veure com responen. 
 
 ## Filtre i abstracció del filtratge.
 
@@ -225,41 +233,68 @@ Ens hauria agradat explotar més aquesta llibreria però el temps per a la reali
 
 Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria.
 
+Per utilitzar el filtre lematitzador d'stanford s'ha d'especificar a la instrucció mitjançant el paràmetre "-l".
+
+```{r eval=FALSE}
+java -jar spamizer.jar -l -n 1 -c  -a "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
 ### Custom Filter.
+
+És el filtre utilitzat per defecte, si no se li especifica la opció -l fa servir aquest.
 
 Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els salt de línia i retorn de carro. 
 
 ## Entrenament. 
 
+S'implementa a la classe Trainer. 
 
+L'entrenament es pot efectuar de dues maneres, mitjançant la instrucció amb el parèmetre -t o bé amb la intrucció i el paràmetre -c que realitza un entrenament per cada iteració. Més endavant es parla de la fase compute que engloba l'entrenament i la validació. 
+
+A la fase d'entrenament s'emplenen els bag of words i es realitza el comptatge en memòria de les paraules que s'han inserit tant per spam com per ham. Per realitzar una fase d'entrenament i desar l'entrenament per posteriors execucions es pot fer mitjançant la següent combinació. 
+
+```{r eval=FALSE}
+java -jar spamizer.jar -p -t "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+La opció -p serveix com a opció persist. Llegirà la base de dades local que tinguem emplenada amb les execucions anteriors i farà un merge amb l'entrenament que tingui realitzat en memòria. En cas que no hi hagi una base de dades local la generarà amb fitxers csv. 
+
+El paràmetre -t estipula que s'està entrenant i tal i com diu el manual de l'aplicació l'ordre dels directoris importa, sempre va primer el directori spam. 
 
 ## Validació.
 
-// TODO : Explicar la nostre adaptació del mètode hill climbing utilitzat. 
+S'implementa a la classe Validator. 
 
-## Compute (main.java.Application, adaptació del mètode Hill Climbing).
+La classe validator hereda directament de Trainer, per tant un validador també ens pot servir per entrenar, s'ha especificat així per aconseguir alleugerir el codi i per que les fases puguin ser més modulars. 
+
+Aquesta fase estipula l'ús del mètode NaiveBayes per validar si un correu és spam o ham. mitjançant uns contadors sap veure el nombre de True positive, true negative, false positive i false negative resultat de l'avaluació dels diferents correus i actualitza la variable global Results amb les dades de la validació. Per tant aquesta classe a part de fer el training fa el procés de validar els correus llençant el mètode Naive Bayes 
+
+## Compute.
+
+Durant la la fase experimental al desenvolupament ens vam adonar que necessitàvem una manera òptima de poder generar valors de k i de phi. Llavors vam inventar aquest mètode per tractar k i phi com a variables dins d'una execució del nostre filtre. 
+
+El que permet és assignar-li, mitjançant el paràmetre -n un nombre d'execucions, els resultats de les quals es desen a un fitxer csv anomenat results.csv. Aquests son els fitxers que s'utilitzen més endavant per a l'evaluació de la fase experimental. 
+
+Mitjançant el paràmetre -c proporcionant valors per el paràmetre -n i directoris d'spam i de ham, el nostre filtre de correu farà -n iteracions amb -n valors per k i -n valors per phi. Els valors de k i phi seran generats amb k entre 0.0000001 i 1 i phi entre 1 i 5 de manera aleatòria.
+
+Un exemple d'execució seria : 
+
+```{r eval=FALSE}
+java -jar spamizer.jar -n 10 -c "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
+
+Que realitza 10 iteracions amb 10 filtratges diferents i 10 execucions totalment diferents. 
+
+Es pot customitzar l'execució del paràmetre -c mitjançant els paràmetres -o i -l. El paràmetre -o estipula si l'entrenament i la separació dels correus per validar ha de tenir un ordre en concret, en cas que -o aparegui els fitxers s'ordenaran de manera alfabètica pemetent generar la mateixa execució sempre amb diferents valors de k i phi. Molt útil per veure com oscil·len aquests valors. 
+
+El paràmetre -l permet lematitzar la inserció de les paraules i la lectura dels correus a validar mitjançant la llibreria StanfordCoreNLP [2]. 
+
+Per defecte s'utilitza una selecció que n'anomenem Custom K-Fold cross-Validation (ja que no és un k-fold peró la idea va sorgir d'allà) i la informació es filtra amb el filtre Custom, descrit anteriorment.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r eval=FALSE}
+java -jar spamizer.jar -o -l -n 10 -c "/home/marc/Escriptori/test/all/SPAM_TRAINING" "/home/marc/Escriptori/test/all/HAM_TRAINING"
+```
 
 # Fase Experimental.
 
