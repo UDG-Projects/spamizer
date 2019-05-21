@@ -137,33 +137,39 @@ Per culpa de la gran quantitat de dades que s'havia de processar i localitzant u
 
 La versió 2 corregeix la lentitud de l'accés a les dades. Utilitza un mapa clau valor per les aparicions de les paraules de ham i un mapa clau valor per les aparicions de les paraules d'spam. Així mateix els valors del total de missatges de ham i spam són comptadors i l'alphabet es representa amb un Set, és a dir, amb un conjunt de paraules.
 
-```{r app_manual}
-# usage: main.java.spamizer
-#  -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
-#             Receives 2 parameters, A directory with spam mails and a
-#             directory with ham mails. A calculation for values phi and k
-#             will be done using a selection for the mails set. By default
-#             the selection will be random based on k-fold cross-validation
-#             and the heuristic method used to calculate phi and k values
-#             will be random
-#  -d         Flag that indicates that data must be loaded from local
-#             database, this database is allocated inside project dir named
-#             db made by csv files
-#  -h         Set training mails as ham, adding this argument -s must not be
-#             present
-#  -n <arg>   The number of iterations for -c mode execution.
-#  -p         Set the persistance of the memory database to a local database
-#  -s         Set training mails as spam, adding this argument -h must not
-#             be present
-#  -t <arg>   Directories where training mails in txt are stored, this or
-#             database argument must be present you can set a maximum of 2
-#             directories in this several order : -t <spamDir> <hamDir>. If
-#             only one dir is set the parameter -h or -s must be included
-#  -v <arg>   Directory where validation mails in txt are stored. This
-#             procedure will validate mail inside validationDir with
-#             database loaded by default or stored inside memory. [-h | -s]
-#             -v <validationDir> .
-            
+```{r eval=FALSE}
+
+usage: main/java/spamizer
+ -c <arg>   Usage : -c <spamDir> <hamDir> [-n <int>]
+            Receives 2 parameters, A directory with spam mails and a
+            directory with ham mails. A calculation for values phi and k
+            will be done using a selection for the mails set. By default
+            the selection will be random based on k-fold cross-validation
+            and the heuristic method used to calculate phi and k values
+            will be random
+ -d         Flag that indicates that data must be loaded from local
+            database, this database is allocated inside project dir named
+            db made by csv files
+ -h         Set training mails as ham, adding this argument -s must not be
+            present
+ -l         Uses Stanford core lib as lemmatizer for all, training and
+            validation.
+ -n <arg>   The number of iterations for -c mode execution.
+ -o         Uses a ordered method to select and insert mails, using this
+            option you can insert same mails ordre for all
+            executions.Custom K-fold cross-validation by default.
+ -p         Set the persistance of the memory database to a local database
+ -s         Set training mails as spam, adding this argument -h must not
+            be present
+ -t <arg>   Directories where training mails in txt are stored, this or
+            database argument must be present you can set a maximum of 2
+            directories in this several order : -t <spamDir> <hamDir>. If
+            only one dir is set the parameter -h or -s must be included
+ -v <arg>   Directory where validation mails in txt are stored. This
+            procedure will validate mail inside validationDir with
+            database loaded by default or stored inside memory. [-h | -s]
+            -v <validationDir> .
+
 ```
 
 ## Utilització.
@@ -221,7 +227,7 @@ Més endavant hi ha conclusions sobre l'ús de la mateixa llibreria.
 
 ### Custom Filter.
 
-Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els "\n" i "\r". 
+Aquest filtre simplement deixa passar tot el que se li dóna sempre que cada paraula compleixi amb el seu invariant semàntic, és a dir, que tingui algun caràcter. Extreu també les paraules "Subject:", "cc", "from" i "to", que tot i que en els correus de prova no hi són, en altres paquets de correus sí que pot ser que ens els trobem. També filtra els salt de línia i retorn de carro. 
 
 ## Entrenament. 
 
@@ -266,7 +272,7 @@ Amb el Total cost ratio podem extreure un valor que pondera amb més força el v
 ### Veiem com es pot generar la columna TCR
 
 ```{r tcr}
-results = read.csv("/Users/marcsanchez/Projects/main.java.spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("./20000m-500n-SF.csv")
 #Calculem els tcr dels valors 
 # BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
 base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)
@@ -302,8 +308,6 @@ head(v)
 ```
 
 ### PHI
-
-Analitzant el què representen els valors de phi, el que ens trobem és que la phi és el factor d'increment de la probabilitat que un correu sigui considerat SPAM. És a dir un valor de phi = 2, provoca que un correu només serà considerat spam si la seva probabilitat és 2 cops superior a la probabilitat de ser ham. Un valor de phi = 1 fa que no hi hagi increment obligatori per a la comparació.
 
 El valor mínim que té sentit assignar-li a phi és 1 i el màxim el podríem limitar a 5 com a molt o inclús a 6 si el que volem és no tenir cap correu que sigui Ham i que el consideri com Spam. Aquest paràmetre se'l pot considerar més influent que el valor de k, ja que el valor de phi està directament lligat al nombre de falsos positius i de falsos negatius. En canvi el valor de k representa un coeficient molt baix a aplicar a totes les paraules.
 
