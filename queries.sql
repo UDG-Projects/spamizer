@@ -1,4 +1,4 @@
-use spamizer;
+use main.java.spamizer;
 
 # Select per trobar el totalwrods, amb laplace smoothing (k)
 select count(*) as totalword from (
