@@ -3,9 +3,9 @@ title: "main.java.spamizer"
 author: "Marc Sànchez, Francesc Xavier Bullich, Gil Gassó"
 date: "5/8/2019"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 // TODO : Posar el projecte al github.
@@ -183,17 +183,17 @@ De la mateixa manera s'ha generat el DirectoryMailReader que implementa la inter
 
 ## Mètode de selecció.
 
-La interfície Selector és la que és implementada permetent canviar el mètode de selecció en temps d'execució i fent fàcil la incorporació de nous mètodes de selecció.
+La interfície Selector és la que s'utilitza per separar el conjunt d'entrenament i de validació. Al ser una interfície, permet canviar el mètode de selecció en temps d'execució i fent fàcil la incorporació de nous mètodes de selecció.
 
-Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues col·leccions de correus és capaç d'extreure un subconjunt per spam i un subconjunt per ham deixant un tercer subconjunt com a correus per validar. Són objectes correu i per tant com a objecte correu ja s'incorpora un camp booleà que estipula si el correu és spam o ham i que s'utilitza al final de la validació per comptabilitzar el nombre de correus classificats com a tp, fp, tn i fn.
+Aquest mètode entraria només a l'apartat -c de les execucions. Donades dues col·leccions de correus és capaç d'extreure un subconjunt per spam i un subconjunt per ham deixant un tercer subconjunt com a correus per validar. Són objectes correu i per tant, com a objecte correu, ja s'incorpora un camp booleà que estipula si el correu és spam o ham. Aquest booleà  s'utilitza al final de la validació per comptabilitzar el nombre de correus classificats com a tp, fp, tn i fn.
 
 ### Adaptació del mètode K-fold cross-validation.
 
-El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. Donada aquesta divisió el mateix mètode va rotant entrenant la BD amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar.
+El mètode k-fold cross-validation aplica una divisió del total d'objectes de la població en n parts. Donada aquesta divisió el mateix mètode va rotant, entrenant la BD amb n-1 parts i posteriorment aplica el mètode de validació per la part que no s'ha fet servir per entrenar.
 
 En el nostre cas tot i anomenar-lo k-fold cross-validation, **sabem que no ho és**, l'anomenem així per què ens vam basar en ell per definir el nostre mètode de selecció.
 
-Aquest consisteix en discriminar de la lectura un percentatge de correus (en el nostre cas entre el 5% i el 15% generat aleatòriament) del total de cada directori i posar-lo en una altra col·lecció anomenada unknown. Aquesta col·lecció serà utilitzada per a la validació mentre que la resta s'utilitzen per training. Val a dir que la selecció es fa mitjançant la generació d'un nombre aleatori, si el nombre és inferior al % generat el classifiquem com a unknown, en canvi si és superior o igual el classifiquem com spam o ham en funció del directori que s'estigui processant.
+Aquest consisteix en discriminar de la lectura un percentatge de correus (en el nostre cas entre el 5% i el 15% generat aleatòriament) del total de cada directori i posar-lo en una altra col·lecció anomenada unknown. Aquesta col·lecció serà utilitzada per a la validació mentre que la resta s'utilitzen per training. Val a dir que la selecció es fa mitjançant la generació d'un nombre aleatori. Si el nombre és inferior al % generat el classifiquem com a unknown, en canvi si és superior o igual el classifiquem com spam o ham en funció del directori que s'estigui processant.
 
 ### Fixed Selection
 
@@ -266,7 +266,7 @@ Amb el Total cost ratio podem extreure un valor que pondera amb més força el v
 ### Veiem com es pot generar la columna TCR
 
 ```{r tcr}
-results = read.csv("/Users/marcsanchez/Projects/main.java.spamizer/analisys/20000m-500n-SF.csv")
+results = read.csv("./20000m-500n-SF.csv")
 #Calculem els tcr dels valors 
 # BASE :  (NSPAM) / (50 * NHAM + NSPAM) 
 base <- results$NSPAM / (50 * results$NHAM + results$NSPAM)

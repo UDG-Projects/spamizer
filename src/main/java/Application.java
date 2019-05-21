@@ -1,6 +1,8 @@
 package main.java;
 
 import javafx.util.Pair;
+import main.java.spamizer.filters.StanfordCoreNLPFilter;
+import main.java.spamizer.selectors.KFoldCrossValidationSelection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -45,6 +47,7 @@ public class Application  {
     public static Random random;
     public static Result result;
     public static Filter filter;
+    public static Selector selector;
 
     /**
      * Procés de creació i validació en funció dels arguments de la instrucció que es reb per paràmetre.
@@ -251,8 +254,15 @@ public class Application  {
                 // generating random selection for message to validate
                 int percentage = ThreadLocalRandom.current().nextInt(MIN_PERC, MAX_PERC + 1);
 
-                System.out.println("## Selection Started ... ");
-                Selector selector = new FixedSelector(spamReader, hamReader, percentage, result, filter);
+
+                if(options.hasOption(ApplicationOptions.OPTION_ORDERED)) {
+                    selector = new FixedSelector(spamReader, hamReader, percentage, result, filter);
+                    System.out.println("## Fixed selection Started ... ");
+                }
+                else {
+                    selector = new KFoldCrossValidationSelection(spamReader, hamReader, percentage, random, result, filter);
+                    System.out.println("## Selection with Custom K-fold Started ... ");
+                }
                 System.out.println("## Selection finished ... ");
 
                 Validator validator = new Validator(new NaiveBayes(), result);
@@ -298,6 +308,10 @@ public class Application  {
             // Getting parameters
             DefaultParser parser = new DefaultParser();
             CommandLine options = parser.parse(applicationOptions.getOptions(), args);
+
+            if(options.hasOption(ApplicationOptions.OPTION_STANFORD))
+                filter = StanfordCoreNLPFilter.getInstance();
+
             // Start program
             start(options);
             // Compute time.
